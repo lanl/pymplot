@@ -26,7 +26,7 @@ Please refer to the shell scripts to run several plotting examples, and the pape
 
 ## License
 
-The **pymplot** package is distributed under the `BSD license`. See details in LICENSE.md. 
+The **pymplot** package is distributed under the `BSD license`. See details in LICENSE. 
 
 
 ## Reporting Bugs or Suggest Improvements
