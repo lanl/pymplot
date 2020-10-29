@@ -1,34 +1,22 @@
-## function to create self-defined colormap
-'''
-NAME
-    Custom Colormaps for Matplotlib
-PURPOSE
-    This program shows how to implement make_cmap which is a function that
-    generates a colorbar.  If you want to look at different color schemes,
-    check out https://kuler.adobe.com/create.
-PROGRAMMER(S)
-    Chris Slocum
-REVISION HISTORY
-    20130411 -- Initial version created
-    20140313 -- Small changes made and code posted online
-    20140320 -- Added the ability to set the position of each color
-'''
 
 import numpy as np
 import matplotlib.pylab as pl
 from matplotlib.colors import ListedColormap
+from pylab import *
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
+import numpy as np
 
-
+# Create self-defined colormap, adopted from Chris Slocum
+# The function takes a list of tuples which contain RGB values. The RGB
+# values may either be in 8-bit [0 to 255] (in which bit must be set to
+# True when called) or arithmetic [0 to 1] (default). make_cmap returns
+# a cmap with equally spaced colors.
+# Arrange your tuples so that the first color is the lowest value for the
+# colorbar and the last is the highest.
+# position contains values from 0 to 1 to dictate the location of each color.
 def make_cmap(colors, position=None, bit=False):
-    '''
-    make_cmap takes a list of tuples which contain RGB values. The RGB
-    values may either be in 8-bit [0 to 255] (in which bit must be set to
-    True when called) or arithmetic [0 to 1] (default). make_cmap returns
-    a cmap with equally spaced colors.
-    Arrange your tuples so that the first color is the lowest value for the
-    colorbar and the last is the highest.
-    position contains values from 0 to 1 to dictate the location of each color.
-    '''
+
     import matplotlib as mpl
     import numpy as np
 
@@ -63,12 +51,6 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=256):
 
 
 ## set colormap for plot
-from pylab import *
-import matplotlib.colors as colors
-import matplotlib.pyplot as plt
-import numpy as np
-
-
 def set_colormap(args, which='foreground'):
 
     # find corresponding colormap if in matplotlib colormap pool
