@@ -30,6 +30,10 @@ system "x_showcontour -in=./data/water_time_surface.bin -n1=610 -color=Blues -si
 
 #-------------------------------------------------------------------------------
 # Wiggle plots
+
+# x_gaussfilt here is a program that smoothes the dataset (./data/seisdata.bin),
+# which is not a part of the plotting package. You can do this easily using such as
+# matlab, python or other tools
 system "x_gaussfilt <./data/seisdata.bin n1=530 gs1=0 gs2=16 >./data/seisdata_smooth.bin "
 
 system "x_showwiggle -in=./data/seisdata.bin,./data/seisdata_smooth.bin -n1=530 \
@@ -85,6 +89,12 @@ system "x_showgraph -in=./data/randdata.bin -n1=100 -ptype=3 -out=test_randgraph
 
 #-------------------------------------------------------------------------------
 # 3D volume contours
+
+# x_arrayop here is a program that operates on the dataset (./data/gauss.bin),
+# which is not a part of the plotting package. You can do this easily using such as
+# matlab, python or other tools. In this example, the input data is
+# powered by 5, multiplied by 1.0e6 and then added by 10, and the output data
+# is tmp.bin, which is then plotted using x_showvolcon. 
 system "x_arrayop <./data/gauss.bin op=^5,*1.0e6,+10 >tmp.bin "
 system "x_showvolcon -in=tmp.bin -label1='$\\omega_1$' \
 -label3='$\\omega_3$' -label2='$\\omega_2$' \
