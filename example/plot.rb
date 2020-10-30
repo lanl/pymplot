@@ -30,12 +30,6 @@ system "x_showcontour -in=./data/water_time_surface.bin -n1=610 -color=Blues -si
 
 #-------------------------------------------------------------------------------
 # Wiggle plots
-
-# x_gaussfilt here is a program that smoothes the dataset (./data/seisdata.bin),
-# which is not a part of the plotting package. You can do this easily using such as
-# matlab, python or other tools
-system "x_gaussfilt <./data/seisdata.bin n1=530 gs1=0 gs2=16 >./data/seisdata_smooth.bin "
-
 system "x_showwiggle -in=./data/seisdata.bin,./data/seisdata_smooth.bin -n1=530 \
 -d2=0.000995 -d1=0.02 -mtick1=1 -label2='Time (s)' -label1='Horizontal Position (km)' \
 -every=25 -fill=0 -along=2 -wigglecolor=b,r -wigglewidth=1,2 \
@@ -89,14 +83,7 @@ system "x_showgraph -in=./data/randdata.bin -n1=100 -ptype=3 -out=test_randgraph
 
 #-------------------------------------------------------------------------------
 # 3D volume contours
-
-# x_arrayop here is a program that operates on the dataset (./data/gauss.bin),
-# which is not a part of the plotting package. You can do this easily using such as
-# matlab, python or other tools. In this example, the input data is
-# powered by 5, multiplied by 1.0e6 and then added by 10, and the output data
-# is tmp.bin, which is then plotted using x_showvolcon. 
-system "x_arrayop <./data/gauss.bin op=^5,*1.0e6,+10 >tmp.bin "
-system "x_showvolcon -in=tmp.bin -label1='$\\omega_1$' \
+system "x_showvolcon -in=./data/gauss_scaled.bin -label1='$\\omega_1$' \
 -label3='$\\omega_3$' -label2='$\\omega_2$' \
 -n1=100 -n2=200 -contourfill=1 -angle=40,15 -color=Spectral \
 -slice1=-70 -slice2=210 -slice3=-400 -mtick1=2 -mtick2=9 -mtick3=9 \
@@ -138,9 +125,9 @@ system "x_showmatrix \
 -unit='P-wave velocity (m/s)' -lwidth=0.15 & "
 
 #-------------------------------------------------------------------------------
-# The following datasets are too large to attach. You can use your own copies of 
-# these models -- they are both publicly available. Or you can use your own 
-# favorite models. 
+# The following datasets are too large to attach in the repository. 
+# You can use your own copies of these models -- they are both publicly available. 
+# Or you can use your own favorite models -- remember to adjust n1, n2 and n3. 
 
 abort
 
