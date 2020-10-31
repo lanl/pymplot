@@ -20,6 +20,8 @@ We will submit an associated paper. The paper draft is in doc.
 	
 The installed links to executables are installed at $HOME/bin, with names `x_showmatrix`, `x_showcontour`, `x_showwiggle`, etc. Please make sure that $HOME/bin is in your system path. 
 
+You also need to have `numpy`, `scipy`, `matplotlib` in your Python distribution. 
+
 Currently, Windows platform is not supported due to technical reasons. 
 
 ## Examples
