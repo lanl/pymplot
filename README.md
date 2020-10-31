@@ -11,14 +11,16 @@ Developer: Kai Gao @ EES-17, LANL
 
 ## Reference
 
-We will submit the associated paper and let you know the link. The paper draft is in doc. 
+We will submit an associated paper. The paper draft is in doc. 
 
 ## Installation
 
 	cd src
 	ruby install.rb
 	
-The installed links to executables are installed at $HOME/bin. Currently, Windows platform is not supported due to several technical reasons. 
+The installed links to executables are installed at $HOME/bin. Please make sure that $HOME/bin is in your system path. 
+
+Currently, Windows platform is not supported due to technical reasons. 
 
 ## Examples
 
