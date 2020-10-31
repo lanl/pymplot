@@ -18,7 +18,7 @@ We will submit an associated paper. The paper draft is in doc.
 	cd src
 	ruby install.rb
 	
-The installed links to executables are installed at $HOME/bin. Please make sure that $HOME/bin is in your system path. 
+The installed links to executables are installed at $HOME/bin, with names `x_showmatrix`, `x_showcontour`, `x_showwiggle`, etc. Please make sure that $HOME/bin is in your system path. 
 
 Currently, Windows platform is not supported due to technical reasons. 
 
