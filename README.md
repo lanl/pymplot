@@ -1,5 +1,5 @@
 
-# `pymplot`: An open-source, lightweight plotting package for efficient visualization of multi-dimensional geophysical data
+# `pymplot`: A lightweight matplotlib-based application package for plotting 1D, 2D and 3D scalar datasets
 
 ## Description
 
