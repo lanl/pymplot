@@ -1,9 +1,4 @@
 
-# If you need a smaller font typeface file, this ruby script can subset 
-# the full font typeface file
-
-# extract_subset is a fontforge script file to execute this subsetting
-
 fonts=[\
 'Arial','ArialBold','ArialItalic', \
 'Courier\ New','Courier\ NewBold','Courier\ NewItalic', \
@@ -12,6 +7,7 @@ fonts=[\
 'Consolas','ConsolasBold','ConsolasItalic', \
 'Times\ New\ Roman','Times\ New\ RomanBold','Times\ New\ RomanItalic', \
 'IBMPlexSans','IBMPlexSansBold','IBMPlexSansItalic' \
+'CMU\ Serif','CMU\ SerifBold','CMU\ SerifItalic', \
 ]
 
 require "fileutils"

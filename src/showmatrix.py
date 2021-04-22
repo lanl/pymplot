@@ -56,7 +56,7 @@ if not os.path.exists(infile):
     print()
     exit()
 
-if len(args.background) != 0 and (not os.path.exists(args.background)):
+if args.background is not None and (not os.path.exists(args.background)):
     print()
     print(' Error: File', args.background, 'does not exists. Exit. ')
     print()
@@ -83,7 +83,7 @@ dt = set_datatype(args)
 
 data = np.empty([n1, n2])
 data = fromfile(infile, dtype=dt, count=n1 * n2)
-if len(args.background) != 0:
+if args.background is not None:
     backdata = np.empty([n1, n2])
     backdata = fromfile(args.background, dtype=dt, count=n1 * n2)
 
@@ -99,7 +99,7 @@ if (args.flip1 == 1):
 if (args.flip2 == 1):
     data = np.fliplr(data)
 
-if len(args.background) != 0:
+if args.background is not None:
     if args.transpose == 0:
         backdata = backdata.reshape((n2, n1))
         backdata = backdata.transpose()
@@ -130,7 +130,7 @@ if len(args.mask) != 0:
     data = np.ma.masked_array(data, mask=(abs(mk - 1) > 1.0e-5))
 
     # background image masking
-    if len(args.background) != 0:
+    if args.background is not None:
         backdata = np.ma.masked_array(backdata, mask=(abs(mk - 1) > 1.0e-5))
 
 # scale
@@ -165,7 +165,7 @@ sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.f1, n1, d1, args.x1b
 sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.f2, n2, d2, args.x2beg, args.x2end)
 data = data[n1beg:n1end, n2beg:n2end]
 if args.norm == 'log': data = np.log10(data)
-if len(args.background) != 0:
+if args.background is not None:
     backdata = backdata[n1beg:n1end, n2beg:n2end]
 
 ## figure size
@@ -188,7 +188,7 @@ else:
 
 im = ax.imshow(data, zorder=2)
 im.set_extent([0, figwidth, figheight, 0])
-if len(args.background) != 0:
+if args.background is not None:
     imb = ax.imshow(backdata, zorder=1)
     imb.set_extent([0, figwidth, figheight, 0])
 
@@ -205,7 +205,7 @@ if args.norm == 'log':
         exit()
 im.set_clim(cmin, cmax)
 
-if len(args.background) != 0:
+if args.background is not None:
     backcmin, backcmax = set_clip(args, backdata, 'back')
     if args.norm == 'log':
         if backcmin > np.floor(backcmax) or backcmax < np.ceil(backcmin):
@@ -218,14 +218,14 @@ from module_colormap import set_colormap, set_colormap_alpha
 colormap = set_colormap(args)
 colormap = set_colormap_alpha(args, colormap, cmin, cmax)
 im.set_cmap(colormap)
-if len(args.background) != 0:
+if args.background is not None:
     colormap = set_colormap(args, 'background')
     colormap = set_colormap_alpha(args, colormap, backcmin, backcmax, 'background')
     imb.set_cmap(colormap)
 
 ## set interpolation
 im.set_interpolation(args.interp)
-if len(args.background) != 0:
+if args.background is not None:
     imb.set_interpolation(args.backinterp)
 
 ## set font
@@ -234,9 +234,7 @@ font, fontbold = set_font(args)
 
 ## set tick
 from module_tick import *
-set_tick(args,font, \
-    x1beg,x1end,n1beg,n1end,d1,figheight, \
-    x2beg,x2end,n2beg,n2end,d2,figwidth)
+set_tick(args, font, x1beg, x1end, n1beg, n1end, d1, figheight, x2beg, x2end, n2beg, n2end, d2, figwidth)
 
 ## set grid line
 from module_gridline import *
@@ -248,15 +246,13 @@ set_title(args, fontbold)
 
 ## set annotation
 from module_annotation import *
-set_annotation(args,font, \
-    x1beg,n1end-n1beg,d1,figheight, \
-    x2beg,n2end-n2beg,d2,figwidth)
+set_annotation(args, font, x1beg, n1end - n1beg, d1, figheight, x2beg, n2end - n2beg, d2, figwidth)
 
 ## set colorbar
 from module_colorbar import *
-if args.legend == 1 and args.backlegend == 0:
+if args.legend and not args.backlegend:
     set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
-if args.backlegend == 1:
+if args.backlegend:
     set_colorbar(args, imb, font, backcmin, backcmax, figheight, figwidth, fig)
 
 ## axis invert

@@ -17,10 +17,9 @@ warnings.filterwarnings("ignore", module="matplotlib")
 
 ## read arguments
 # assign description to the help doc
-parser=argparse.ArgumentParser(description= \
-    '''Read a 3D array from binary file and plot three slices, 
+parser = argparse.ArgumentParser(description='''Read a 3D array from binary file and plot three slices, 
 	written by K.G. @ 2016.05, 2016.06, 2016.08, 2016.10''',
-    formatter_class=RawTextHelpFormatter)
+                                 formatter_class=RawTextHelpFormatter)
 
 # arguments -- general
 parser = getarg_general(parser, 3)
@@ -43,12 +42,14 @@ parser = getarg_title(parser, 3)
 # arguments -- annotation
 parser = getarg_annotation(parser)
 
-parser.add_argument('-vol3d',
-                    '--volume3d',
+parser.add_argument('-tr',
+                    '--topright',
                     type=str,
                     help='Add a 3D volume slice image to slice plots',
                     required=False,
-                    default='')
+                    default=None)
+
+parser.add_argument('-render', '--render', type=str, help='Which type of rendering to show', default='2d')
 
 # array for all arguments passed to script
 args = parser.parse_args()
@@ -62,7 +63,7 @@ if not os.path.exists(infile):
     print()
     exit()
 
-if len(args.background) != 0 and (not os.path.exists(args.background)):
+if args.background is not None and (not os.path.exists(args.background)):
     print()
     print('input file', args.background, 'does not exists')
     print()
@@ -98,7 +99,7 @@ else:
     data = data.reshape((n1, n2, n3))
 
 # read background file
-if len(args.background) != 0:
+if args.background is not None:
 
     backdata = np.empty([n1, n2, n3])
     backdata = fromfile(args.background, dtype=dt, count=n1 * n2 * n3)
@@ -128,7 +129,7 @@ print('shape       ', data.shape)
 print('value range ', dmin, ' -- ', dmax)
 
 # background data min and max
-if len(args.background) != 0:
+if args.background is not None:
     if isnan(sum(backdata)) == True:
         backudata = data[~isnan(backdata)]
         if backudata.shape == (0, ):
@@ -190,36 +191,6 @@ if slice3 <= 0 or slice3 >= n3end:
     print('error: slice 3 selection error')
     exit()
 
-sl1 = sl1 - x1beg + 0.5 * d1
-sl2 = sl2 - x2beg + 0.5 * d2
-sl3 = sl3 - x3beg + 0.5 * d3
-
-# slice yz
-data12 = data[n1beg:n1end, n2beg:n2end, slice3]
-if args.norm == 'log': data12 = np.log10(data12)
-
-# slice yx
-data13 = data[n1beg:n1end, slice2, n3beg:n3end]
-if args.norm == 'log': data13 = np.log10(data13)
-
-# slice xz
-data23 = data[slice1, n2beg:n2end, n3beg:n3end]
-data23 = flipud(data23)
-if args.norm == 'log': data23 = np.log10(data23)
-
-# background data
-if len(args.background) != 0:
-
-    # slice yz
-    backdata12 = backdata[n1beg:n1end, n2beg:n2end, slice3]
-
-    # slice yx
-    backdata13 = backdata[n1beg:n1end, slice2, n3beg:n3end]
-
-    # slice xz
-    backdata23 = backdata[slice1, n2beg:n2end, n3beg:n3end]
-    backdata23 = flipud(backdata23)
-
 ## set figure size
 # inch per point
 ipp = 0.0138889
@@ -255,6 +226,150 @@ if len(args.size3) == 0:
     size3 = figbase * ratio
 else:
     size3 = float(args.size3)
+
+# 3D rendering
+if args.render == '3d':
+
+    import pyvista as pyv
+    from module_colormap import set_colormap, set_colormap_alpha
+    from module_clip import *
+
+    p = pyv.Plotter(lighting='three lights')
+    p.set_background(color='white')
+
+    # sargs = dict(
+    #     vertical=True,
+    #     title_font_size=14,
+    #     label_font_size=14,
+    #     shadow=False,
+    #     color='black',
+    #     n_labels=5,
+    #     n_colors=256,
+    #     italic=False,
+    #     fmt="%.3e",
+    #     font_family="arial")
+
+    x = np.flip(data, (0, 1, 2)).transpose()
+    s1 = n1end - slice1 + 1
+    s2 = n2end - slice2 + 1
+    s3 = n3end - slice3 + 1
+
+    data12 = data[n1beg:n1end, n2beg:n2end, slice3]
+    data13 = data[n1beg:n1end, slice2, n3beg:n3end]
+    data23 = data[slice1, n2beg:n2end, n3beg:n3end]
+    xx = np.concatenate((data12.flatten(), data13.flatten(), data23.flatten()))
+    cmin, cmax = set_clip(args, xx)
+    del data12, data13, data23, xx
+
+    grid = pyv.UniformGrid()
+    grid.dimensions = np.array(x.shape) + 1
+    grid.origin = (0, 0, 0)  # The bottom left corner of the data set
+    grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis
+    grid.cell_arrays["values"] = x.flatten(order="F")  # Flatten the array!
+
+    slices = grid.slice_orthogonal(x=s3, y=s2, z=s1)
+    colormap = set_colormap(args, 'foreground')
+    colormap = set_colormap_alpha(args, colormap, cmin, cmax)
+
+    p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax])  # scalar_bar_args=sargs,
+
+    if args.background is not None:
+
+        x = np.flip(backdata, (0, 1, 2)).transpose()
+        s1 = n1end - slice1 + 0.5
+        s2 = n2end - slice2 + 0.5
+        s3 = n3end - slice3 + 0.5
+
+        data12 = backdata[n1beg:n1end, n2beg:n2end, slice3]
+        data13 = backdata[n1beg:n1end, slice2, n3beg:n3end]
+        data23 = backdata[slice1, n2beg:n2end, n3beg:n3end]
+        xx = np.concatenate((data12.flatten(), data13.flatten(), data23.flatten()))
+        cmin, cmax = set_clip(args, xx, 'back')
+        del data12, data13, data23, xx
+
+        grid = pyv.UniformGrid()
+        grid.dimensions = np.array(x.shape) + 1
+        grid.origin = (0, 0, 0)  # The bottom left corner of the data set
+        grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis
+        grid.cell_arrays["values"] = x.flatten(order="F")  # Flatten the array!
+
+        slices = grid.slice_orthogonal(x=s3, y=s2, z=s1)
+        colormap = set_colormap(args, 'background')
+        colormap = set_colormap_alpha(args, colormap, cmin, cmax, 'background')
+
+        p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax])
+
+    l1 = (n1end - 1) * d1
+    l2 = (n2end - 1) * d2
+    l3 = (n3end - 1) * d3
+    lmin = min(l1, l2, l3)
+    smin = min(size1, size2, size3)
+    r1 = lmin * 1.0 / l1 * size1 / smin
+    r2 = lmin * 1.0 / l2 * size2 / smin
+    r3 = lmin * 1.0 / l3 * size3 / smin
+    p.set_scale(xscale=r3, yscale=r2, zscale=r1)
+
+    lmax = max(l1, l2, l3)
+    p.set_position([1.5 * lmax, 1.5 * lmax, 1.5 * lmax])
+    p.set_focus([0.5 * l3, 0.5 * l2, 0.5 * l1])
+    p.reset_camera_clipping_range()
+    p.reset_camera()
+
+    if len(args.outfile) == 0:
+        p.show()
+        print()
+
+    else:
+        outfile = args.outfile[0].split(',')
+
+        for i in outfile:
+            extension = os.path.splitext(i)[1]
+            if extension.lower() in {'.pdf', '.eps', '.svg', '.ps'}:
+                p.save_graphic(i)
+                print('output >>   ', i)
+            elif extension.lower() in {'.png', '.jpg', '.tiff'}:
+                p.show(screenshot=i)
+                print('output >>   ', i)
+            else:
+                print('error: unsupported output figure format ' + extension + ', skip ' + i)
+
+        # time information
+        from datetime import datetime
+        print(' @ ', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        print()
+
+    exit()
+
+# Otherwise do 2D rendering
+sl1 = sl1 - x1beg + 0.5 * d1
+sl2 = sl2 - x2beg + 0.5 * d2
+sl3 = sl3 - x3beg + 0.5 * d3
+
+# slice yz
+data12 = data[n1beg:n1end, n2beg:n2end, slice3]
+if args.norm == 'log': data12 = np.log10(data12)
+
+# slice yx
+data13 = data[n1beg:n1end, slice2, n3beg:n3end]
+if args.norm == 'log': data13 = np.log10(data13)
+
+# slice xz
+data23 = data[slice1, n2beg:n2end, n3beg:n3end]
+data23 = flipud(data23)
+if args.norm == 'log': data23 = np.log10(data23)
+
+# background data
+if args.background is not None:
+
+    # slice yz
+    backdata12 = backdata[n1beg:n1end, n2beg:n2end, slice3]
+
+    # slice yx
+    backdata13 = backdata[n1beg:n1end, slice2, n3beg:n3end]
+
+    # slice xz
+    backdata23 = backdata[slice1, n2beg:n2end, n3beg:n3end]
+    backdata23 = flipud(backdata23)
 
 ## plot
 figheight = size1 + size2 + float(args.slicegap)
@@ -295,14 +410,14 @@ im21.set_extent([0, size3, size1, 0])
 im22.set_extent([0, size2, size1, 0])
 
 # 3d image at image 12
-if len(args.volume3d) != 0:
-    volslice = plt.imread(args.volume3d)
+if args.topright is not None:
+    volslice = plt.imread(args.topright)
     ax12 = fig.add_axes([ax22locx, ax11locy, im22width, im11height])
     ax12.imshow(volslice, aspect=1, interpolation='kaiser')
     ax12.set_axis_off()
 
 # background images
-if len(args.background) != 0:
+if args.background is not None:
     bim11 = ax11.imshow(backdata23, zorder=1)
     bim21 = ax21.imshow(backdata13, zorder=1)
     bim22 = ax22.imshow(backdata12, zorder=1)
@@ -324,7 +439,7 @@ im11.set_clim(cmin, cmax)
 im21.set_clim(cmin, cmax)
 im22.set_clim(cmin, cmax)
 
-if len(args.background) != 0:
+if args.background is not None:
     backdata = np.concatenate((backdata12.flatten(), backdata13.flatten(), backdata23.flatten()))
     backcmin, backcmax = set_clip(args, backdata, 'back')
     if args.norm == 'log':
@@ -343,7 +458,7 @@ im11.set_cmap(colormap)
 im21.set_cmap(colormap)
 im22.set_cmap(colormap)
 
-if len(args.background) != 0:
+if args.background is not None:
     from module_colormap import set_colormap, set_colormap_alpha
     colormap = set_colormap(args, 'background')
     colormap = set_colormap_alpha(args, colormap, backcmin, backcmax, 'background')
@@ -356,7 +471,7 @@ im11.set_interpolation(args.interp)
 im21.set_interpolation(args.interp)
 im22.set_interpolation(args.interp)
 
-if len(args.background) != 0:
+if args.background is not None:
     bim11.set_interpolation(args.backinterp)
     bim21.set_interpolation(args.backinterp)
     bim22.set_interpolation(args.backinterp)
@@ -399,17 +514,17 @@ ax21.get_yaxis().set_tick_params(which='both', direction='out')
 ax22.get_xaxis().set_tick_params(which='both', direction='out')
 
 # tick location, label and minor tick location
-tick_1_location, tick_1_label, tick_1_minor = define_tick(args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
-                                                          args.mtick1, x1beg, x1end, n1end - n1beg + 1, d1, size1,
-                                                          args.tick1format)
+tick_1_location, tick_1_label, tick_1_minor = define_tick(args.ticks1, args.tick1beg, args.tick1end,
+                                                          args.tick1d, args.mtick1, x1beg, x1end,
+                                                          n1end - n1beg + 1, d1, size1, args.tick1format)
 
-tick_2_location, tick_2_label, tick_2_minor = define_tick(args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
-                                                          args.mtick2, x2beg, x2end, n2end - n2beg + 1, d2, size2,
-                                                          args.tick2format)
+tick_2_location, tick_2_label, tick_2_minor = define_tick(args.ticks2, args.tick2beg, args.tick2end,
+                                                          args.tick2d, args.mtick2, x2beg, x2end,
+                                                          n2end - n2beg + 1, d2, size2, args.tick2format)
 
-tick_3_location, tick_3_label, tick_3_minor = define_tick(args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
-                                                          args.mtick3, x3beg, x3end, n3end - n3beg + 1, d3, size3,
-                                                          args.tick3format)
+tick_3_location, tick_3_label, tick_3_minor = define_tick(args.ticks3, args.tick3beg, args.tick3end,
+                                                          args.tick3d, args.mtick3, x3beg, x3end,
+                                                          n3end - n3beg + 1, d3, size3, args.tick3format)
 
 # if tick font size and family not speciefied, then inherit from axis labels
 if len(args.tick1size) == 0:
@@ -428,34 +543,37 @@ else:
     tick3size = float(args.tick3size)
 
 ax11.yaxis.set_ticks(tick_2_location)
-ax11.yaxis.set_ticklabels(tick_2_label, fontsize=tick2size, fontproperties=font, rotation=float(args.tick2rot))
+ax11.yaxis.set_ticklabels(tick_2_label,
+                          fontsize=tick2size,
+                          fontproperties=font,
+                          rotation=float(args.tick2rot))
 
 ax21.yaxis.set_ticks(tick_1_location)
-ax21.yaxis.set_ticklabels(tick_1_label, fontsize=tick1size, fontproperties=font, rotation=float(args.tick1rot))
+ax21.yaxis.set_ticklabels(tick_1_label,
+                          fontsize=tick1size,
+                          fontproperties=font,
+                          rotation=float(args.tick1rot))
 ax21.xaxis.set_ticks(tick_3_location)
-ax21.xaxis.set_ticklabels(tick_3_label, fontsize=tick3size, fontproperties=font, rotation=float(args.tick3rot))
+ax21.xaxis.set_ticklabels(tick_3_label,
+                          fontsize=tick3size,
+                          fontproperties=font,
+                          rotation=float(args.tick3rot))
 
 ax22.xaxis.set_ticks(tick_2_location)
-ax22.xaxis.set_ticklabels(tick_2_label, fontsize=tick2size, fontproperties=font, rotation=float(args.tick2rot))
+ax22.xaxis.set_ticklabels(tick_2_label,
+                          fontsize=tick2size,
+                          fontproperties=font,
+                          rotation=float(args.tick2rot))
 
 # major and minor ticks sytle
 tick_major_length = float(args.tickmajorlen)
 tick_major_width = float(args.tickmajorwid)
 
-ax11.tick_params('both', \
-    length=tick_major_length, \
-    width=tick_major_width, \
-    which='major')
+ax11.tick_params('both', length=tick_major_length, width=tick_major_width, which='major')
 
-ax21.tick_params('both', \
-    length=tick_major_length, \
-    width=tick_major_width, \
-    which='major')
+ax21.tick_params('both', length=tick_major_length, width=tick_major_width, which='major')
 
-ax22.tick_params('both', \
-    length=tick_major_length, \
-    width=tick_major_width, \
-    which='major')
+ax22.tick_params('both', length=tick_major_length, width=tick_major_width, which='major')
 
 # minor tick positions
 ax11.yaxis.set_ticks(tick_2_minor, minor=True)
@@ -474,20 +592,11 @@ if len(args.tickminorwid) == 0:
 else:
     tick_minor_width = float(args.tickminorwid)
 
-ax11.tick_params('both', \
-    length=tick_minor_length, \
-    width=tick_minor_width, \
-    which='minor')
+ax11.tick_params('both', length=tick_minor_length, width=tick_minor_width, which='minor')
 
-ax21.tick_params('both', \
-    length=tick_minor_length, \
-    width=tick_minor_width, \
-    which='minor')
+ax21.tick_params('both', length=tick_minor_length, width=tick_minor_width, which='minor')
 
-ax22.tick_params('both', \
-    length=tick_minor_length, \
-    width=tick_minor_width, \
-    which='minor')
+ax22.tick_params('both', length=tick_minor_length, width=tick_minor_width, which='minor')
 
 ax11.tick_params('x', labelbottom=0, bottom=0, labeltop=0, top=0, which='both')
 ax11.tick_params('y', left=args.ticks, right=0, which='both')
@@ -616,67 +725,61 @@ if len(args.curve) != 0:
 
             curve[0:nsp, 0] = px3
             curve[0:nsp, 1] = px2
-            extra = Polygon(curve, fill=False, zorder=curveorder[i], edgecolor=curvecolor[i], linewidth=curvewidth[i])
+            extra = Polygon(curve,
+                            fill=False,
+                            zorder=curveorder[i],
+                            edgecolor=curvecolor[i],
+                            linewidth=curvewidth[i])
             ax11.add_artist(extra)
 
             curve[0:nsp, 0] = px3
             curve[0:nsp, 1] = px1
-            extra = Polygon(curve, fill=False, zorder=curveorder[i], edgecolor=curvecolor[i], linewidth=curvewidth[i])
+            extra = Polygon(curve,
+                            fill=False,
+                            zorder=curveorder[i],
+                            edgecolor=curvecolor[i],
+                            linewidth=curvewidth[i])
             ax21.add_artist(extra)
 
             curve[0:nsp, 0] = px2
             curve[0:nsp, 1] = px1
-            extra = Polygon(curve, fill=False, zorder=curveorder[i], edgecolor=curvecolor[i], linewidth=curvewidth[i])
+            extra = Polygon(curve,
+                            fill=False,
+                            zorder=curveorder[i],
+                            edgecolor=curvecolor[i],
+                            linewidth=curvewidth[i])
             ax22.add_artist(extra)
 
 ## set grid line
-if args.grid1 == 'on':
+if args.grid1:
     # grid line width
     if len(args.grid1width) == 0:
         grid1width = float(args.tickmajorwid)
     else:
         grid1width = float(args.grid1width)
     # add grid
-    ax21.grid(which='major',axis='x', \
-        linestyle=args.grid1style, \
-        color=args.grid1color, \
-        linewidth=grid1width)
-    ax22.grid(which='major',axis='x', \
-        linestyle=args.grid1style, \
-        color=args.grid1color, \
-        linewidth=grid1width)
+    ax21.grid(which='major', axis='x', linestyle=args.grid1style, color=args.grid1color, linewidth=grid1width)
+    ax22.grid(which='major', axis='x', linestyle=args.grid1style, color=args.grid1color, linewidth=grid1width)
 
-if args.grid2 == 'on':
+if args.grid2:
     # grid line width
     if len(args.grid2width) == 0:
         grid2width = float(args.tickmajorwid)
     else:
         grid2width = float(args.grid2width)
     # add grid
-    ax11.grid(which='major',axis='x', \
-        linestyle=args.grid2style, \
-        color=args.grid2color, \
-        linewidth=grid2width)
-    ax22.grid(which='major',axis='y', \
-        linestyle=args.grid2style, \
-        color=args.grid2color, \
-        linewidth=grid2width)
+    ax11.grid(which='major', axis='x', linestyle=args.grid2style, color=args.grid2color, linewidth=grid2width)
+    ax22.grid(which='major', axis='y', linestyle=args.grid2style, color=args.grid2color, linewidth=grid2width)
 
-if args.grid3 == 'on':
+if args.grid3:
     # grid line width
     if len(args.grid3width) == 0:
         grid3width = float(args.tickmajorwid)
     else:
         grid3width = float(args.grid3width)
     # add grid
-    ax11.grid(which='major',axis='y', \
-        linestyle=args.grid3style, \
-        color=args.grid3color, \
-        linewidth=grid3width)
-    ax21.grid(which='major',axis='y', \
-        linestyle=args.grid3style, \
-        color=args.grid3color, \
-        linewidth=grid3width)
+    ax11.grid(which='major', axis='y', linestyle=args.grid3style, color=args.grid3color, linewidth=grid3width)
+    ax21.grid(which='major', axis='y', linestyle=args.grid3style, color=args.grid3color, linewidth=grid3width)
 
 ## set title
 if len(args.title) != 0:
@@ -696,18 +799,18 @@ if len(args.title) != 0:
     else:
         title_y = float(args.titley)
 
-    t=ax11.text(title_x, \
-        title_y, \
-        args.title, \
-        horizontalalignment='center', \
-        fontproperties=fontbold, \
-        fontweight='bold')
+    t = ax11.text(title_x,
+                  title_y,
+                  args.title,
+                  horizontalalignment='center',
+                  fontproperties=fontbold,
+                  fontweight='bold')
     t.set_fontsize(title_font_size)
 
 ## set colorbar
-if args.legend == 1 and cmin != cmax:
+if args.legend and cmin != cmax:
 
-    lloc = args.legendloc
+    lloc = args.lloc
 
     # legend location
     if lloc == 'left':
@@ -752,10 +855,10 @@ if args.legend == 1 and cmin != cmax:
         upad = float(args.unitpad)
 
     # legend pad
-    if len(args.legendpad) == 0:
+    if len(args.lpad) == 0:
         lpad = 0.1
     else:
-        lpad = float(args.legendpad)
+        lpad = float(args.lpad)
 
     # set colorbar axis location
     if lloc in ['left', 'right']:
@@ -780,11 +883,11 @@ if args.legend == 1 and cmin != cmax:
             for i in tick_2_label:
                 if len(i) > tlen: tlen = len(i)
             tlen = tlen + 1
-            cbx=ax11locx-(max(label1size,label2size)*ipp+tlen*max(tick1size,tick2size) \
-                *ipp+tick_major_length*ipp+lpad)/figwidth
+            cbx = ax11locx - (max(label1size, label2size) * ipp + tlen * max(tick1size, tick2size) * ipp +
+                              tick_major_length * ipp + lpad) / figwidth
             cby = ax21locy + (figheight - lheight) / 2.0 / figheight
 
-    if args.legendloc in ['top', 'bottom']:
+    if args.lloc in ['top', 'bottom']:
 
         if len(args.lheight) == 0:
             lheight = 0.2
@@ -801,8 +904,8 @@ if args.legend == 1 and cmin != cmax:
             cby = ax11locy + im11height + lpad / figheight
         else:
             cbx = ax21locx + (figwidth - lwidth) / 2.0 / figwidth
-            cby = ax21locy-(max(label2size,label3size)*ipp+3.0*max(tick2size,tick3size) \
-                *ipp+tick_major_length*ipp+lpad)/figheight
+            cby = ax21locy - (max(label2size, label3size) * ipp + 3.0 * max(tick2size, tick3size) * ipp +
+                              tick_major_length * ipp + lpad) / figheight
 
     # add colorbar by add_axes
     cax = fig.add_axes([cbx, cby, lwidth / figwidth, lheight / figheight])
@@ -814,19 +917,11 @@ if args.legend == 1 and cmin != cmax:
     else:
         lufs = float(args.unitsize)
 
-    if len(args.unit) == 0:
-        legend_units = ' '
-    else:
-        legend_units = args.unit
-
-    if lloc == 'left' or lloc == 'right':
-        cb.ax.set_ylabel(legend_units, \
-            rotation=lrotate, \
-            labelpad=upad)
-    if lloc == 'top' or lloc == 'bottom':
-        cb.ax.set_xlabel(legend_units, \
-            rotation=lrotate, \
-            labelpad=upad)
+    if args.unit is not None:
+        if lloc == 'left' or lloc == 'right':
+            cb.ax.set_ylabel(args.unit, rotation=lrotate, labelpad=upad)
+        if lloc == 'top' or lloc == 'bottom':
+            cb.ax.set_xlabel(args.unit, rotation=lrotate, labelpad=upad)
 
     cb.ax.yaxis.label.set_fontproperties(font)
     cb.ax.yaxis.label.set_fontsize(lufs)
@@ -855,8 +950,7 @@ if args.legend == 1 and cmin != cmax:
                 base = base / 10.0
                 ltickbeg = nice(cmin, base)
                 nb = nb + 1
-            if abs(ltickbeg)<abs(cmax) and \
-                orderm(ltickbeg)+2<orderm(cmax):
+            if abs(ltickbeg) < abs(cmax) and orderm(ltickbeg) + 2 < orderm(cmax):
                 ltickbeg = 0.0
         else:
             ltickbeg = float(args.ltickbeg)
@@ -881,7 +975,8 @@ if args.legend == 1 and cmin != cmax:
         tend = min(pmaxv, ltickend)
 
         # set tick positions on colorbar
-        ticks = np.asarray([i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+        ticks = np.asarray(
+            [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
         if lloc == 'left' or lloc == 'right':
             cb.ax.yaxis.set_ticks(ticks)
             cb.ax.yaxis.set_ticks_position(lloc)
@@ -890,39 +985,79 @@ if args.legend == 1 and cmin != cmax:
             cb.ax.xaxis.set_ticks_position(lloc)
 
         # add power
-        if cscale != 1.0:
+        # if cscale != 1.0:
 
-            last_tick = ticks[-1]
+        #     last_tick = ticks[-1]
+        #     first_tick = ticks[0]
 
-            if lloc == 'left':
-                p1 = 0.0
-                p2 = max(1.01, last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-                ha = 'right'
-                va = 'bottom'
-            if lloc == 'right':
-                p1 = 1.5 * last_tick
-                p2 = last_tick + 0.01 * (ticks[-1] - ticks[0])
-                ha = 'left'
-                va = 'bottom'
-            if lloc == 'top':
-                p1 = 1.005
-                p2 = 1.0
-                ha = 'left'
-                va = 'center'
-            if lloc == 'bottom':
-                p1 = 1.005
-                p2 = 0.0
-                ha = 'left'
-                va = 'center'
-            cb.ax.text(p1, p2, '$\mathregular{\\times 10^{%i}}$' % scalar, size=ltfs, fontproperties=font, ha=ha, va=va)
+        #     ptscale = 0.01388888889
+
+        #     if lloc == 'left':
+        #         p1 = 0.785 * last_tick
+        #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
+        #         ha = 'right'
+        #         va = 'bottom'
+        #         cb.ax.text(p1,
+        #                    p2,
+        #                    r'$\mathregular{10^{%i}}\times$' % scalar,
+        #                    fontproperties=font,
+        #                    size=ltfs,
+        #                    ha=ha,
+        #                    va=va)
+        #     if lloc == 'right':
+        #         p1 = 1.1*last_tick
+        #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
+        #         ha = 'left'
+        #         va = 'bottom'
+        #         cb.ax.text(p1,
+        #                    p2,
+        #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+        #                    fontproperties=font,
+        #                    size=ltfs,
+        #                    ha=ha,
+        #                    va=va)
+        #     if lloc == 'top':
+        #         p1 = 1.001*last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
+        #         p2 = 1.19 * last_tick
+        #         ha = 'left'
+        #         va = 'center'
+        #         cb.ax.text(p1,
+        #                    p2,
+        #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+        #                    fontproperties=font,
+        #                    size=ltfs,
+        #                    ha=ha,
+        #                    va=va)
+        #     if lloc == 'bottom':
+        #         p1 = 1.001*last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
+        #         p2 = 0.675*last_tick
+        #         ha = 'left'
+        #         va = 'center'
+        #         cb.ax.text(p1,
+        #                    p2,
+        #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+        #                    fontproperties=font,
+        #                    size=ltfs,
+        #                    ha=ha,
+        #                    va=va)
 
         # set tick labels on colorbar
         tick_labels = ['' for i in range(0, len(ticks))]
         for i in range(0, len(ticks)):
             tick_labels[i] = ('%f' % (ticks[i] / cscale)).rstrip('0').rstrip('.')
         if lloc == 'left' or lloc == 'right':
+            if cscale != 1:
+                if lloc == 'left':
+                    tick_labels[-1] = r'$\mathregular{10^{%i}}\times$' % scalar + '\n' + tick_labels[-1]
+                else:
+                    tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
             cb.ax.set_yticklabels(tick_labels)
         else:
+            if cscale != 1:
+                if lloc == 'top':
+                    tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
+                else:
+                    tick_labels[-1] = tick_labels[-1] + '\n' + r'$\mathregular{\times 10^{%i}}$' % scalar
             cb.ax.set_xticklabels(tick_labels)
 
         # colorbar minor ticks
@@ -941,12 +1076,6 @@ if args.legend == 1 and cmin != cmax:
             mticks = np.asarray(
                 [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
             # set minor ticks
-            #            if lloc == 'left' or lloc == 'right':
-            #                cb.ax.yaxis.set_ticks(
-            #                    (mticks - pminv) / (pmaxv - pminv), minor=True)
-            #            else:
-            #                cb.ax.xaxis.set_ticks(
-            #                    (mticks - pminv) / (pmaxv - pminv), minor=True)
             if lloc == 'left' or lloc == 'right':
                 cb.ax.yaxis.set_ticks(mticks, minor=True)
             else:
@@ -976,7 +1105,8 @@ if args.legend == 1 and cmin != cmax:
         tend = min(pmaxv, ltickend)
 
         # set tick positions on colorbar
-        ticks = np.asarray([i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+        ticks = np.asarray(
+            [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
 
         # set tick positions on colorbar
         if lloc == 'left' or lloc == 'right':
@@ -989,7 +1119,7 @@ if args.legend == 1 and cmin != cmax:
         # set tick labels on colorbar
         tick_labels = ['' for i in range(0, len(ticks))]
         for i in range(0, len(ticks)):
-            tick_labels[i] = '$\mathregular{10^{%i}}$' % (ticks[i])
+            tick_labels[i] = r'$\mathregular{10^{%i}}$' % (ticks[i])
         if lloc == 'left' or lloc == 'right':
             cb.ax.set_yticklabels(tick_labels)
         else:
@@ -1006,7 +1136,8 @@ if args.legend == 1 and cmin != cmax:
             nt = len(pticks)
             mticks = []
             for i in range(0, nt - 1):
-                mticks = np.append(mticks, np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
+                mticks = np.append(mticks,
+                                   np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
             mticks = np.asarray(
                 [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
             # set minor ticks
@@ -1066,7 +1197,7 @@ scale2 = size2 / ((n2end - n2beg) * d2)
 scale3 = size3 / ((n3end - n3beg) * d3)
 
 # plot slice lines
-if args.sliceline1 == 'on':
+if args.sliceline1:
     sl1pos = sl1 * scale1  #(sl1-sp1beg+0.5*d1)*scale1
     linex = [0, size3]
     linez = [sl1pos, sl1pos]
@@ -1092,7 +1223,7 @@ if args.sliceline1 == 'on':
             spine.set_edgecolor(args.sliceline1color)
         spine.set_linewidth(max(1.0, float(args.sliceline1width)))
 
-if args.sliceline2 == 'on':
+if args.sliceline2:
     sl2pos = sl2 * scale2  #(sl2-sp2beg+0.5*d2)*scale2
     linex = [0, size3]
     linez = [sl2pos, sl2pos]
@@ -1118,7 +1249,7 @@ if args.sliceline2 == 'on':
             spine.set_edgecolor(args.sliceline2color)
         spine.set_linewidth(max(1.0, float(args.sliceline2width)))
 
-if args.sliceline3 == 'on':
+if args.sliceline3:
     sl3pos = sl3 * scale3  #(sl3-sp3beg+0.5*d3)*scale3
     linex = [sl3pos, sl3pos]
     linez = [0, size1]

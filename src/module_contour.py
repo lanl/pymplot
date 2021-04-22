@@ -4,9 +4,9 @@ from module_utility import *
 import numpy as np
 from module_clip import *
 
-def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
-                data, backdata, levels, lc, lw, ls, clabelsize, mcontour, font,
-                cmin, cmax, backcmin, backcmax):
+
+def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data, backdata, levels, lc, lw, ls,
+                clabelsize, mcontour, font, cmin, cmax, backcmin, backcmax):
 
     # plot contours
     x = np.linspace(0, figwidth, n2end - n2beg)
@@ -14,34 +14,31 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
     xx, yy = np.meshgrid(x, y)
 
     # show filled contours if necessary
-    if args.contourfill == 1 and args.overlay == 0 and len(
-            args.background) == 0:
+    if args.contourfill and not args.overlay and args.background is None:
         # set colormap
         from module_colormap import set_colormap
         colormap = set_colormap(args)
         # plot contour face
-        cf = ax.contourf(
-            xx,
-            yy,
-            data,
-            levels[0:size(levels) - 1],
-            cmap=colormap,
-            extend='both',
-            antialiased=True)
+        cf = ax.contourf(xx,
+                         yy,
+                         data,
+                         levels[0:size(levels) - 1],
+                         cmap=colormap,
+                         extend='both',
+                         antialiased=True)
         for l in cf.collections:
             l.set_edgecolor('face')
             l.set_linewidth(0.025)
 
     # show ordinary contours by default
-    cs = ax.contour(
-        xx,
-        yy,
-        data,
-        levels[0:size(levels) - 1],
-        colors=lc,
-        linewidths=lw,
-        linestyles=ls,
-        antialiased=True)
+    cs = ax.contour(xx,
+                    yy,
+                    data,
+                    levels[0:size(levels) - 1],
+                    colors=lc,
+                    linewidths=lw,
+                    linestyles=ls,
+                    antialiased=True)
 
     # this must be placed here, before clabel!
     ax.invert_yaxis()
@@ -55,26 +52,25 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
         clabels = ['' for i in range(0, size(lvl))]
         if args.norm == 'linear':
             for i in range(0, size(lvl)):
-                if lvl[i] != 0 and (abs(lvl[i]) < 1.0e-3
-                                    or abs(lvl[i]) > 1.0e3):
+                if lvl[i] != 0 and (abs(lvl[i]) < 1.0e-3 or abs(lvl[i]) > 1.0e3):
                     scalar = int(floor(log10(abs(lvl[i]))))
                     cscale = pow(10, scalar)
-                    clabels[i] = ('%f' % (lvl[i] / cscale)).rstrip('0').rstrip(
-                        '.') + '$\mathregular{\\times 10^{%i}}$' % scalar
+                    clabels[i] = ('%f' % (lvl[i] / cscale)
+                                  ).rstrip('0').rstrip('.') + r'$\mathregular{\times 10^{%i}}$' % scalar
                 else:
                     clabels[i] = ('%f' % (lvl[i])).rstrip('0').rstrip('.')
 
         if args.norm == 'log':
             for i in range(0, size(lvl)):
-                clabels[i] = '$\mathregular{10^{%i}}$' % (lvl[i])
+                clabels[i] = r'$\mathregular{10^{%i}}$' % (lvl[i])
 
         fmt = {}
         for l, s in zip(cs.levels[::mcontour], clabels):
             fmt[l] = s
 
         # place contour labels
-        clabels=ax.clabel(cs,cs.levels[::mcontour], \
-            fmt=fmt, fontsize=clabelsize) #, fontproperties=font)inline=True,
+        clabels = ax.clabel(cs, cs.levels[::mcontour], fmt=fmt,
+                            fontsize=clabelsize)  #, fontproperties=font)inline=True,
         for txt in clabels:
             txt.set_fontproperties(font)
             txt.set_fontsize(clabelsize)
@@ -82,8 +78,8 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
             if len(args.clabelbackcolor) != 0:
                 txt.set_backgroundcolor(args.clabelbackcolor)
 
-    ## show original image if necessary    
-    if args.overlay == 1 and len(args.background) == 0:
+    ## show original image if necessary
+    if args.overlay and args.background is None:
 
         # begin plot
         im = ax.imshow(data)
@@ -102,7 +98,7 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
         # set figure sizes based
         im.set_extent([0, figwidth, figheight, 0])
 
-    if args.overlay == 0 and len(args.background) != 0:
+    if not args.overlay and args.background is not None:
 
         # beg plot
         im = ax.imshow(backdata)
@@ -115,7 +111,7 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
         #                exit()
         #        print(backcmin, backcmax)
         im.set_clim(backcmin, backcmax)
-        
+
         # set colormap
         from module_colormap import set_colormap_alpha
         colormap = set_colormap_alpha(args, args.backcolormap, backcmin, backcmax, 'background')
@@ -127,9 +123,9 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax,
         # set figure sizes based
         im.set_extent([0, figwidth, figheight, 0])
 
-    # return plots    
-    if args.contourfill == 1 and args.overlay == 0 and len(args.background) == 0:
+    # return plots
+    if args.contourfill and not args.overlay and args.background is None:
         return cf
-    
-    if args.overlay == 1 or len(args.background) != 0:
+
+    if args.overlay or args.background is not None:
         return im

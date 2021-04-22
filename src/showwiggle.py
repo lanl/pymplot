@@ -16,8 +16,7 @@ warnings.filterwarnings("ignore", module="matplotlib")
 
 ## read arguments
 # assign description to the help doc
-parser=argparse.ArgumentParser(description= \
-    '''Read a 2D array from binary file and plot as wiggles, 
+parser = argparse.ArgumentParser(description='''Read a 2D array from binary file and plot as wiggles, 
     written by K.G. @ 2016.05, 2016.06, 2016.08, 2016.10''')
 
 # arguments -- general
@@ -214,7 +213,7 @@ for i in range(0, nf):
     adata[i, :, :] = data
 
 # read background data
-if len(args.background) != 0:
+if args.background is not None:
 
     # check if background file exists
     if not os.path.exists(args.background):
@@ -240,7 +239,7 @@ if len(args.background) != 0:
 ## set clip
 from module_clip import *
 cmin, cmax = set_clip(args, adata, 'fore')
-if len(args.background) != 0:
+if args.background is not None:
     backcmin, backcmax = set_clip(args, backdata, 'back')
 
 ## figure size
@@ -257,7 +256,7 @@ set_frame(args)
 
 ## plot image
 # show image if necessary
-if nf == 1 and args.overlay == 1 and len(args.background) == 0:
+if nf == 1 and args.overlay and args.background is None:
 
     # show data by imshow
     im = ax.imshow(adata[0, :, :])  #,alpha=float(args.alpha))
@@ -276,7 +275,7 @@ if nf == 1 and args.overlay == 1 and len(args.background) == 0:
     #alpha = float(args.alpha)
 
 # plot background image if necessary
-if args.overlay == 0 and len(args.background) != 0:
+if not args.overlay and args.background is not None:
 
     # beg plot
     im = ax.imshow(backdata)  #,alpha=float(args.backalpha))
@@ -298,7 +297,21 @@ font, fontbold = set_font(args)
 
 ## set tick
 from module_tick import *
-set_tick(args, font, x1beg, x1end, n1beg, n1end, d1, figheight, x2beg, x2end, n2beg, n2end, d2, figwidth, extend=True)
+set_tick(args,
+         font,
+         x1beg,
+         x1end,
+         n1beg,
+         n1end,
+         d1,
+         figheight,
+         x2beg,
+         x2end,
+         n2beg,
+         n2end,
+         d2,
+         figwidth,
+         extend=True)
 
 ## set grid line
 from module_gridline import *
@@ -430,7 +443,12 @@ if args.along == 1:
 
             # wiggles
             if i != traces[-1]:
-                plt.plot(xx, yy, color=color[j], linewidth=linewidth[j], linestyle=linestyle[j], antialiased=True)
+                plt.plot(xx,
+                         yy,
+                         color=color[j],
+                         linewidth=linewidth[j],
+                         linestyle=linestyle[j],
+                         antialiased=True)
             else:
                 plt.plot(xx,
                          yy,
@@ -520,7 +538,12 @@ if args.along == 2:
 
             # wiggles
             if i != traces[-1]:
-                plt.plot(yy, xx, color=color[j], linewidth=linewidth[j], linestyle=linestyle[j], antialiased=True)
+                plt.plot(yy,
+                         xx,
+                         color=color[j],
+                         linewidth=linewidth[j],
+                         linestyle=linestyle[j],
+                         antialiased=True)
             else:
                 plt.plot(yy,
                          xx,
@@ -575,8 +598,8 @@ if len(args.plotlabel) != 0:
     plt.setp(ltext, fontsize=float(args.plotlabelsize))
 
 ## reset figure sizes
-if (nf==1 and args.overlay==1 and len(args.background)==0) or \
-    (args.overlay==0 and len(args.background)!=0):
+if (nf == 1 and args.overlay and args.background is None) or (not args.overlay
+                                                              and args.background is not None):
     if args.along == 1:
         im.set_extent([omin, omax, figheight, 0])
     else:
@@ -615,7 +638,7 @@ if args.reverse2 == 1:
     ax.invert_xaxis()
 
 ## set colorbar
-if nf == 1 and args.overlay == 1 and args.legend == 1:
+if nf == 1 and args.overlay and args.legend:
     from module_colorbar import set_colorbar
     set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
 

@@ -5,6 +5,7 @@ import math
 
 ipp = 0.0138889
 
+
 # projection operation
 # axonometric projection
 def isometric_projection(x, y, z, angles):
@@ -43,9 +44,9 @@ def project_image(ax, data, px, py, colormap, cmin, cmax):
     im.set_rasterized(True)
 
 
-def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, font, tick_major_len,
-                 tick_major_width, tick_minor_len, tick_minor_width, axislen, tick_orient, ticklabel_orient, tick_size,
-                 label, label_orient, label_size, label_pad, tick_format):
+def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, font,
+                 tick_major_len, tick_major_width, tick_minor_len, tick_minor_width, axislen, tick_orient,
+                 ticklabel_orient, tick_size, label, label_orient, label_size, label_pad, tick_format):
 
     # regular ticks
     if len(ticks) == 0:
@@ -258,7 +259,14 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
     for i in range(0, len(tick_location)):
         epx = tx[i] + txx[i] / np.sqrt(txx[i]**2 + tyy[i]**2) * pad
         epy = ty[i] + tyy[i] / np.sqrt(txx[i]**2 + tyy[i]**2) * pad
-        ax.text(epx, epy, tick_label[i], ha=ha, va=va, rotation=ticklabel_angle, fontproperties=font, size=tick_size)
+        ax.text(epx,
+                epy,
+                tick_label[i],
+                ha=ha,
+                va=va,
+                rotation=ticklabel_angle,
+                fontproperties=font,
+                size=tick_size)
 
     # angle of axis label
     if label_orient == 'positive':
@@ -296,7 +304,14 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
     labelx = hx + hx2 / np.sqrt(hx2**2 + hy2**2) * pad
     labely = hy + hy2 / np.sqrt(hx2**2 + hy2**2) * pad
     if len(label) != 0:
-        ax.text(labelx, labely, label, ha=ha, va=va, rotation=label_angle, fontproperties=font, size=label_size)
+        ax.text(labelx,
+                labely,
+                label,
+                ha=ha,
+                va=va,
+                rotation=label_angle,
+                fontproperties=font,
+                size=label_size)
 
     # minor tick locations
     # projection of ticks to target position

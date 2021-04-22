@@ -37,35 +37,11 @@ written by K.G. @ 2016.06, 2016.07, 2016.08, 2016.10, 2018.10, 2019.06 ''',
 # arguments -- general
 flags = parser.add_argument_group('required arguments')
 
-flags.add_argument('-in',
-                   '--infile',
-                   type=str,
-                   help='Input binary file',
-                   nargs='+',
-                   required=True)
-parser.add_argument('-out',
-                    '--outfile',
-                    type=str,
-                    help='Output file',
-                    nargs='+',
-                    required=False,
-                    default='')
-flags.add_argument('-n1',
-                   '--n1',
-                   type=int,
-                   help='Number of points along axis 1',
-                   required=True)
-flags.add_argument('-n2',
-                   '--n2',
-                   type=int,
-                   help='Number of points along axis 2',
-                   required=False)
-parser.add_argument('-n3',
-                    '--n3',
-                    type=int,
-                    help='Number of points along axis 3',
-                    required=False,
-                    default=0)
+flags.add_argument('-in', '--infile', type=str, help='Input binary file', nargs='+', required=True)
+parser.add_argument('-out', '--outfile', type=str, help='Output file', nargs='+', required=False, default='')
+flags.add_argument('-n1', '--n1', type=int, help='Number of points along axis 1', required=True)
+flags.add_argument('-n2', '--n2', type=int, help='Number of points along axis 2', required=False)
+parser.add_argument('-n3', '--n3', type=int, help='Number of points along axis 3', required=False, default=0)
 parser.add_argument('-dtype',
                     '--datatype',
                     type=str,
@@ -84,18 +60,8 @@ parser.add_argument('-transpose',
                     help='Plot transposed data, =0 by default or =1',
                     required=False,
                     default=0)
-parser.add_argument('-size1',
-                    '--size1',
-                    type=str,
-                    help='Figure height',
-                    required=False,
-                    default='')
-parser.add_argument('-size2',
-                    '--size2',
-                    type=str,
-                    help='Figure width',
-                    required=False,
-                    default='')
+parser.add_argument('-size1', '--size1', type=str, help='Figure height', required=False, default='')
+parser.add_argument('-size2', '--size2', type=str, help='Figure width', required=False, default='')
 parser.add_argument('-size3',
                     '--size3',
                     type=str,
@@ -146,15 +112,12 @@ parser.add_argument('-font',
 =consolas (Consolas) ''',
                     required=False,
                     default='arial')
-
 parser.add_argument('-imageonly',
                     '--imageonly',
                     type=int,
                     help='Save only plotting region, no frame or axes',
                     required=False,
                     default=0)
-
-# =georgia (Georgia),
 parser.add_argument('-octant',
                     '--octant',
                     type=str,
@@ -191,40 +154,36 @@ see the sketch for a detailed view of octans:
 ''',
                     required=False,
                     default='--+')
-parser.add_argument(
-    '-angle',
-    '--angle',
-    type=str,
-    help='''Angles specify the view, valid range is [0,90]x[0,90]; unit is degree''',
-    required=False,
-    nargs='+',
-    default='')
+parser.add_argument('-angle',
+                    '--angle',
+                    type=str,
+                    help='''Angles specify the view, valid range is [0,90]x[0,90]; unit is degree''',
+                    required=False,
+                    nargs='+',
+                    default='')
 
 # arguments -- color
 parser = getarg_color(parser)
 
 # arguments -- axis
-parser.add_argument(
-    '-d1',
-    '--d1',
-    type=str,
-    help='Sample interval along axis 1, <0 then descending values, =1 default',
-    required=False,
-    default='1.0')
-parser.add_argument(
-    '-d2',
-    '--d2',
-    type=str,
-    help='Sample interval along axis 2, <0 then descending values, =1 default',
-    required=False,
-    default='1.0')
-parser.add_argument(
-    '-d3',
-    '--d3',
-    type=str,
-    help='Sample interval along axis 3, <0 then descending values, =1 default',
-    required=False,
-    default='1.0')
+parser.add_argument('-d1',
+                    '--d1',
+                    type=str,
+                    help='Sample interval along axis 1, <0 then descending values, =1 default',
+                    required=False,
+                    default='1.0')
+parser.add_argument('-d2',
+                    '--d2',
+                    type=str,
+                    help='Sample interval along axis 2, <0 then descending values, =1 default',
+                    required=False,
+                    default='1.0')
+parser.add_argument('-d3',
+                    '--d3',
+                    type=str,
+                    help='Sample interval along axis 3, <0 then descending values, =1 default',
+                    required=False,
+                    default='1.0')
 parser.add_argument('-f1',
                     '--f1',
                     type=str,
@@ -255,12 +214,7 @@ parser.add_argument('-label2',
                     help='Label of axis 2 ',
                     required=False,
                     default='Axis 2')
-parser.add_argument('-label3',
-                    '--label3',
-                    type=str,
-                    help='Label of axis 3',
-                    required=False,
-                    default='Axis 3')
+parser.add_argument('-label3', '--label3', type=str, help='Label of axis 3', required=False, default='Axis 3')
 parser.add_argument('-label1size',
                     '--label1size',
                     type=str,
@@ -279,42 +233,12 @@ parser.add_argument('-label3size',
                     help='Font size of axis 3 label, =16 by default',
                     required=False,
                     default='16.0')
-parser.add_argument('-x1beg',
-                    '--x1beg',
-                    type=str,
-                    help='Plot axis 1 begin ',
-                    required=False,
-                    default='')
-parser.add_argument('-x1end',
-                    '--x1end',
-                    type=str,
-                    help='Plot axis 1 end ',
-                    required=False,
-                    default='')
-parser.add_argument('-x2beg',
-                    '--x2beg',
-                    type=str,
-                    help='Plot axis 2 begin ',
-                    required=False,
-                    default='')
-parser.add_argument('-x2end',
-                    '--x2end',
-                    type=str,
-                    help='Plot axis 2 end ',
-                    required=False,
-                    default='')
-parser.add_argument('-x3beg',
-                    '--x3beg',
-                    type=str,
-                    help='Plot axis 3 begin ',
-                    required=False,
-                    default='')
-parser.add_argument('-x3end',
-                    '--x3end',
-                    type=str,
-                    help='Plot axis 3 end ',
-                    required=False,
-                    default='')
+parser.add_argument('-x1beg', '--x1beg', type=str, help='Plot axis 1 begin ', required=False, default='')
+parser.add_argument('-x1end', '--x1end', type=str, help='Plot axis 1 end ', required=False, default='')
+parser.add_argument('-x2beg', '--x2beg', type=str, help='Plot axis 2 begin ', required=False, default='')
+parser.add_argument('-x2end', '--x2end', type=str, help='Plot axis 2 end ', required=False, default='')
+parser.add_argument('-x3beg', '--x3beg', type=str, help='Plot axis 3 begin ', required=False, default='')
+parser.add_argument('-x3end', '--x3end', type=str, help='Plot axis 3 end ', required=False, default='')
 parser.add_argument('-axis1loc',
                     '--axis1loc',
                     type=str,
@@ -612,12 +536,9 @@ d2 = float(args.d2)
 d3 = float(args.d3)
 
 # limit of axis
-sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.f1, n1, d1, args.x1beg,
-                                                       args.x1end)
-sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.f2, n2, d2, args.x2beg,
-                                                       args.x2end)
-sp3beg, sp3end, x3beg, x3end, n3beg, n3end = set_range(args.f3, n3, d3, args.x3beg,
-                                                       args.x3end)
+sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.f1, n1, d1, args.x1beg, args.x1end)
+sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.f2, n2, d2, args.x2beg, args.x2end)
+sp3beg, sp3end, x3beg, x3end, n3beg, n3end = set_range(args.f3, n3, d3, args.x3beg, args.x3end)
 
 n1 = n1end - n1beg + 1
 n2 = n2end - n2beg + 1
@@ -626,8 +547,8 @@ n3 = n3end - n3beg + 1
 # octant
 # select data based on angle
 if len(args.angle) == 0:
-    angle1 = 45.0
-    angle2 = 0.0
+    angle1 = 40.0
+    angle2 = 10.0
 else:
     angles = args.angle[0].split(',')
     if len(angles) == 1:
@@ -982,32 +903,30 @@ if octant_1:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe == 'on':
+    if args.topframe:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe == 'on':
+    if args.bottomframe:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe == 'on':
+    if args.leftframe:
         leftline = [[(p1x, p1y), (p2x, p2y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q1x, q1y), (q2x, q2y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe == 'on':
+    if args.rightframe:
         rightline = [[(p5x, p5y), (p6x, p6y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q5x, q5y), (q6x, q6y)]]
         rightline2 = LineCollection(rightline2, color='k')
-    if args.centerframe == 'on':
-        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p3x, p3y)],
-                      [(p4x, p4y), (p6x, p6y)]]
+    if args.centerframe:
+        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p3x, p3y)], [(p4x, p4y), (p6x, p6y)]]
         centerline = LineCollection(centerline, color='k', zorder=1)
-        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)],
-                       [(q7x, q7y), (q8x, q8y)]]
+        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)], [(q7x, q7y), (q8x, q8y)]]
         centerline2 = LineCollection(centerline2, color='k', zorder=2, linestyle='dashed')
 
 if octant_2:
@@ -1101,32 +1020,30 @@ if octant_2:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe == 'on':
+    if args.topframe:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe == 'on':
+    if args.bottomframe:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe == 'on':
+    if args.leftframe:
         leftline = [[(p2x, p2y), (p1x, p1y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q2x, q2y), (q1x, q1y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe == 'on':
+    if args.rightframe:
         rightline = [[(p6x, p6y), (p5x, p5y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q6x, q6y), (q5x, q5y)]]
         rightline2 = LineCollection(rightline2, color='k')
-    if args.centerframe == 'on':
-        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p6x, p6y)],
-                      [(p4x, p4y), (p3x, p3y)]]
+    if args.centerframe:
+        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p6x, p6y)], [(p4x, p4y), (p3x, p3y)]]
         centerline = LineCollection(centerline, color='k', zorder=1)
-        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)],
-                       [(q7x, q7y), (q8x, q8y)]]
+        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)], [(q7x, q7y), (q8x, q8y)]]
         centerline2 = LineCollection(centerline2, color='k', zorder=2, linestyle='dashed')
 
 if octant_3:
@@ -1220,32 +1137,30 @@ if octant_3:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe == 'on':
+    if args.topframe:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe == 'on':
+    if args.bottomframe:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe == 'on':
+    if args.leftframe:
         leftline = [[(p1x, p1y), (p2x, p2y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q1x, q1y), (q2x, q2y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe == 'on':
+    if args.rightframe:
         rightline = [[(p5x, p5y), (p6x, p6y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q5x, q5y), (q6x, q6y)]]
         rightline2 = LineCollection(rightline2, color='k')
-    if args.centerframe == 'on':
-        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p3x, p3y)],
-                      [(p4x, p4y), (p6x, p6y)]]
+    if args.centerframe:
+        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p3x, p3y)], [(p4x, p4y), (p6x, p6y)]]
         centerline = LineCollection(centerline, color='k', zorder=1)
-        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)],
-                       [(q7x, q7y), (q8x, q8y)]]
+        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)], [(q7x, q7y), (q8x, q8y)]]
         centerline2 = LineCollection(centerline2, color='k', zorder=2, linestyle='dashed')
 
 if octant_4:
@@ -1339,32 +1254,30 @@ if octant_4:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe == 'on':
+    if args.topframe:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe == 'on':
+    if args.bottomframe:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe == 'on':
+    if args.leftframe:
         leftline = [[(p2x, p2y), (p1x, p1y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q2x, q2y), (q1x, q1y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe == 'on':
+    if args.rightframe:
         rightline = [[(p6x, p6y), (p5x, p5y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q6x, q6y), (q5x, q5y)]]
         rightline2 = LineCollection(rightline2, color='k')
-    if args.centerframe == 'on':
-        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p6x, p6y)],
-                      [(p4x, p4y), (p3x, p3y)]]
+    if args.centerframe:
+        centerline = [[(p4x, p4y), (p2x, p2y)], [(p4x, p4y), (p6x, p6y)], [(p4x, p4y), (p3x, p3y)]]
         centerline = LineCollection(centerline, color='k', zorder=1)
-        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)],
-                       [(q7x, q7y), (q8x, q8y)]]
+        centerline2 = [[(q7x, q7y), (q1x, q1y)], [(q7x, q7y), (q5x, q5y)], [(q7x, q7y), (q8x, q8y)]]
         centerline2 = LineCollection(centerline2, color='k', zorder=2, linestyle='dashed')
 
 # set colormap
@@ -1397,15 +1310,15 @@ project_image(ax, fdata13, face13x, face13y, colormap, cmin, cmax)
 project_image(ax, fdata23, face23x, face23y, colormap, cmin, cmax)
 project_image(ax, fdata12, face12x, face12y, colormap, cmin, cmax)
 
-if args.topframe == 'on':
+if args.topframe:
     ax.add_collection(topline)
-if args.bottomframe == 'on':
+if args.bottomframe:
     ax.add_collection(bottomline)
-if args.leftframe == 'on':
+if args.leftframe:
     ax.add_collection(leftline)
-if args.rightframe == 'on':
+if args.rightframe:
     ax.add_collection(rightline)
-if args.centerframe == 'on':
+if args.centerframe:
     ax.add_collection(centerline)
 
 if len(args.slice1) != 0 or len(args.slice2) != 0 or len(args.slice3) != 0:
@@ -1414,15 +1327,15 @@ if len(args.slice1) != 0 or len(args.slice2) != 0 or len(args.slice3) != 0:
     project_image(ax, data23, slice23x, slice23y, colormap, cmin, cmax)
     project_image(ax, data12, slice12x, slice12y, colormap, cmin, cmax)
 
-    if args.topframe == 'on':
+    if args.topframe:
         ax.add_collection(topline2)
-    if args.bottomframe == 'on':
+    if args.bottomframe:
         ax.add_collection(bottomline2)
-    if args.leftframe == 'on':
+    if args.leftframe:
         ax.add_collection(leftline2)
-    if args.rightframe == 'on':
+    if args.rightframe:
         ax.add_collection(rightline2)
-    if args.centerframe == 'on':
+    if args.centerframe:
         ax.add_collection(centerline2)
 
 # set font
@@ -1468,213 +1381,165 @@ if octant_1:
 
     # axis 1
     if args.axis1loc == 'left' or args.axis1loc == 'both':
-        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'clock', 'counterclock',
-                     tick_1_size, args.label1, 'negative', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'clock', 'counterclock', tick_1_size,
+                     args.label1, 'negative', label_1_size, float(args.label1pad), args.tick1format)
 
     if args.axis1loc == 'right' or args.axis1loc == 'both':
-        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'counterclock', 'counterclock',
-                     tick_1_size, args.label1, 'positive', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'counterclock', 'counterclock', tick_1_size,
+                     args.label1, 'positive', label_1_size, float(args.label1pad), args.tick1format)
 
     # axis 2
     if args.axis2loc == 'top' or args.axis2loc == 'both':
-        project_axis(ax, p2x, p2y, p8x, p8y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'counterclock', 'positive',
-                     tick_2_size, args.label2, 'positive', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p2x, p2y, p8x, p8y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'counterclock', 'positive', tick_2_size,
+                     args.label2, 'positive', label_2_size, float(args.label2pad), args.tick2format)
 
     if args.axis2loc == 'bottom' or args.axis2loc == 'both':
-        project_axis(ax, p3x, p3y, p5x, p5y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'clock', 'positive',
-                     tick_2_size, args.label2, 'positive', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p3x, p3y, p5x, p5y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'clock', 'positive', tick_2_size,
+                     args.label2, 'positive', label_2_size, float(args.label2pad), args.tick2format)
 
     # axis 3
     if args.axis3loc == 'top' or args.axis3loc == 'both':
-        project_axis(ax, p8x, p8y, p6x, p6y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'counterclock', 'positive',
-                     tick_3_size, args.label3, 'positive', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p8x, p8y, p6x, p6y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'counterclock', 'positive', tick_3_size,
+                     args.label3, 'positive', label_3_size, float(args.label3pad), args.tick3format)
 
     if args.axis3loc == 'bottom' or args.axis3loc == 'both':
-        project_axis(ax, p1x, p1y, p3x, p3y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'clock', 'positive',
-                     tick_3_size, args.label3, 'positive', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p1x, p1y, p3x, p3y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'clock', 'positive', tick_3_size,
+                     args.label3, 'positive', label_3_size, float(args.label3pad), args.tick3format)
 
 if octant_2:
 
     # axis 1
     if args.axis1loc == 'left' or args.axis1loc == 'both':
-        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'clock', 'counterclock',
-                     tick_1_size, args.label1, 'negative', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'clock', 'counterclock', tick_1_size,
+                     args.label1, 'negative', label_1_size, float(args.label1pad), args.tick1format)
 
     if args.axis1loc == 'right' or args.axis1loc == 'both':
-        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'counterclock', 'counterclock',
-                     tick_1_size, args.label1, 'positive', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'counterclock', 'counterclock', tick_1_size,
+                     args.label1, 'positive', label_1_size, float(args.label1pad), args.tick1format)
 
     # axis 2
     if args.axis2loc == 'top' or args.axis2loc == 'both':
-        project_axis(ax, p6x, p6y, p8x, p8y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'clock', 'negative',
-                     tick_2_size, args.label2, 'negative', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p6x, p6y, p8x, p8y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'clock', 'negative', tick_2_size,
+                     args.label2, 'negative', label_2_size, float(args.label2pad), args.tick2format)
 
     if args.axis2loc == 'bottom' or args.axis2loc == 'both':
-        project_axis(ax, p3x, p3y, p1x, p1y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'counterclock', 'negative',
-                     tick_2_size, args.label2, 'negative', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p3x, p3y, p1x, p1y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'counterclock', 'negative', tick_2_size,
+                     args.label2, 'negative', label_2_size, float(args.label2pad), args.tick2format)
 
     # axis 3
     if args.axis3loc == 'top' or args.axis3loc == 'both':
-        project_axis(ax, p2x, p2y, p8x, p8y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'counterclock', 'positive',
-                     tick_3_size, args.label3, 'positive', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p2x, p2y, p8x, p8y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'counterclock', 'positive', tick_3_size,
+                     args.label3, 'positive', label_3_size, float(args.label3pad), args.tick3format)
 
     if args.axis3loc == 'bottom' or args.axis3loc == 'both':
-        project_axis(ax, p3x, p3y, p5x, p5y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'clock', 'positive',
-                     tick_3_size, args.label3, 'positive', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p3x, p3y, p5x, p5y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'clock', 'positive', tick_3_size,
+                     args.label3, 'positive', label_3_size, float(args.label3pad), args.tick3format)
 
 if octant_3:
 
     # axis 1
     if args.axis1loc == 'left' or args.axis1loc == 'both':
-        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'clock', 'counterclock',
-                     tick_1_size, args.label1, 'negative', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'clock', 'counterclock', tick_1_size,
+                     args.label1, 'negative', label_1_size, float(args.label1pad), args.tick1format)
 
     if args.axis1loc == 'right' or args.axis1loc == 'both':
-        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'counterclock', 'counterclock',
-                     tick_1_size, args.label1, 'positive', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'counterclock', 'counterclock', tick_1_size,
+                     args.label1, 'positive', label_1_size, float(args.label1pad), args.tick1format)
 
     # axis 2
     if args.axis2loc == 'top' or args.axis2loc == 'both':
-        project_axis(ax, p8x, p8y, p2x, p2y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'clock', 'negative',
-                     tick_2_size, args.label2, 'negative', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p8x, p8y, p2x, p2y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'clock', 'negative', tick_2_size,
+                     args.label2, 'negative', label_2_size, float(args.label2pad), args.tick2format)
 
     if args.axis2loc == 'bottom' or args.axis2loc == 'both':
-        project_axis(ax, p5x, p5y, p3x, p3y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'counterclock', 'negative',
-                     tick_2_size, args.label2, 'negative', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p5x, p5y, p3x, p3y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'counterclock', 'negative', tick_2_size,
+                     args.label2, 'negative', label_2_size, float(args.label2pad), args.tick2format)
 
     # axis 3
     if args.axis3loc == 'top' or args.axis3loc == 'both':
-        project_axis(ax, p6x, p6y, p8x, p8y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'clock', 'negative',
-                     tick_3_size, args.label3, 'negative', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p6x, p6y, p8x, p8y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'clock', 'negative', tick_3_size,
+                     args.label3, 'negative', label_3_size, float(args.label3pad), args.tick3format)
 
     if args.axis3loc == 'bottom' or args.axis3loc == 'both':
-        project_axis(ax, p3x, p3y, p1x, p1y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'counterclock', 'negative',
-                     tick_3_size, args.label3, 'negative', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p3x, p3y, p1x, p1y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'counterclock', 'negative', tick_3_size,
+                     args.label3, 'negative', label_3_size, float(args.label3pad), args.tick3format)
 
 if octant_4:
 
     # axis 1
     if args.axis1loc == 'left' or args.axis1loc == 'both':
-        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'clock', 'counterclock',
-                     tick_1_size, args.label1, 'negative', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p2x, p2y, p1x, p1y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'clock', 'counterclock', tick_1_size,
+                     args.label1, 'negative', label_1_size, float(args.label1pad), args.tick1format)
 
     if args.axis1loc == 'right' or args.axis1loc == 'both':
-        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end,
-                     args.tick1d, args.mtick1, x1beg, x1end, n1, d1, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size1, 'counterclock', 'counterclock',
-                     tick_1_size, args.label1, 'positive', label_1_size,
-                     float(args.label1pad), args.tick1format)
+        project_axis(ax, p6x, p6y, p5x, p5y, args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
+                     args.mtick1, x1beg, x1end, n1, d1, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size1, 'counterclock', 'counterclock', tick_1_size,
+                     args.label1, 'positive', label_1_size, float(args.label1pad), args.tick1format)
 
     # axis 2
     if args.axis2loc == 'top' or args.axis2loc == 'both':
-        project_axis(ax, p8x, p8y, p6x, p6y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'counterclock', 'positive',
-                     tick_2_size, args.label2, 'positive', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p8x, p8y, p6x, p6y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'counterclock', 'positive', tick_2_size,
+                     args.label2, 'positive', label_2_size, float(args.label2pad), args.tick2format)
 
     if args.axis2loc == 'bottom' or args.axis2loc == 'both':
-        project_axis(ax, p1x, p1y, p3x, p3y, args.ticks2, args.tick2beg, args.tick2end,
-                     args.tick2d, args.mtick2, x2beg, x2end, n2, d2, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size2, 'clock', 'positive',
-                     tick_2_size, args.label2, 'positive', label_2_size,
-                     float(args.label2pad), args.tick2format)
+        project_axis(ax, p1x, p1y, p3x, p3y, args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
+                     args.mtick2, x2beg, x2end, n2, d2, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size2, 'clock', 'positive', tick_2_size,
+                     args.label2, 'positive', label_2_size, float(args.label2pad), args.tick2format)
 
     # axis 3
     if args.axis3loc == 'top' or args.axis3loc == 'both':
-        project_axis(ax, p8x, p8y, p2x, p2y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'clock', 'negative',
-                     tick_3_size, args.label3, 'negative', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p8x, p8y, p2x, p2y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'clock', 'negative', tick_3_size,
+                     args.label3, 'negative', label_3_size, float(args.label3pad), args.tick3format)
 
     if args.axis3loc == 'bottom' or args.axis3loc == 'both':
-        project_axis(ax, p5x, p5y, p3x, p3y, args.ticks3, args.tick3beg, args.tick3end,
-                     args.tick3d, args.mtick3, x3beg, x3end, n3, d3, font,
-                     tick_major_length, tick_major_width, tick_minor_length,
-                     tick_minor_width, size3, 'counterclock', 'negative',
-                     tick_3_size, args.label3, 'negative', label_3_size,
-                     float(args.label3pad), args.tick3format)
+        project_axis(ax, p5x, p5y, p3x, p3y, args.ticks3, args.tick3beg, args.tick3end, args.tick3d,
+                     args.mtick3, x3beg, x3end, n3, d3, font, tick_major_length, tick_major_width,
+                     tick_minor_length, tick_minor_width, size3, 'counterclock', 'negative', tick_3_size,
+                     args.label3, 'negative', label_3_size, float(args.label3pad), args.tick3format)
 
 # remove original figure frames
 ax.spines['top'].set_visible(False)
@@ -1712,8 +1577,7 @@ if len(args.curve) != 0:
 
     for i in range(0, nf):
 
-        curve = np.loadtxt(curvefile[i],
-                           ndmin=2)  # using ndmin=2 to ensure read as 2d array
+        curve = np.loadtxt(curvefile[i], ndmin=2)  # using ndmin=2 to ensure read as 2d array
         index = np.empty((0), int)
         for j in range(0, len(curve)):
             if curve[j, 0] > eval(args.slice1):
@@ -1778,9 +1642,9 @@ if len(args.curve) != 0:
             ax.add_artist(extra)
 
 # colorbar
-if args.legend == 1 and cmin != cmax:
+if args.legend and cmin != cmax:
 
-    lloc = args.legendloc
+    lloc = args.lloc
 
     # colorbar values
     cp = 512
@@ -1808,20 +1672,19 @@ if args.legend == 1 and cmin != cmax:
 
             # colorbar location
             if args.axis1loc == 'right' or args.axis1loc == 'both':
-                pad = tick_1_size * ipp + float(
-                    args.tickmajorlen) * ipp + 0.5 + label_1_size * ipp
+                pad = tick_1_size * ipp + float(args.tickmajorlen) * ipp + 0.5 + label_1_size * ipp
             else:
                 pad = 0.2
-            if len(args.legendpad) == 0:
+            if len(args.lpad) == 0:
                 cbpad = 0.0
             else:
-                cbpad = float(args.legendpad)
+                cbpad = float(args.lpad)
             pad = pad + cbpad
             cx = [p5x + pad, p5x + pad, p5x + pad + lwidth, p5x + pad + lwidth]
             dl = (figheight - lheight) / 2.0
             cy = [p3y + dl, p8y - dl, p8y - dl, p3y + dl]
 
-    if args.legendloc in ['top', 'bottom']:
+    if args.lloc in ['top', 'bottom']:
 
         if len(args.lheight) == 0:
             lheight = 0.2
@@ -1839,16 +1702,14 @@ if args.legend == 1 and cmin != cmax:
 
             # colorbar location
             if args.axis2loc == 'bottom' or args.axis2loc == 'both' or args.axis3loc == 'bottom' or args.axis3loc == 'both':
-                pad = max(tick_2_size,
-                          tick_3_size) * ipp + float(args.tickmajorlen) * ipp + 0.2 + max(
-                              label_2_size, label_3_size) * ipp + 0.1 * abs(
-                                  cos(angle1 * np.pi / 180.0))
+                pad = max(tick_2_size, tick_3_size) * ipp + float(args.tickmajorlen) * ipp + 0.2 + max(
+                    label_2_size, label_3_size) * ipp + 0.1 * abs(cos(angle1 * np.pi / 180.0))
             else:
                 pad = 0.2
-            if len(args.legendpad) == 0:
+            if len(args.lpad) == 0:
                 cbpad = 0.0
             else:
-                cbpad = float(args.legendpad)
+                cbpad = float(args.lpad)
             pad = pad + cbpad
             dl = (figwidth - lwidth) / 2.0
             cx = [p1x + dl, p5x - dl, p5x - dl, p1x + dl]
@@ -1858,14 +1719,12 @@ if args.legend == 1 and cmin != cmax:
     cb = project_image(ax, cval, cx, cy, colormap, cmin, cmax)
 
     # crate colorbar frame
-    line = [[(cx[0], cy[0]), (cx[1], cy[1]), (cx[2], cy[2]), (cx[3], cy[3]),
-             (cx[0], cy[0])]]
+    line = [[(cx[0], cy[0]), (cx[1], cy[1]), (cx[2], cy[2]), (cx[3], cy[3]), (cx[0], cy[0])]]
     line = LineCollection(line, linewidth=1.0, color='k')
     ax.add_collection(line)
 
     if len(args.unitsize) == 0:
-        lufs = min(float(args.label1size), float(args.label2size), float(
-            args.label3size)) - 1
+        lufs = min(float(args.label1size), float(args.label2size), float(args.label3size)) - 1
     else:
         lufs = float(args.unitsize)
 
@@ -1914,10 +1773,8 @@ if args.legend == 1 and cmin != cmax:
         tend = min(cmax, ltickend)
 
         # set tick positions on colorbar
-        ticks = np.asarray([
-            i for i in ticks
-            if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
-        ])
+        ticks = np.asarray(
+            [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
         tick_labels = ['' for i in range(0, len(ticks))]
         for i in range(0, len(ticks)):
             tick_labels[i] = ('%f' % (ticks[i] / cscale)).rstrip('0').rstrip('.')
@@ -1933,13 +1790,10 @@ if args.legend == 1 and cmin != cmax:
             nt = len(pticks)
             mticks = []
             for i in range(0, nt - 1):
-                mticks = np.append(mticks,
-                                   np.linspace(pticks[i], pticks[i + 1], args.lmtick + 2))
+                mticks = np.append(mticks, np.linspace(pticks[i], pticks[i + 1], args.lmtick + 2))
             mticks = [i for i in mticks if (i not in pticks)]
-            mticks = np.asarray([
-                i for i in mticks
-                if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
-            ])
+            mticks = np.asarray(
+                [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
 
     if args.norm == 'log':
 
@@ -1962,10 +1816,8 @@ if args.legend == 1 and cmin != cmax:
         tend = min(cmax, ltickend)
 
         # set tick positions on colorbar
-        ticks = np.asarray([
-            i for i in ticks
-            if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
-        ])
+        ticks = np.asarray(
+            [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
         tick_labels = ['' for i in range(0, len(ticks))]
         for i in range(0, len(ticks)):
             tick_labels[i] = r'$\mathregular{10^{%i}}$' % (ticks[i])
@@ -1981,14 +1833,10 @@ if args.legend == 1 and cmin != cmax:
             nt = len(pticks)
             mticks = []
             for i in range(0, nt - 1):
-                mticks = np.append(
-                    mticks,
-                    np.log10(
-                        np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
-            mticks = np.asarray([
-                i for i in mticks
-                if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
-            ])
+                mticks = np.append(mticks,
+                                   np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
+            mticks = np.asarray(
+                [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
 
     # add ticks by drawing lines
     if lloc == 'right':
@@ -2018,14 +1866,10 @@ if args.legend == 1 and cmin != cmax:
         ax.add_collection(majortick)
 
         # add tick labels
+        if args.norm == 'linear' and cscale != 1.0:
+            tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
         for i in range(0, len(ticks)):
-            ax.text(ttx[i],
-                    tty[i],
-                    tick_labels[i],
-                    fontproperties=font,
-                    size=ltfs,
-                    ha='left',
-                    va='center')
+            ax.text(ttx[i], tty[i], tick_labels[i], fontproperties=font, size=ltfs, ha='left', va='center')
 
         # add minor ticks
         if args.lmtick != 0:
@@ -2049,23 +1893,23 @@ if args.legend == 1 and cmin != cmax:
             minortick = LineCollection(minortick, linewidths=tick_minor_width, colors='k')
             ax.add_collection(minortick)
 
-        # add power
-        if args.norm == 'linear' and cscale != 1.0:
-            p1 = cx[2] + 0.01
-            p2 = max(cend + 0.01, last_tick + 0.75 * ltfs * ipp)
-            ha = 'left'
-            va = 'bottom'
-            ct = ax.text(p1,
-                         p2,
-                         r'$\mathregular{\\times 10^{%i}}$' % scalar,
-                         size=ltfs,
-                         fontproperties=font,
-                         ha=ha,
-                         va=va)
-            ct.size_size(ltfs)
+        # # add power
+        # if args.norm == 'linear' and cscale != 1.0:
+        #     p1 = cx[2] + 0.01
+        #     p2 = max(cend + 0.01, last_tick + 0.75 * ltfs * ipp)
+        #     ha = 'left'
+        #     va = 'bottom'
+        #     ct = ax.text(p1,
+        #                  p2,
+        #                  r'$\mathregular{\times 10^{%i}}$' % scalar,
+        #                  size=ltfs,
+        #                  fontproperties=font,
+        #                  ha=ha,
+        #                  va=va)
+        #     ct.size_size(ltfs)
 
         # set unit
-        if len(args.unit) != 0:
+        if args.unit is not None:
             if len(args.unitpad) == 0:
                 upad = 0.05
             else:
@@ -2114,6 +1958,8 @@ if args.legend == 1 and cmin != cmax:
         ax.add_collection(majortick)
 
         # add tick labels
+        if args.norm == 'linear' and cscale != 1.0:
+            tick_labels[-1] = tick_labels[-1] + '\n' + r'$\mathregular{\times 10^{%i}}$' % scalar
         for i in range(0, len(ticks)):
             ct = ax.text(ttx[i],
                          tty[i],
@@ -2146,23 +1992,23 @@ if args.legend == 1 and cmin != cmax:
             minortick = LineCollection(minortick, linewidths=tick_minor_width, colors='k')
             ax.add_collection(minortick)
 
-        # add power
-        if args.norm == 'linear' and cscale != 1.0:
-            p1 = cx[2] + 0.025
-            p2 = cy[3]
-            ha = 'left'
-            va = 'center'
-            ct = ax.text(p1,
-                         p2,
-                         r'$\mathregular{\\times 10^{%i}}$' % scalar,
-                         size=ltfs,
-                         fontproperties=font,
-                         ha=ha,
-                         va=va)
-            ct.set_size(ltfs)
+        # # add power
+        # if args.norm == 'linear' and cscale != 1.0:
+        #     p1 = cx[2] + 0.025
+        #     p2 = cy[3]
+        #     ha = 'left'
+        #     va = 'center'
+        #     ct = ax.text(p1,
+        #                  p2,
+        #                  r'$\mathregular{\times 10^{%i}}$' % scalar,
+        #                  size=ltfs,
+        #                  fontproperties=font,
+        #                  ha=ha,
+        #                  va=va)
+        #     ct.set_size(ltfs)
 
         # set unit
-        if len(args.unit) != 0:
+        if args.unit is not None:
             if len(args.unitpad) == 0:
                 upad = 0.05
             else:
@@ -2173,21 +2019,14 @@ if args.legend == 1 and cmin != cmax:
                 maxlen = 1.75
             ux = 0.5 * (cbeg + cend)
             uy = cy[3] - ticklen - 0.025 - maxlen * ltfs * ipp - upad
-            ct = ax.text(ux,
-                         uy,
-                         args.unit,
-                         size=lufs,
-                         fontproperties=font,
-                         ha='center',
-                         va='top')
+            ct = ax.text(ux, uy, args.unit, size=lufs, fontproperties=font, ha='center', va='top')
             ct.set_size(lufs)
 
 # set title
 if len(args.title) != 0:
 
     if len(args.titlesize) == 0:
-        title_font_size = max(float(args.label1size), float(args.label2size),
-                              float(args.label3size)) + 2
+        title_font_size = max(float(args.label1size), float(args.label2size), float(args.label3size)) + 2
     else:
         title_font_size = float(args.titlesize)
 
@@ -2232,7 +2071,7 @@ if args.axis1loc == 'right' or args.axis1loc == 'both':
     xlim1 = xlim[1] + extra1
 else:
     xlim1 = xlim[1] + 0.05
-if args.legend == 1 and lloc == 'right':
+if args.legend and lloc == 'right':
     xlim1 = cx[3] + float(args.tickmajorlen) * ipp + 0.01
 
 ax.set_xlim([xlim0, xlim1])
@@ -2253,7 +2092,7 @@ if args.axis3loc == 'bottom' or args.axis3loc == 'both':
     ylim1 = ylim[1] + extra1
 else:
     ylim1 = ylim[1] + 0.05
-if args.legend == 1 and lloc == 'bottom':
+if args.legend and lloc == 'bottom':
     ylim0 = cy[2] - float(args.tickmajorlen) * ipp - 0.01
 
 ax.set_ylim([ylim0, ylim1])

@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-## set colorbar
-
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from module_utility import *
@@ -60,7 +58,13 @@ parser.add_argument('-imageonly',
                     help='Save only plotting region, no frame or axes',
                     required=False,
                     default=0)
-parser.add_argument('-out', '--outfile', type=str, help='Output figure file', nargs='+', required=False, default='')
+parser.add_argument('-out',
+                    '--outfile',
+                    type=str,
+                    help='Output figure file',
+                    nargs='+',
+                    required=False,
+                    default='')
 
 # arguments -- color
 parser = getarg_color(parser)
@@ -88,10 +92,10 @@ if len(args.cmax) == 0:
 else:
     plot_max_value = float(args.cmax)
 
-if len(args.legendloc) == 0:
+if len(args.lloc) == 0:
     lloc = right
 else:
-    lloc = args.legendloc
+    lloc = args.lloc
 
 # legend orientation and tick switc, unit rotation
 if lloc == 'left':
@@ -176,25 +180,15 @@ if len(args.unitsize) == 0:
 else:
     lufs = float(args.unitsize)
 
-if len(args.unit) == 0:
-    legend_units = ' '
-else:
-    legend_units = args.unit
-
-if lloc == 'right' or lloc == 'left':
-    ax.set_ylabel(legend_units, \
-        rotation=lrotate, \
-        labelpad=lpad, \
-        fontproperties=font)
-    ax.yaxis.set_label_position(lloc)
-    ax.yaxis.label.set_fontsize(lufs)
-if lloc == 'top' or lloc == 'bottom':
-    ax.set_xlabel(legend_units, \
-        rotation=lrotate, \
-        labelpad=lpad, \
-        fontproperties=font)
-    ax.xaxis.set_label_position(lloc)
-    ax.xaxis.label.set_fontsize(lufs)
+if args.unit is not None:
+    if lloc == 'right' or lloc == 'left':
+        ax.set_ylabel(legend_units, rotation=lrotate, labelpad=lpad, fontproperties=font)
+        ax.yaxis.set_label_position(lloc)
+        ax.yaxis.label.set_fontsize(lufs)
+    if lloc == 'top' or lloc == 'bottom':
+        ax.set_xlabel(legend_units, rotation=lrotate, labelpad=lpad, fontproperties=font)
+        ax.xaxis.set_label_position(lloc)
+        ax.xaxis.label.set_fontsize(lufs)
 
 # set colorbar tick styles: font size, family, and ticks direction
 if len(args.lticksize) == 0:
@@ -243,8 +237,7 @@ if args.norm == 'linear':
             base = base / 10.0
             ltickbeg = nice(plot_min_value, base)
             nb = nb + 1
-        if abs(ltickbeg)<abs(plot_max_value) and \
-            orderm(ltickbeg)+2<orderm(plot_max_value):
+        if abs(ltickbeg) < abs(plot_max_value) and orderm(ltickbeg) + 2 < orderm(plot_max_value):
             ltickbeg = 0.0
     else:
         ltickbeg = float(args.ltickbeg)
@@ -256,7 +249,7 @@ if args.norm == 'linear':
     # scalar
     maxtick = max(abs(ltickbeg), abs(ltickend))
     if maxtick >= 1.0e4 or maxtick <= 1.0e-3:
-        scalar = int(floor(log10(maxtick)))
+        scalar = int(np.floor(np.log10(maxtick)))
         cscale = pow(10, scalar)
     else:
         cscale = 1.0
@@ -269,47 +262,64 @@ if args.norm == 'linear':
     tend = min(pmaxv, ltickend)
 
     # set tick positions on colorbar
-    ticks = np.asarray([i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+    ticks = np.asarray(
+        [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
     if lloc in ['left', 'right']:
         ax.yaxis.set_ticks((ticks - pminv) / (pmaxv - pminv) * 255)
     else:
         ax.xaxis.set_ticks((ticks - pminv) / (pmaxv - pminv) * 255)
 
     # add power
-    if cscale != 1.0:
+    # if cscale != 1.0:
 
-        last_tick = (ticks[-1] - pminv) / (pmaxv - pminv) * 255
+    #     last_tick = (ticks[-1] - pminv) / (pmaxv - pminv) * 255
 
-        if lloc == 'left':
-            p1 = 0.0
-            p2 = max(1.01, last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-            ha = 'right'
-            va = 'bottom'
-        if lloc == 'right':
-            p1 = 1.0
-            p2 = max(1.01, last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-            ha = 'left'
-            va = 'bottom'
-        if lloc == 'top':
-            p1 = 1.005
-            p2 = 1.0
-            ha = 'left'
-            va = 'center'
-        if lloc == 'bottom':
-            p1 = 1.005
-            p2 = 0.0
-            ha = 'left'
-            va = 'center'
-        ax.text(p1, p2, '$\mathregular{\\times 10^{%i}}$' % scalar, size=ltfs, fontproperties=font, ha=ha, va=va)
+    #     if lloc == 'left':
+    #         p1 = -1.1
+    #         p2 = max(1.01, 1.075*last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
+    #         ha = 'right'
+    #         va = 'bottom'
+    #     if lloc == 'right':
+    #         p1 = 1.1
+    #         p2 = max(1.01, 1.075*last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
+    #         ha = 'left'
+    #         va = 'bottom'
+    #     if lloc == 'top':
+    #         p1 = max(1.01, 1.05*last_tick + 0.75 * ltfs * 0.01388888889 / lwidth)
+    #         p2 = -1.6
+    #         ha = 'left'
+    #         va = 'center'
+    #     if lloc == 'bottom':
+    #         p1 = max(1.01, 1.05*last_tick + 0.75 * ltfs * 0.01388888889 / lwidth)
+    #         p2 = 1.6
+    #         ha = 'left'
+    #         va = 'center'
+    #     ax.text(p1,
+    #             p2,
+    #             r'$\mathregular{\times 10^{%i}}$' % scalar,
+    #             fontproperties=font,
+    #             size=ltfs,
+    #             ha=ha,
+    #             va=va)
 
     # set tick labels on colorbar
     tick_labels = ['' for i in range(0, len(ticks))]
     for i in range(0, len(ticks)):
         tick_labels[i] = ('%f' % (ticks[i] / cscale)).rstrip('0').rstrip('.')
-    if lloc in ['left', 'right']:
-        ax.yaxis.set_ticklabels(tick_labels)
+    if lloc == 'left' or lloc == 'right':
+        if cscale != 1:
+            if lloc == 'left':
+                tick_labels[-1] = r'$\mathregular{10^{%i}}\times$' % scalar + '\n' + tick_labels[-1]
+            else:
+                tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
+        ax.set_yticklabels(tick_labels)
     else:
-        ax.xaxis.set_ticklabels(tick_labels)
+        if cscale != 1:
+            if lloc == 'top':
+                tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
+            else:
+                tick_labels[-1] = tick_labels[-1] + '\n' + r'$\mathregular{\times 10^{%i}}$' % scalar
+        ax.set_xticklabels(tick_labels)
 
     # colorbar minor ticks
     if args.lmtick != 0:
@@ -324,7 +334,8 @@ if args.norm == 'linear':
         for i in range(0, nt - 1):
             mticks = np.append(mticks, np.linspace(pticks[i], pticks[i + 1], args.lmtick + 2))
         mticks = [i for i in mticks if (i not in pticks)]
-        mticks = np.asarray([i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+        mticks = np.asarray(
+            [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
         # set minor ticks
         if lloc == 'left' or lloc == 'right':
             ax.yaxis.set_ticks((mticks - pminv) / (pmaxv - pminv) * 255, minor=True)
@@ -359,7 +370,8 @@ if args.norm == 'log':
     tend = min(pmaxv, ltickend)
 
     # set tick positions on colorbar
-    ticks = np.asarray([i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+    ticks = np.asarray(
+        [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
     if lloc in ['left', 'right']:
         ax.yaxis.set_ticks((ticks - pminv) / (pmaxv - pminv) * 255)
     else:
@@ -385,9 +397,11 @@ if args.norm == 'log':
         nt = len(pticks)
         mticks = []
         for i in range(0, nt - 1):
-            mticks = np.append(mticks, np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
+            mticks = np.append(mticks, np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1],
+                                                            args.lmtick + 2)))
         mticks = [i for i in mticks if (i not in pticks)]
-        mticks = np.asarray([i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+        mticks = np.asarray(
+            [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
         # set minor ticks
         if lloc == 'left' or lloc == 'right':
             ax.yaxis.set_ticks((mticks - pminv) / (pmaxv - pminv) * 255, minor=True)

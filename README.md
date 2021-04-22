@@ -1,17 +1,13 @@
 
-# Pymplot: A lightweight matplotlib-based application package for plotting 1D, 2D and 3D scalar datasets 
+# `pymplot`: An open-source, lightweight plotting package for efficient visualization of multi-dimensional geophysical data
 
 ## Description
 
-**pymplot** is a lightweight python+matplotlib-based application package for efficiently generating high-quality plots for 1D, 2D and 3D scalar data. See our paper for further details. 
+**pymplot** is a lightweight python + matplotlib based application package for efficiently generating high-quality plots for multi-dimensional scalar data. See our paper for further details. 
 
-LANL C number for this package: C20105
+LANL C number: C20105
 
-Developer: Kai Gao @ EES-17, LANL
-
-## Reference
-
-We will submit an associated paper. The paper draft is in doc. 
+Author: Kai Gao @ EES-17, LANL
 
 ## Installation
 
@@ -20,28 +16,30 @@ We will submit an associated paper. The paper draft is in doc.
 	
 The installed links to executables are installed at $HOME/bin, with names `x_showmatrix`, `x_showcontour`, `x_showwiggle`, etc. Please make sure that $HOME/bin is in your system path. 
 
-You also need to have `numpy`, `scipy`, `matplotlib` in your Python distribution. 
+You also need to have `numpy`, `scipy`, `matplotlib`, and `pyvista` in your Python distribution. 
 
-Currently, Windows platform is not supported due to technical reasons. 
+Currently, Windows platforms are not supported due to technical reasons. 
+
+## Documentation
+You can type `x_show...` in the commond line to check the meaning of arguments. 
 
 ## Examples
 
-Please refer to the ruby script in the example directory to reproduce the examples in the paper draft. 
-
+Please refer to the ruby script (`example/test.rb`) to reproduce some of the examples in the paper draft.
 
 ## License
 
-The **pymplot** package is distributed under the `BSD license`. See details in LICENSE. 
+**pymplot** is distributed under the `BSD license`. See details in LICENSE. 
 
 
 ## Reporting Bugs or Suggest Improvements
 
-Report bugs at https://github.com/lanl/pymplot/issues. If you are reporting a bug, please include:
+Report bugs [here](https://github.com/lanl/pymplot/issues). If you are reporting a bug, please include:
 
 * Any details about your local setup that might be helpful in troubleshooting.
 * Detailed steps to reproduce the bug.
 
 The author welcomes functionality improvement/extension suggestions. If you are suggesting an improvement/extension, please include:
 
-* Detailed description of the suggested functionality(ies).
+* A detailed description of the suggested functionality(ies).
 

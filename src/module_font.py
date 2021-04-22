@@ -64,18 +64,15 @@ def set_font(args):
 
     # enforce type 1 font in output: usually result in larger files than type 3 font
     # however, type 3 font is sometimes not accepted for publications
-    mplt.rcParams['pdf.fonttype'] = 42
-    mplt.rcParams['ps.fonttype'] = 42
+    # mplt.rcParams['pdf.fonttype'] = 42
+    # mplt.rcParams['ps.fonttype'] = 42
     #mplt.rcParams['text.antialiased']=True
     #mplt.rcParams['text.usetex']=True
 
     # font paths
-    srcdir = os.path.dirname(
-        os.path.abspath(inspect.getfile(inspect.currentframe())))
-    font = fm.FontProperties(
-        fname=srcdir + '/fonts_subset/' + basefont + '.ttf')
-    fontbold = fm.FontProperties(
-        fname=srcdir + '/fonts_subset/' + basefont + 'Bold.ttf')
+    srcdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    font = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + '.ttf')
+    fontbold = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + 'Bold.ttf')
     #font=fm.FontProperties(fname=srcdir+'/fonts/'+basefont+'.ttf')
     #fontbold=fm.FontProperties(fname=srcdir+'/fonts/'+basefont+'Bold.ttf')
 

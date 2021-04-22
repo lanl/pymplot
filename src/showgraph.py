@@ -29,9 +29,10 @@ warnings.filterwarnings("ignore", module="matplotlib")
 
 # read arguments
 # assign description to the help doc
-parser = argparse.ArgumentParser(description='''Read data from binary or ascii file and plot as curves or scatters,
-    written by K.G. @ 2016.07, 2016.08, 2016.10''',
-                                 formatter_class=RawTextHelpFormatter)
+parser = argparse.ArgumentParser(
+    description='''Read data from binary or ascii file and plot as curves or scatters,
+    written by K.G. @ 2016.07, 2016.08, 2016.10, 2020.04''',
+    formatter_class=RawTextHelpFormatter)
 
 flags = parser.add_argument_group('required arguments')
 
@@ -53,7 +54,12 @@ parser.add_argument('-select',
                     required=False,
                     nargs='+',
                     default='')
-parser.add_argument('-dtype', '--datatype', type=str, help='Data type, =float or =int', required=False, default='float')
+parser.add_argument('-dtype',
+                    '--datatype',
+                    type=str,
+                    help='Data type, =float or =int',
+                    required=False,
+                    default='float')
 parser.add_argument('-endian',
                     '--endian',
                     type=str,
@@ -68,7 +74,12 @@ parser.add_argument('-transpose',
                     default=0)
 parser.add_argument('-size1', '--size1', type=str, help='Axis 1 length', required=False, default='')
 parser.add_argument('-size2', '--size2', type=str, help='Axis 2 length', required=False, default='')
-parser.add_argument('-dpi', '--dpi', type=str, help='Figure export DPI, =300 by default', required=False, default='300')
+parser.add_argument('-dpi',
+                    '--dpi',
+                    type=str,
+                    help='Figure export DPI, =300 by default',
+                    required=False,
+                    default='300')
 parser.add_argument('-ftype',
                     '--filetype',
                     type=str,
@@ -153,10 +164,25 @@ parser.add_argument('-f2',
                     help='First sample value along axis 2, =0 default',
                     required=False,
                     default='0.0')
-parser.add_argument('-label1', '--label1', type=str, help='Label of axis 1 ', required=False, default='Axis 1')
+parser.add_argument('-label1',
+                    '--label1',
+                    type=str,
+                    help='Label of axis 1 ',
+                    required=False,
+                    default='Axis 1')
 parser.add_argument('-label2', '--label2', type=str, help='Label of axis 2', required=False, default='Axis 2')
-parser.add_argument('-label1loc', '--label1loc', type=str, help='Label location of axis 1', required=False, default='')
-parser.add_argument('-label2loc', '--label2loc', type=str, help='Label location of axis 2', required=False, default='')
+parser.add_argument('-label1loc',
+                    '--label1loc',
+                    type=str,
+                    help='Label location of axis 1',
+                    required=False,
+                    default='')
+parser.add_argument('-label2loc',
+                    '--label2loc',
+                    type=str,
+                    help='Label location of axis 2',
+                    required=False,
+                    default='')
 parser.add_argument('-label1pad',
                     '--label1pad',
                     type=str,
@@ -187,8 +213,18 @@ parser.add_argument('-x1beg', '--x1beg', type=str, help='Plot axis 1 begin ', re
 parser.add_argument('-x1end', '--x1end', type=str, help='Plot axis 1 end ', required=False, default='')
 parser.add_argument('-x2beg', '--x2beg', type=str, help='Plot axis 2 begin ', required=False, default='')
 parser.add_argument('-x2end', '--x2end', type=str, help='Plot axis 2 end ', required=False, default='')
-parser.add_argument('-reverse1', '--reverse1', type=int, help='Reverse axis 1 ', required=False, default=0)
-parser.add_argument('-reverse2', '--reverse2', type=int, help='Reverse axis 2 ', required=False, default=0)
+parser.add_argument('-reverse1',
+                    '--reverse1',
+                    type=str2bool,
+                    help='Reverse axis 1 ',
+                    required=False,
+                    default='n')
+parser.add_argument('-reverse2',
+                    '--reverse2',
+                    type=str2bool,
+                    help='Reverse axis 2 ',
+                    required=False,
+                    default='n')
 parser.add_argument('-norm1',
                     '--norm1',
                     type=str,
@@ -229,12 +265,42 @@ parser.add_argument('-ticks2',
                     required=False,
                     nargs='+',
                     default='')
-parser.add_argument('-tick1beg', '--tick1beg', type=str, help='First tick along axis 1', required=False, default='')
-parser.add_argument('-tick2beg', '--tick2beg', type=str, help='First tick along axis 2', required=False, default='')
-parser.add_argument('-tick1end', '--tick1end', type=str, help='Last tick along axis 1', required=False, default='')
-parser.add_argument('-tick2end', '--tick2end', type=str, help='Last tick along axis 2', required=False, default='')
-parser.add_argument('-tick1d', '--tick1d', type=str, help='Tick interval along axis 1', required=False, default='')
-parser.add_argument('-tick2d', '--tick2d', type=str, help='Tick interval along axis 2', required=False, default='')
+parser.add_argument('-tick1beg',
+                    '--tick1beg',
+                    type=str,
+                    help='First tick along axis 1',
+                    required=False,
+                    default='')
+parser.add_argument('-tick2beg',
+                    '--tick2beg',
+                    type=str,
+                    help='First tick along axis 2',
+                    required=False,
+                    default='')
+parser.add_argument('-tick1end',
+                    '--tick1end',
+                    type=str,
+                    help='Last tick along axis 1',
+                    required=False,
+                    default='')
+parser.add_argument('-tick2end',
+                    '--tick2end',
+                    type=str,
+                    help='Last tick along axis 2',
+                    required=False,
+                    default='')
+parser.add_argument('-tick1d',
+                    '--tick1d',
+                    type=str,
+                    help='Tick interval along axis 1',
+                    required=False,
+                    default='')
+parser.add_argument('-tick2d',
+                    '--tick2d',
+                    type=str,
+                    help='Tick interval along axis 2',
+                    required=False,
+                    default='')
 parser.add_argument('-mtick1',
                     '--mtick1',
                     type=int,
@@ -247,8 +313,18 @@ parser.add_argument('-mtick2',
                     help='Number of minor ticks between two major ticks along axis 2',
                     required=False,
                     default=0)
-parser.add_argument('-tick1size', '--tick1size', type=str, help='Tick font size on axis 1', required=False, default='')
-parser.add_argument('-tick2size', '--tick2size', type=str, help='Tick font size on axis 2', required=False, default='')
+parser.add_argument('-tick1size',
+                    '--tick1size',
+                    type=str,
+                    help='Tick font size on axis 1',
+                    required=False,
+                    default='')
+parser.add_argument('-tick2size',
+                    '--tick2size',
+                    type=str,
+                    help='Tick font size on axis 2',
+                    required=False,
+                    default='')
 parser.add_argument('-tickmajorlen',
                     '--tickmajorlen',
                     type=str,
@@ -275,40 +351,40 @@ parser.add_argument('-tickminorwid',
                     default='')
 parser.add_argument('-tickleft',
                     '--tickleft',
-                    type=str,
-                    help='Ticks on the left axis, =on (default) or =off',
+                    type=str2bool,
+                    help='Ticks on the left axis, =y (default) or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-tickright',
                     '--tickright',
-                    type=str,
-                    help='Ticks on the right axis, =on or =off (default)',
+                    type=str2bool,
+                    help='Ticks on the right axis, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-ticktop',
                     '--ticktop',
-                    type=str,
-                    help='Ticks on the top axis, =off (default) or =on',
+                    type=str2bool,
+                    help='Ticks on the top axis, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-tickbottom',
                     '--tickbottom',
-                    type=str,
-                    help='Ticks on the bottom axis, =off or =on (default)',
+                    type=str2bool,
+                    help='Ticks on the bottom axis, =y (default) or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-tick1label',
                     '--tick1label',
-                    type=str,
-                    help='Axis 1 tick labels, =on (default) or off',
+                    type=str2bool,
+                    help='Axis 1 tick labels, =y (default) or n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-tick2label',
                     '--tick2label',
-                    type=str,
-                    help='Axis 2 tick labels, =on (default) or off',
+                    type=str2bool,
+                    help='Axis 2 tick labels, =y (default) or n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-tick1format',
                     '--tick1format',
                     type=str,
@@ -325,16 +401,16 @@ or any legal format''',
                     default='sci')
 parser.add_argument('-grid1',
                     '--grid1',
-                    type=str,
-                    help='Grid lines along axis 1, =on or =off (default)',
+                    type=str2bool,
+                    help='Grid lines along axis 1, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-grid2',
                     '--grid2',
-                    type=str,
-                    help='Grid lines along axis 2, =on or =off (default)',
+                    type=str2bool,
+                    help='Grid lines along axis 2, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-grid1width',
                     '--grid1width',
                     type=str,
@@ -376,16 +452,16 @@ solid or -, dashed or --, dashdot or -., dotted or :''',
 
 parser.add_argument('-mgrid1',
                     '--mgrid1',
-                    type=str,
-                    help='Minor grid lines along axis 1, =on or =off (default)',
+                    type=str2bool,
+                    help='Minor grid lines along axis 1, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-mgrid2',
                     '--mgrid2',
-                    type=str,
-                    help='Minor grid lines along axis 2, =on or =off (default)',
+                    type=str2bool,
+                    help='Minor grid lines along axis 2, =y or =n (default)',
                     required=False,
-                    default='off')
+                    default='n')
 parser.add_argument('-mgrid1width',
                     '--mgrid1width',
                     type=str,
@@ -427,34 +503,34 @@ solid or -, dashed or --, dashdot or -., dotted or :''',
 
 parser.add_argument('-topframe',
                     '--topframe',
-                    type=str,
-                    help='Show top frame or hide, =on by default or =off',
+                    type=str2bool,
+                    help='Show top frame or hide, =y by default or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-bottomframe',
                     '--bottomframe',
-                    type=str,
-                    help='Show bottom frame or hide, =on by default or =off',
+                    type=str2bool,
+                    help='Show bottom frame or hide, =y by default or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-leftframe',
                     '--leftframe',
-                    type=str,
-                    help='Show left frame or hide, =on by default or =off',
+                    type=str2bool,
+                    help='Show left frame or hide, =y by default or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-rightframe',
                     '--rightframe',
-                    type=str,
-                    help='Show right frame or hide, =on by default or =off',
+                    type=str2bool,
+                    help='Show right frame or hide, =y by default or =n',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-centerframe',
                     '--centerframe',
-                    type=str,
-                    help='Show center frame or hide, =on or =off by default',
+                    type=str2bool,
+                    help='Show center frame or hide, =y or =n by default',
                     required=False,
-                    default='on')
+                    default='y')
 parser.add_argument('-tick1rot',
                     '--tick1rot',
                     type=str,
@@ -491,9 +567,27 @@ parser.add_argument('-titley',
 parser = getarg_annotation(parser)
 
 # arguments -- plots
-parser.add_argument('-linestyle', '--linestyle', type=str, help='Line style', required=False, nargs='+', default='')
-parser.add_argument('-linewidth', '--linewidth', type=str, help='Line width', required=False, nargs='+', default='')
-parser.add_argument('-linecolor', '--linecolor', type=str, help='Line color', required=False, nargs='+', default='')
+parser.add_argument('-linestyle',
+                    '--linestyle',
+                    type=str,
+                    help='Line style',
+                    required=False,
+                    nargs='+',
+                    default='')
+parser.add_argument('-linewidth',
+                    '--linewidth',
+                    type=str,
+                    help='Line width',
+                    required=False,
+                    nargs='+',
+                    default='')
+parser.add_argument('-linecolor',
+                    '--linecolor',
+                    type=str,
+                    help='Line color',
+                    required=False,
+                    nargs='+',
+                    default='')
 parser.add_argument('-linealpha',
                     '--linealpha',
                     type=str,
@@ -502,9 +596,21 @@ parser.add_argument('-linealpha',
                     nargs='+',
                     default='')
 
-parser.add_argument('-close', '--close', type=str, help='Curve closed or not', required=False, nargs='+', default='')
+parser.add_argument('-close',
+                    '--close',
+                    type=str,
+                    help='Curve closed or not',
+                    required=False,
+                    nargs='+',
+                    default='')
 
-parser.add_argument('-marker', '--marker', type=str, help='Marker style', required=False, nargs='+', default='')
+parser.add_argument('-marker',
+                    '--marker',
+                    type=str,
+                    help='Marker style',
+                    required=False,
+                    nargs='+',
+                    default='')
 parser.add_argument('-markerevery',
                     '--markerevery',
                     type=str,
@@ -512,7 +618,13 @@ parser.add_argument('-markerevery',
                     required=False,
                     nargs='+',
                     default='')
-parser.add_argument('-markersize', '--markersize', type=str, help='Marker size', required=False, nargs='+', default='')
+parser.add_argument('-markersize',
+                    '--markersize',
+                    type=str,
+                    help='Marker size',
+                    required=False,
+                    nargs='+',
+                    default='')
 parser.add_argument('-markerfacecolor',
                     '--markerfacecolor',
                     type=str,
@@ -1088,10 +1200,12 @@ if args.plottype == 1:
             print('error: inappropriate axis 2 limits for log plot')
             exit()
         if x2beg <= 0 and x2end > 0:
-            print('warning: axis 2 starts with inappropriate value for log plot, setting to %e' % (1.0e-5 * x2end))
+            print('warning: axis 2 starts with inappropriate value for log plot, setting to %e' %
+                  (1.0e-5 * x2end))
             x2beg = 1.0e-5 * x2end
         if x2beg > 0 and x2end <= 0:
-            print('warning: axis 2 ends with inappropriate value for log plot, setting to %e' % (1.0e5 * x2beg))
+            print('warning: axis 2 ends with inappropriate value for log plot, setting to %e' %
+                  (1.0e5 * x2beg))
             x2end = 1.0e5 * x2beg
 
     print('value range ', ymin, ' -- ', ymax)
@@ -1118,10 +1232,12 @@ if args.plottype == 2 or args.plottype == 3:
             print('error: inappropriate axis 1 limits for log plot')
             exit()
         if x1beg <= 0 and x1end > 0:
-            print('warning: axis 1 starts with inappropriate value for log plot, setting to %e' % (1.0e-5 * x1end))
+            print('warning: axis 1 starts with inappropriate value for log plot, setting to %e' %
+                  (1.0e-5 * x1end))
             x1beg = 1.0e-5 * x1end
         if x1beg > 0 and x1end <= 0:
-            print('warning: axis 1 ends with inappropriate value for log plot, setting to %e' % (1.0e5 * x1beg))
+            print('warning: axis 1 ends with inappropriate value for log plot, setting to %e' %
+                  (1.0e5 * x1beg))
             x1end = 1.0e5 * x1beg
 
     # set axis 2
@@ -1143,10 +1259,12 @@ if args.plottype == 2 or args.plottype == 3:
             print('error: inappropriate axis 2 limits for log plot')
             exit()
         if x2beg <= 0 and x2end > 0:
-            print('warning: axis 2 starts with inappropriate value for log plot, setting to %e' % (1.0e-5 * x2end))
+            print('warning: axis 2 starts with inappropriate value for log plot, setting to %e' %
+                  (1.0e-5 * x2end))
             x2beg = 1.0e-5 * x2end
         if x2beg > 0 and x2end <= 0:
-            print('warning: axis 2 ends with inappropriate value for log plot, setting to %e' % (1.0e5 * x2beg))
+            print('warning: axis 2 ends with inappropriate value for log plot, setting to %e' %
+                  (1.0e5 * x2beg))
             x2end = 1.0e5 * x2beg
 
     if args.plottype == 2:
@@ -1171,9 +1289,9 @@ if args.plottype == 2 or args.plottype == 3:
             if zmin == zmax:
                 msize = np.append(msize, [j for j in data[nrange[i, 0]:nrange[i, 1], 2]])
             else:
-                msize = np.append(msize,
-                                  [(j - zmin) / (zmax - zmin) * (markersizemax[i] - markersizemin[i]) + markersizemin[i]
-                                   for j in data[nrange[i, 0]:nrange[i, 1], 2]])
+                msize = np.append(msize, [(j - zmin) / (zmax - zmin) *
+                                          (markersizemax[i] - markersizemin[i]) + markersizemin[i]
+                                          for j in data[nrange[i, 0]:nrange[i, 1], 2]])
 
         print('value range ', zmin, ' -- ', zmax)
 
@@ -1187,20 +1305,20 @@ if args.plottype == 2 or args.plottype == 3:
 
 # set axis limits
 if args.direction == 'horizontal':
-    if args.reverse1 == 0:
+    if not args.reverse1:
         ax.set_xlim([x1beg, x1end])
     else:
         ax.set_xlim([x1end, x1beg])
-    if args.reverse2 == 0:
+    if not args.reverse2:
         ax.set_ylim([x2beg, x2end])
     else:
         ax.set_ylim([x2end, x2beg])
 if args.direction == 'vertical':
-    if args.reverse1 == 0:
+    if not args.reverse1:
         ax.set_ylim([x1beg, x1end])
     else:
         ax.set_ylim([x1end, x1beg])
-    if args.reverse2 == 0:
+    if not args.reverse2:
         ax.set_xlim([x2beg, x2end])
     else:
         ax.set_xlim([x2end, x2beg])
@@ -1423,7 +1541,17 @@ set_frame(args)
 
 
 # set tick
-def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, axislen, norm='linear', base=10, format='sci'):
+def define_tick(ticks,
+                tickbeg,
+                tickend,
+                tickd,
+                mtick,
+                xbeg,
+                xend,
+                axislen,
+                norm='linear',
+                base=10,
+                format='sci'):
 
     scalar = []
 
@@ -1574,7 +1702,8 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, axislen, norm
             ticks = [int(round(i)) for i in ticks]
             tbeg = max(math.log(xbeg, base), tick_beg)
             tend = min(math.log(xend, base), tick_end)
-            tick = np.asarray([i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+            tick = np.asarray(
+                [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
 
             # tick labels
             tick_label = ['' for i in range(0, len(tick))]
@@ -1593,13 +1722,15 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, axislen, norm
                 # print pticks
                 mticks = []
                 for i in range(0, nt - 1):
-                    tlog = np.linspace(np.float_power(base, pticks[i]), np.float_power(base, pticks[i + 1]), mtick + 2)
+                    tlog = np.linspace(np.float_power(base, pticks[i]), np.float_power(base, pticks[i + 1]),
+                                       mtick + 2)
                     for j in range(0, len(tlog)):
                         if np.abs(math.log(tlog[j], base) - pticks[i]) > 1.0e-2 and np.abs(
                                 math.log(tlog[j], base) - pticks[min(i + 1, nt - 1)]) > 1.0e-2:
                             mticks = np.append(mticks, math.log(tlog[j], base))
-                minor_tick = np.asarray(
-                    [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+                minor_tick = np.asarray([
+                    i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
+                ])
                 # repower minor tick
                 minor_tick = [np.float_power(base, i) for i in minor_tick]
             else:
@@ -1631,10 +1762,12 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, axislen, norm
             # minor ticks
             if mtick != 0:
                 mtick = mtick + 1
-                minor_tick = np.linspace(np.float_power(base, tick[0]), np.float_power(base, tick[1]), mtick + 1)
+                minor_tick = np.linspace(np.float_power(base, tick[0]), np.float_power(base, tick[1]),
+                                         mtick + 1)
                 minor_tick = minor_tick[1:mtick]
                 for i in range(1, len(tick) - 1):
-                    t = np.linspace(np.float_power(base, tick[i]), np.float_power(base, tick[i + 1]), mtick + 1)
+                    t = np.linspace(np.float_power(base, tick[i]), np.float_power(base, tick[i + 1]),
+                                    mtick + 1)
                     for j in range(1, mtick):
                         minor_tick = np.append(minor_tick, math.log(t[j], base))
             else:
@@ -1660,22 +1793,22 @@ if args.projection == 'cartesian':
         if args.norm2 == 'log':
             ax.set_xscale('log', nonposy='clip', basex=int(args.base2))
 
-    if args.ticktop == 'on':
+    if args.ticktop:
         ticktop = 1
     else:
         ticktop = 0
 
-    if args.tickbottom == 'on':
+    if args.tickbottom:
         tickbottom = 1
     else:
         tickbottom = 0
 
-    if args.tickleft == 'on':
+    if args.tickleft:
         tickleft = 1
     else:
         tickleft = 0
 
-    if args.tickright == 'on':
+    if args.tickright:
         tickright = 1
     else:
         tickright = 0
@@ -1744,12 +1877,12 @@ if args.projection == 'cartesian':
             tick_2_font_size = float(args.tick2size)
 
         # axis 1
-        tick1, tick1_label, minor_tick1, scalar1 = \
-            define_tick(args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
-                        args.mtick1, x1beg, x1end, size1, args.norm1, int(args.base1), args.tick1format)
+        tick1, tick1_label, minor_tick1, scalar1 = define_tick(args.ticks1, args.tick1beg, args.tick1end,
+                                                               args.tick1d, args.mtick1, x1beg, x1end, size1,
+                                                               args.norm1, int(args.base1), args.tick1format)
         ax.xaxis.set_ticks(tick1)
-        ax.xaxis.set_ticks(minor_tick1, 'minor')
-        if args.tick1label == 'off':
+        ax.xaxis.set_ticks(minor_tick1, minor=True)
+        if not args.tick1label:
             ax.xaxis.set_ticklabels([])
         else:
             ax.xaxis.set_ticklabels(tick1_label)
@@ -1759,12 +1892,12 @@ if args.projection == 'cartesian':
                 l.set_fontsize(tick_1_font_size)
 
         # axis 2
-        tick2, tick2_label, minor_tick2, scalar2 = \
-            define_tick(args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
-                        args.mtick2, x2beg, x2end, size2, args.norm2, int(args.base2), args.tick2format)
+        tick2, tick2_label, minor_tick2, scalar2 = define_tick(args.ticks2, args.tick2beg, args.tick2end,
+                                                               args.tick2d, args.mtick2, x2beg, x2end, size2,
+                                                               args.norm2, int(args.base2), args.tick2format)
         ax.yaxis.set_ticks(tick2)
-        ax.yaxis.set_ticks(minor_tick2, 'minor')
-        if args.tick2label == 'off':
+        ax.yaxis.set_ticks(minor_tick2, minor=True)
+        if not args.tick2label:
             ax.yaxis.set_ticklabels([])
         else:
             ax.yaxis.set_ticklabels(tick2_label)
@@ -1793,35 +1926,35 @@ if args.projection == 'cartesian':
         ipp = 0.0138889
 
         if scalar1 != []:
-            if args.reverse1 == 0:
+            if not args.reverse1:
                 ha = 'left'
                 tt = r'$\mathregular{\times 10^{%i}}$' % scalar1
             else:
                 ha = 'right'
                 tt = r'$\mathregular{10^{%i} \times}$' % scalar1
-            if args.reverse2 == 0:
-                py1 = x2end + 1.1 * (float(args.tickmajorlen) * ipp + tick_1_font_size * ipp) / size2 * abs(x2end -
-                                                                                                            x2beg)
-                py2 = x2beg - 1.15 * (float(args.tickmajorlen) * ipp + tick_1_font_size * ipp) / size2 * abs(x2end -
-                                                                                                             x2beg)
+            if not args.reverse2:
+                py1 = x2end + 1.1 * (float(args.tickmajorlen) * ipp +
+                                     tick_1_font_size * ipp) / size2 * abs(x2end - x2beg)
+                py2 = x2beg - 1.15 * (float(args.tickmajorlen) * ipp +
+                                      tick_1_font_size * ipp) / size2 * abs(x2end - x2beg)
             else:
-                py2 = x2end + 1.1 * (float(args.tickmajorlen) * ipp + tick_1_font_size * ipp) / size2 * abs(x2end -
-                                                                                                            x2beg)
-                py1 = x2beg - 1.15 * (float(args.tickmajorlen) * ipp + tick_1_font_size * ipp) / size2 * abs(x2end -
-                                                                                                             x2beg)
-            if args.ticktop == 'on':
+                py2 = x2end + 1.1 * (float(args.tickmajorlen) * ipp +
+                                     tick_1_font_size * ipp) / size2 * abs(x2end - x2beg)
+                py1 = x2beg - 1.15 * (float(args.tickmajorlen) * ipp +
+                                      tick_1_font_size * ipp) / size2 * abs(x2end - x2beg)
+            if args.ticktop:
                 px = min(tick1[-1], x1end) + 0.1 * abs(x1end - x1beg) / size1
                 tx = ax.text(px, py1, tt, ha=ha, va='bottom')
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_1_font_size)
-            if args.tickbottom == 'on':
+            if args.tickbottom:
                 px = min(tick1[-1], x1end) + 0.1 * abs(x1end - x1beg) / size1
                 tx = ax.text(px, py2, tt, ha=ha, va='top')
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_1_font_size)
 
         if scalar2 != []:
-            if args.reverse1 == 0:
+            if not args.reverse1:
                 ha1 = 'right'
                 ha2 = 'left'
                 tt1 = r'$\mathregular{10^{%i} \times}$' % scalar2
@@ -1835,19 +1968,21 @@ if args.projection == 'cartesian':
                 tt1 = r'$\mathregular{10^{%i} \times}$' % scalar2
                 px2 = x1beg - 0.1 * abs(x1end - x1beg) / size1
                 px1 = x1end + 0.1 * abs(x1end - x1beg) / size1
-            if args.reverse2 == 0:
+            if not args.reverse2:
                 # py=max(x2end+0.01*abs(x2end-x2beg)/size2,tick2[-1]+0.075*abs(x2end-x2beg)/size2)
-                py = min(x2end + 0.1 * abs(x2end - x2beg) / size2, tick2[-1] + 0.1 * abs(x2end - x2beg) / size2)
+                py = min(x2end + 0.1 * abs(x2end - x2beg) / size2,
+                         tick2[-1] + 0.1 * abs(x2end - x2beg) / size2)
                 va = 'bottom'
             else:
                 # py=min(x2beg-0.01*abs(x2end-x2beg)/size2,tick2[0]-0.075*abs(x2end-x2beg)/size2)
-                py = max(x2beg - 0.1 * abs(x2end - x2beg) / size2, tick2[0] - 0.1 * abs(x2end - x2beg) / size2)
+                py = max(x2beg - 0.1 * abs(x2end - x2beg) / size2,
+                         tick2[0] - 0.1 * abs(x2end - x2beg) / size2)
                 va = 'bottom'
-            if args.tickleft == 'on':
+            if args.tickleft:
                 tx = ax.text(px1, py, tt1, ha=ha1, va=va)
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_2_font_size)
-            if args.tickright == 'on':
+            if args.tickright:
                 tx = ax.text(px2, py, tt2, ha=ha2, va=va)
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_2_font_size)
@@ -1917,12 +2052,12 @@ if args.projection == 'cartesian':
             tick_2_font_size = float(args.tick2size)
 
         # axis 1
-        tick1, tick1_label, minor_tick1, scalar1 = \
-            define_tick(args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
-                        args.mtick1, x1beg, x1end, size1, args.norm1, int(args.base1), args.tick1format)
+        tick1, tick1_label, minor_tick1, scalar1 = define_tick(args.ticks1, args.tick1beg, args.tick1end,
+                                                               args.tick1d, args.mtick1, x1beg, x1end, size1,
+                                                               args.norm1, int(args.base1), args.tick1format)
         ax.yaxis.set_ticks(tick1)
-        ax.yaxis.set_ticks(minor_tick1, 'minor')
-        if args.tick1label == 'off':
+        ax.yaxis.set_ticks(minor_tick1, minor=True)
+        if not args.tick1label:
             ax.yaxis.set_ticklabels([])
         else:
             ax.yaxis.set_ticklabels(tick1_label)
@@ -1932,12 +2067,12 @@ if args.projection == 'cartesian':
                 l.set_fontsize(tick_1_font_size)
 
         # axis 2
-        tick2, tick2_label, minor_tick2, scalar2 = \
-            define_tick(args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
-                        args.mtick2, x2beg, x2end, size2, args.norm2, int(args.base2), args.tick2format)
+        tick2, tick2_label, minor_tick2, scalar2 = define_tick(args.ticks2, args.tick2beg, args.tick2end,
+                                                               args.tick2d, args.mtick2, x2beg, x2end, size2,
+                                                               args.norm2, int(args.base2), args.tick2format)
         ax.xaxis.set_ticks(tick2)
-        ax.xaxis.set_ticks(minor_tick2, 'minor')
-        if args.tick2label == 'off':
+        ax.xaxis.set_ticks(minor_tick2, minor=True)
+        if not args.tick2label:
             ax.xaxis.set_ticklabels([])
         else:
             ax.xaxis.set_ticklabels(tick2_label)
@@ -1966,35 +2101,35 @@ if args.projection == 'cartesian':
         ipp = 0.0138889
 
         if scalar2 != []:
-            if args.reverse2 == 0:
+            if not args.reverse2:
                 ha = 'left'
                 tt = r'$\mathregular{\times 10^{%i}}$' % scalar2
             else:
                 ha = 'right'
                 tt = r'$\mathregular{10^{%i} \times}$' % scalar2
-            if args.reverse1 == 0:
-                py1 = x1end + 1.1 * (float(args.tickmajorlen) * ipp + tick_2_font_size * ipp) / size1 * abs(x1end -
-                                                                                                            x1beg)
-                py2 = x1beg - 1.15 * (float(args.tickmajorlen) * ipp + tick_2_font_size * ipp) / size1 * abs(x1end -
-                                                                                                             x1beg)
+            if not args.reverse1:
+                py1 = x1end + 1.1 * (float(args.tickmajorlen) * ipp +
+                                     tick_2_font_size * ipp) / size1 * abs(x1end - x1beg)
+                py2 = x1beg - 1.15 * (float(args.tickmajorlen) * ipp +
+                                      tick_2_font_size * ipp) / size1 * abs(x1end - x1beg)
             else:
-                py2 = x1end + 1.1 * (float(args.tickmajorlen) * ipp + tick_2_font_size * ipp) / size1 * abs(x1end -
-                                                                                                            x1beg)
-                py1 = x1beg - 1.15 * (float(args.tickmajorlen) * ipp + tick_2_font_size * ipp) / size1 * abs(x1end -
-                                                                                                             x1beg)
-            if args.ticktop == 'on':
+                py2 = x1end + 1.1 * (float(args.tickmajorlen) * ipp +
+                                     tick_2_font_size * ipp) / size1 * abs(x1end - x1beg)
+                py1 = x1beg - 1.15 * (float(args.tickmajorlen) * ipp +
+                                      tick_2_font_size * ipp) / size1 * abs(x1end - x1beg)
+            if args.ticktop:
                 px = min(tick2[-1], x2end) + 0.1 * abs(x2end - x2beg) / size2
                 tx = ax.text(px, py1, tt, ha=ha, va='bottom')
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_2_font_size)
-            if args.tickbottom == 'on':
+            if args.tickbottom:
                 px = min(tick2[-1], x2end) + 0.1 * abs(x2end - x2beg) / size2
                 tx = ax.text(px, py2, tt, ha=ha, va='top')
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_2_font_size)
 
         if scalar1 != []:
-            if args.reverse2 == 0:
+            if not args.reverse2:
                 ha1 = 'right'
                 ha2 = 'left'
                 tt1 = r'$\mathregular{10^{%i} \times}$' % scalar1
@@ -2008,17 +2143,17 @@ if args.projection == 'cartesian':
                 tt1 = r'$\mathregular{10^{%i} \times}$' % scalar1
                 px2 = x2beg - 0.1 * abs(x2end - x2beg) / size2
                 px1 = x2end + 0.1 * abs(x2end - x2beg) / size2
-            if args.reverse1 == 0:
+            if not args.reverse1:
                 py = max(x1end, tick1[-1]) + 0.1 * abs(x1end - x1beg) / size1
                 va = 'bottom'
             else:
                 py = min(x1beg, tick1[0]) - 0.1 * abs(x1end - x1beg) / size1
                 va = 'bottom'
-            if args.tickleft == 'on':
+            if args.tickleft:
                 tx = ax.text(px1, py, tt1, ha=ha1, va=va)
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_1_font_size)
-            if args.tickright == 'on':
+            if args.tickright:
                 tx = ax.text(px2, py, tt2, ha=ha2, va=va)
                 tx.set_fontproperties(font)
                 tx.set_fontsize(tick_1_font_size)
@@ -2047,12 +2182,11 @@ if args.projection == 'polar':
 
     # axis 2
     tick2, tick2_label, minor_tick2, scalar2 = define_tick(args.ticks2, args.tick2beg, args.tick2end,
-                                                           args.tick2d, args.mtick2, x2beg, x2end, size2, args.norm2,
-                                                           int(args.base2))
+                                                           args.tick2d, args.mtick2, x2beg, x2end, size2,
+                                                           args.norm2, int(args.base2))
     if scalar2 != []:
         # add power to last tick if necessary
-        tick2_label[-1] = tick2_label[-1] + \
-            r'$ \mathregular{\times 10^{%i}}$' % scalar2
+        tick2_label[-1] = tick2_label[-1] + r'$\mathregular{\times 10^{%i}}$' % scalar2
     ax.yaxis.set_ticks(tick2)
     ax.yaxis.set_ticklabels(tick2_label)
 
@@ -2065,9 +2199,9 @@ if args.projection == 'polar':
         l.set_fontsize(tick_2_font_size)
 
     # turn off ticks if necessary
-    if args.tick1label == 'off':
+    if not args.tick1label:
         ax.xaxis.set_ticklabels([])
-    if args.tick2label == 'off':
+    if not args.tick2label:
         ax.yaxis.set_ticklabels([])
 
 # set grid line
@@ -2077,7 +2211,7 @@ if args.direction == 'vertical':
     axx = 'y'
     axy = 'x'
 
-if args.grid1 == 'on':
+if args.grid1:
     # grid line width
     if len(args.grid1width) == 0:
         grid1width = float(args.tickmajorwid)
@@ -2086,7 +2220,7 @@ if args.grid1 == 'on':
     # add grid
     ax.grid(which='major', axis=axx, linestyle=args.grid1style, color=args.grid1color, linewidth=grid1width)
 
-if args.grid2 == 'on':
+if args.grid2:
     # grid line width
     if len(args.grid2width) == 0:
         grid2width = float(args.tickmajorwid)
@@ -2095,23 +2229,31 @@ if args.grid2 == 'on':
     # add grid
     ax.grid(which='major', axis=axy, linestyle=args.grid2style, color=args.grid2color, linewidth=grid2width)
 
-if args.mgrid1 == 'on' and args.mtick1 != 0:
+if args.mgrid1 and args.mtick1 != 0:
     # minor grid line width
     if len(args.mgrid1width) == 0:
         mgrid1width = float(tick_minor_width)
     else:
         mgrid1width = float(args.mgrid1width)
     # add minor grid
-    ax.grid(which='minor', axis=axx, linestyle=args.mgrid1style, color=args.mgrid1color, linewidth=mgrid1width)
+    ax.grid(which='minor',
+            axis=axx,
+            linestyle=args.mgrid1style,
+            color=args.mgrid1color,
+            linewidth=mgrid1width)
 
-if args.mgrid2 == 'on' and args.mtick2 != 0:
+if args.mgrid2 and args.mtick2 != 0:
     # minor grid line width
     if len(args.mgrid2width) == 0:
         mgrid2width = float(tick_minor_width)
     else:
         mgrid2width = float(args.mgrid2width)
     # add minor grid
-    ax.grid(which='minor', axis=axy, linestyle=args.mgrid2style, color=args.mgrid2color, linewidth=mgrid2width)
+    ax.grid(which='minor',
+            axis=axy,
+            linestyle=args.mgrid2style,
+            color=args.mgrid2color,
+            linewidth=mgrid2width)
 
 # set title
 set_title(args, fontbold)
@@ -2418,44 +2560,15 @@ if len(args.polygon) != 0:
 # set colorbar
 def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figwidth, fig):
 
-    if args.legend == 1 and plot_min_value != plot_max_value:
+    if args.legend and plot_min_value != plot_max_value:
 
         # legend location
-        if len(args.legendloc) == 0:
+        if len(args.lloc) == 0:
             lloc = 'right'
         else:
-            lloc = args.legendloc
+            lloc = args.lloc
 
         # legend orientation and tick switc, unit rotation
-        #        if lloc == 'left':
-        #            lorient = 'vertical'
-        #            lleft = 'on'
-        #            lright = 'off'
-        #            ltop = 'off'
-        #            lbottom = 'off'
-        #            lrotate = 90
-        #        if lloc == 'right':
-        #            lorient = 'vertical'
-        #            lleft = 'off'
-        #            lright = 'on'
-        #            ltop = 'off'
-        #            lbottom = 'off'
-        #            lrotate = 270
-        #        if lloc == 'top':
-        #            lorient = 'horizontal'
-        #            lleft = 'off'
-        #            lright = 'off'
-        #            ltop = 'on'
-        #            lbottom = 'off'
-        #            lrotate = 0
-        #        if lloc == 'bottom':
-        #            lorient = 'horizontal'
-        #            lleft = 'off'
-        #            lright = 'off'
-        #            ltop = 'off'
-        #            lbottom = 'on'
-        #            lrotate = 0
-        # Update for matplotlib 3.1, = 'on/off' no longer works
         if lloc == 'left':
             lorient = 'vertical'
             lleft = 1
@@ -2516,10 +2629,10 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             else:
                 lwidth = float(args.lwidth)
 
-        if len(args.legendpad) == 0:
+        if len(args.lpad) == 0:
             cbpad = 0.05
         else:
-            cbpad = float(args.legendpad)
+            cbpad = float(args.lpad)
         if lloc == 'left':
             cbx = -(cbpad + lwidth) / figwidth
             cby = (figheight - lheight) / 2.0 / figheight
@@ -2541,7 +2654,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         else:
             lufs = float(args.unitsize)
 
-        if len(args.unit) == 0:
+        if args.unit is None:
             legend_units = ' '
         else:
             legend_units = args.unit
@@ -2599,8 +2712,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                     base = base / 10.0
                     ltickbeg = nice(plot_min_value, base)
                     nb = nb + 1
-                if abs(ltickbeg) < abs(plot_max_value) and \
-                        orderm(ltickbeg) + 2 < orderm(plot_max_value):
+                if abs(ltickbeg) < abs(plot_max_value) and orderm(ltickbeg) + 2 < orderm(plot_max_value):
                     ltickbeg = 0.0
             else:
                 ltickbeg = float(args.ltickbeg)
@@ -2628,53 +2740,86 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             ticks = np.asarray(
                 [i for i in ticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
             if lloc in ['left', 'right']:
-                cb.ax.yaxis.set_ticks(ticks)  # (ticks - pminv)) # / (pmaxv - pminv))
+                cb.ax.yaxis.set_ticks(ticks)
             else:
-                cb.ax.xaxis.set_ticks(ticks)  # (ticks - pminv)) # / (pmaxv - pminv))
-            # cb.set_ticks(ticks)
+                cb.ax.xaxis.set_ticks(ticks)
 
             # add power
-            if cscale != 1.0:
+            # if cscale != 1.0:
 
-                last_tick = (ticks[-1] - pminv)  # / (pmaxv - pminv)
+            #     last_tick = ticks[-1]
+            #     first_tick = ticks[0]
 
-                if lloc == 'left':
-                    p1 = 0.0
-                    p2 = max(1.01, last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-                    ha = 'right'
-                    va = 'bottom'
-                if lloc == 'right':
-                    p1 = 1.0
-                    p2 = max(1.01, last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-                    ha = 'left'
-                    va = 'bottom'
-                if lloc == 'top':
-                    p1 = 1.005
-                    p2 = 1.0
-                    ha = 'left'
-                    va = 'center'
-                if lloc == 'bottom':
-                    p1 = 1.005
-                    p2 = 0.0
-                    ha = 'left'
-                    va = 'center'
-                cb.ax.text(p1,
-                           p2,
-                           '$\mathregular{\times 10^{%i}}$' % scalar,
-                           size=ltfs,
-                           fontproperties=font,
-                           ha=ha,
-                           va=va)
+            #     ptscale = 0.01388888889
+
+            #     if lloc == 'left':
+            #         p1 = -0.5 * last_tick
+            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
+            #         ha = 'right'
+            #         va = 'bottom'
+            #         cb.ax.text(p1,
+            #                    p2,
+            #                    r'$\mathregular{10^{%i}}\times$' % scalar,
+            #                    fontproperties=font,
+            #                    size=ltfs,
+            #                    ha=ha,
+            #                    va=va)
+            #     if lloc == 'right':
+            #         p1 = 2 * last_tick
+            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
+            #         ha = 'left'
+            #         va = 'bottom'
+            #         cb.ax.text(p1,
+            #                    p2,
+            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+            #                    fontproperties=font,
+            #                    size=ltfs,
+            #                    ha=ha,
+            #                    va=va)
+            #     if lloc == 'top':
+            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
+            #         p2 = 2.7 * last_tick
+            #         ha = 'left'
+            #         va = 'center'
+            #         cb.ax.text(p1,
+            #                    p2,
+            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+            #                    fontproperties=font,
+            #                    size=ltfs,
+            #                    ha=ha,
+            #                    va=va)
+            #     if lloc == 'bottom':
+            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
+            #         p2 = -1.55 * last_tick
+            #         ha = 'left'
+            #         va = 'center'
+            #         cb.ax.text(p1,
+            #                    p2,
+            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
+            #                    fontproperties=font,
+            #                    size=ltfs,
+            #                    ha=ha,
+            #                    va=va)
 
             # set tick labels on colorbar
             tick_labels = ['' for i in range(0, len(ticks))]
             for i in range(0, len(ticks)):
                 tick_labels[i] = ('%f' % (ticks[i] / cscale)).rstrip('0').rstrip('.')
             # cb.set_ticklabels(tick_labels)
-            if lloc in ['left', 'right']:
-                cb.ax.yaxis.set_ticklabels(tick_labels)
+            if lloc == 'left' or lloc == 'right':
+                if cscale != 1:
+                    if lloc == 'left':
+                        tick_labels[-1] = r'$\mathregular{10^{%i}}\times$' % scalar + '\n' + tick_labels[-1]
+                    else:
+                        tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
+                cb.ax.set_yticklabels(tick_labels)
             else:
-                cb.ax.xaxis.set_ticklabels(tick_labels)
+                if cscale != 1:
+                    if lloc == 'top':
+                        tick_labels[-1] = r'$\mathregular{\times 10^{%i}}$' % scalar + '\n' + tick_labels[-1]
+                    else:
+                        tick_labels[-1] = tick_labels[-1] + '\n' + r'$\mathregular{\times 10^{%i}}$' % scalar
+                cb.ax.set_xticklabels(tick_labels)
 
             # colorbar minor ticks
             if args.lmtick != 0:
@@ -2689,8 +2834,9 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                 for i in range(0, nt - 1):
                     mticks = np.append(mticks, np.linspace(pticks[i], pticks[i + 1], args.lmtick + 2))
                 mticks = [i for i in mticks if (i not in pticks)]
-                mticks = np.asarray(
-                    [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+                mticks = np.asarray([
+                    i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
+                ])
                 # set minor ticks
                 # if lloc == 'left' or lloc == 'right':
                 #    cb.ax.yaxis.set_ticks(
@@ -2738,7 +2884,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             # set tick labels on colorbar
             tick_labels = ['' for i in range(0, len(ticks))]
             for i in range(0, len(ticks)):
-                tick_labels[i] = '$\\mathregular{10^{%i}}$' % (ticks[i])
+                tick_labels[i] = '$\mathregular{10^{%i}}$' % (ticks[i])
             if lloc in ['left', 'right']:
                 cb.ax.yaxis.set_ticklabels(tick_labels)
             else:
@@ -2755,10 +2901,12 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                 nt = len(pticks)
                 mticks = []
                 for i in range(0, nt - 1):
-                    mticks = np.append(mticks, np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
+                    mticks = np.append(
+                        mticks, np.log10(np.linspace(10**pticks[i], 10**pticks[i + 1], args.lmtick + 2)))
                 mticks = [i for i in mticks if (i not in pticks)]
-                mticks = np.asarray(
-                    [i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)])
+                mticks = np.asarray([
+                    i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
+                ])
                 # set minor ticks
                 if lloc == 'left' or lloc == 'right':
                     cb.ax.yaxis.set_ticks((mticks - pminv) / (pmaxv - pminv), minor=True)
@@ -2777,7 +2925,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                 cb.ax.invert_xaxis()
 
 
-if args.legend == 1 and args.plottype == 3:
+if args.legend and args.plottype == 3:
     set_colorbar(args, sc, font, cmin, cmax, figheight, figwidth, fig)
 
 # clean

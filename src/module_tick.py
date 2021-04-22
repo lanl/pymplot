@@ -67,10 +67,12 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axisle
         if not extend:
             if d > 0:
                 tick = np.asarray([i for i in tick if i >= xbeg and i <= xend])
-                minor_tick = np.asarray([i for i in minor_tick if i >= xbeg and i <= xend and (not i in tick)])
+                minor_tick = np.asarray(
+                    [i for i in minor_tick if i >= xbeg and i <= xend and (not i in tick)])
             if d < 0:
                 tick = np.asarray([i for i in tick if i <= xbeg and i >= xend])
-                minor_tick = np.asarray([i for i in minor_tick if i <= xbeg and i >= xend and (not i in tick)])
+                minor_tick = np.asarray(
+                    [i for i in minor_tick if i <= xbeg and i >= xend and (not i in tick)])
 
         # linearly scale the ticks to figure canvas
         if ns == 1:
@@ -151,22 +153,22 @@ def set_tick(args,
     label_1_size = float(args.label1size)
     label_2_size = float(args.label2size)
 
-    if args.ticktop == 'on':
+    if args.ticktop:
         ticktop = 1
     else:
         ticktop = 0
 
-    if args.tickbottom == 'on':
+    if args.tickbottom:
         tickbottom = 1
     else:
         tickbottom = 0
 
-    if args.tickleft == 'on':
+    if args.tickleft:
         tickleft = 1
     else:
         tickleft = 0
 
-    if args.tickright == 'on':
+    if args.tickright:
         tickright = 1
     else:
         tickright = 0
@@ -216,19 +218,21 @@ def set_tick(args,
         tick_2_font_size = float(args.tick2size)
 
     # axis 1
-    tick_1_location, tick_1_label, tick_1_minor = define_tick(args.ticks1, args.tick1beg, args.tick1end, args.tick1d,
-                                                              args.mtick1, x1beg, x1end, n1end - n1beg + 1, d1,
-                                                              axis1len, args.tick1format, extend)
+    tick_1_location, tick_1_label, tick_1_minor = define_tick(args.ticks1, args.tick1beg, args.tick1end,
+                                                              args.tick1d, args.mtick1, x1beg, x1end,
+                                                              n1end - n1beg + 1, d1, axis1len,
+                                                              args.tick1format, extend)
     plt.yticks(tick_1_location, tick_1_label, fontsize=tick_1_font_size, rotation=float(args.tick1rot))
-    if args.tick1label == 'off':
+    if not args.tick1label:
         ax.yaxis.set_ticklabels([])
 
     # axis 2
-    tick_2_location, tick_2_label, tick_2_minor = define_tick(args.ticks2, args.tick2beg, args.tick2end, args.tick2d,
-                                                              args.mtick2, x2beg, x2end, n2end - n2beg + 1, d2,
-                                                              axis2len, args.tick2format, extend)
+    tick_2_location, tick_2_label, tick_2_minor = define_tick(args.ticks2, args.tick2beg, args.tick2end,
+                                                              args.tick2d, args.mtick2, x2beg, x2end,
+                                                              n2end - n2beg + 1, d2, axis2len,
+                                                              args.tick2format, extend)
     plt.xticks(tick_2_location, tick_2_label, fontsize=tick_2_font_size, rotation=float(args.tick2rot))
-    if args.tick2label == 'off':
+    if not args.tick2label:
         ax.xaxis.set_ticklabels([])
 
     # major and minor ticks sytle

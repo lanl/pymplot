@@ -38,9 +38,7 @@ def set_default(arguments, separator, length, default, conversion='none', consis
 # circle/ellipse
 # polygon
 # arrow/line
-def set_annotation(args,font, \
-    x1beg,n1,d1,axis1len, \
-    x2beg,n2,d2,axis2len):
+def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len):
 
     # get axis of current plot
     ax = plt.gca()
@@ -218,15 +216,16 @@ def set_annotation(args,font, \
             head1 = (float(arrowloc[2]) - x1beg + 0.5 * d1) / (n1 * d1) * axis1len
             head2 = (float(arrowloc[3]) - x2beg + 0.5 * d2) / (n2 * d2) * axis2len
             if arrowstyle[i] != '-':
-                ax.annotate('',xytext=(tail2,tail1),xy=(head2,head1), \
-                    arrowprops=dict(
-                    arrowstyle=arrowstyle[i],
-                    connectionstyle=arrowconnect[i],
-                    facecolor=arrowfacecolor[i],
-                    edgecolor=arrowedgecolor[i],
-                    linewidth=arrowwidth[i],
-                    linestyle=arrowlinestyle[i]),
-                    zorder=arroworder[i])
+                ax.annotate('',
+                            xytext=(tail2, tail1),
+                            xy=(head2, head1),
+                            arrowprops=dict(arrowstyle=arrowstyle[i],
+                                            connectionstyle=arrowconnect[i],
+                                            facecolor=arrowfacecolor[i],
+                                            edgecolor=arrowedgecolor[i],
+                                            linewidth=arrowwidth[i],
+                                            linestyle=arrowlinestyle[i]),
+                            zorder=arroworder[i])
             else:
                 x1 = [tail1, head1]
                 x2 = [tail2, head2]
