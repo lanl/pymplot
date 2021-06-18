@@ -1,4 +1,7 @@
-## set annotation
+'''
+    Module:
+        Add various types of annotations to a plot. 
+'''
 from pylab import *
 import numpy as np
 from matplotlib.patches import *
@@ -7,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # set default value
 def set_default(arguments, separator, length, default, conversion='none', consistent=False):
-    if len(arguments) != 0:
+    if arguments is not None:
         vals = arguments[0].split(separator)
         if len(vals) < length:
             l = len(vals)
@@ -44,7 +47,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
     ax = plt.gca()
 
     # plot curve
-    if len(args.curve) != 0:
+    if args.curve is not None:
 
         curvefile = args.curve[0].split(",")
         nf = len(curvefile)
@@ -100,7 +103,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                 ax.add_artist(extra)
 
     # place text
-    if len(args.text) != 0:
+    if args.text is not None:
 
         # text contents
         text = args.text[0].split(":")
@@ -127,7 +130,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
             dtextloc[i] = center2
         dtextloc = reshape(dtextloc, (nf, 2))
 
-        if len(args.textloc) != 0:
+        if args.textloc is not None:
             textloc = args.textloc[0].split(":")
             if len(textloc) < nf:
                 l = len(textloc)
@@ -188,7 +191,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                 t.set_size(textsize[i])
 
     # add arrows
-    if len(args.arrow) != 0:
+    if args.arrow is not None:
 
         # arrow start and ending coordinates
         arrow = args.arrow[0].split(':')
@@ -238,7 +241,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                 ax.add_artist(extra)
 
     # add circle/ellipse
-    if len(args.circle) != 0:
+    if args.circle is not None:
 
         circle = args.circle[0].split(':')
         nf = len(circle)
@@ -282,7 +285,7 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
             ax.add_artist(extra)
 
     # add filled polygons
-    if len(args.polygon) != 0:
+    if args.polygon is not None:
 
         polygon = args.polygon[0].split(':')
         nf = len(polygon)

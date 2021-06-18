@@ -1,36 +1,36 @@
-## function to create self-defined colormap
 '''
-NAME
-    Custom Colormaps for Matplotlib
-PURPOSE
-    This program shows how to implement make_cmap which is a function that
-    generates a colorbar.  If you want to look at different color schemes,
-    check out https://kuler.adobe.com/create.
-PROGRAMMER(S)
-    Chris Slocum
-REVISION HISTORY
-    20130411 -- Initial version created
-    20140313 -- Small changes made and code posted online
-    20140320 -- Added the ability to set the position of each color
+    Module:
+        Set colormap for a plot.
 '''
-
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pylab as pl
+import matplotlib.pyplot as plt
+from pylab import *
 from matplotlib.colors import ListedColormap
+import matplotlib.colors as colors
 
 
+## Custom colormaps for matplotlib, adopted from Chris Slocum
+'''
+	Purpose:
+		This program shows how to implement make_cmap which is a function that
+		generates a colorbar. If you want to look at different color schemes,
+		check out https://kuler.adobe.com/create. 
+		The function takes a list of tuples which contain RGB values. The RGB
+		values may either be in 8-bit [0 to 255] (in which bit must be set to
+		True when called) or arithmetic [0 to 1] (default). make_cmap returns
+		a cmap with equally spaced colors. 
+		Arrange your tuples so that the first color is the lowest value for the
+		colorbar and the last is the highest.
+		position contains values from 0 to 1 to dictate the location of each color.
+		Chris Slocum
+	History:
+		20130411 -- Initial version created
+		20140313 -- Small changes made and code posted online
+		20140320 -- Added the ability to set the position of each color
+'''
 def make_cmap(colors, position=None, bit=False):
-    '''
-    make_cmap takes a list of tuples which contain RGB values. The RGB
-    values may either be in 8-bit [0 to 255] (in which bit must be set to
-    True when called) or arithmetic [0 to 1] (default). make_cmap returns
-    a cmap with equally spaced colors.
-    Arrange your tuples so that the first color is the lowest value for the
-    colorbar and the last is the highest.
-    position contains values from 0 to 1 to dictate the location of each color.
-    '''
-    import matplotlib as mpl
-    import numpy as np
 
     bit_rgb = np.linspace(0, 1, 256)
     if position == None:
@@ -63,13 +63,7 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=256):
     return new_cmap
 
 
-## set colormap for plot
-from pylab import *
-import matplotlib.colors as colors
-import matplotlib.pyplot as plt
-import numpy as np
-
-
+## set colormap with a uniform alpha
 def set_colormap(args, which='foreground'):
 
     # find corresponding colormap if in matplotlib colormap pool
@@ -80,7 +74,7 @@ def set_colormap(args, which='foreground'):
 
     colormap = [color for color in dir(cm) if color == argcolor]
 
-    if len(colormap) == 0:
+    if colormap == []:
         # default colormap is jet of matplotlib
         colormap = cm.jet
     else:
@@ -170,11 +164,11 @@ def set_colormap(args, which='foreground'):
 
     return colormap
 
-
+## set colormap with non-uniform alphas
 def set_colormap_alpha(args, colormap, cmin, cmax, which='foreground'):
 
     if which == 'foreground':
-        if args.alphas != '':
+        if args.alphas is not None:
             n = colormap.N
             crange = np.linspace(cmin, cmax, n)
             alphas = args.alphas.split(",")
@@ -192,7 +186,7 @@ def set_colormap_alpha(args, colormap, cmin, cmax, which='foreground'):
             return colormap
 
     if which == 'background':
-        if args.backalphas != '':
+        if args.backalphas is not None:
             n = colormap.N
             crange = np.linspace(cmin, cmax, n)
             alphas = args.backalphas.split(",")

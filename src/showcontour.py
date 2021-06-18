@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # dependencies
-from module_output import *
+from module_io import *
 from module_annotation import *
 from module_title import *
 from module_gridline import *
@@ -11,7 +11,6 @@ from module_font import *
 from module_clip import *
 from module_size import *
 from module_range import *
-from module_datatype import *
 from pylab import *
 import matplotlib as mplt
 import numpy as np
@@ -19,131 +18,45 @@ import matplotlib.pyplot as plt
 import os
 import math
 import argparse
-from module_getarg import *
+from module_getarg import getarg
 from module_utility import *
+from module_colormap import set_colormap
+from argparse import RawTextHelpFormatter
 
-# this is to ignore warnings
+# ignore warnings
 import warnings
 warnings.filterwarnings("ignore", module="matplotlib")
 
+# tag
+program = 'contour'
+print()
+
 # read arguments
-# assign description to the help doc
-parser = argparse.ArgumentParser(
-    description='''Read a 2D array from binary file and plot as contours to outfile,
-    written by K.G. @ 2016.05, 2016.06, 2016.08, 2016.10, 2018.10, 2020.02''')
-
-# arguments -- general
-parser = getarg_general(parser)
-
-# arguments -- color
-parser = getarg_color(parser)
-
-# arguments -- axis
-parser = getarg_axis(parser, 2)
-
-# arguments -- tick
-parser = getarg_tick(parser, 2)
-
-# arguments -- colorbar
-parser = getarg_colorbar(parser)
-
-# arguments -- title
-parser = getarg_title(parser)
-
-# arguments -- annotation
-parser = getarg_annotation(parser)
-
-# arguments -- contours
-parser = getarg_contour(parser)
-
-# array for all arguments passed to script
+parser = argparse.ArgumentParser(description='''
+                                purpose:
+                                    Plot a 2D array as contours.
+                                ''',
+                                 formatter_class=RawTextHelpFormatter)
+parser = getarg(parser, program)
 args = parser.parse_args()
 
-# input data
-infile = args.infile[0]
-
-if not os.path.exists(infile):
-    print()
-    print('input file', infile, 'does not exists')
-    print()
-    exit()
-
-if args.background is not None and (not os.path.exists(args.background)):
-    print()
-    print('input file', args.background, 'does not exists')
-    print()
-    exit()
-
-if args.overlay and args.background is not None:
-    print(' Error: overlay and background cannot coexist; Exit ')
-    exit()
-
-fsize = os.path.getsize(infile)
-datatype = args.datatype
-if datatype == 'double':
-    fsize = fsize / 8
-if datatype == 'float':
-    fsize = fsize / 4
-if datatype == 'int':
-    fsize = fsize / 2
-
-n1 = args.n1
-if args.n2 == 0:
-    n2 = int(fsize * 1.0 / n1)
-else:
-    n2 = args.n2
-
-# data type
-dt = set_datatype(args)
-
-data = np.empty([n1, n2])
-data = fromfile(infile, dtype=dt, count=n1 * n2)
-if args.background is not None:
-    backdata = np.empty([n1, n2])
-    backdata = fromfile(args.background, dtype=dt, count=n1 * n2)
-
-# reshape array
-if args.transpose == 0:
-    data = data.reshape((n2, n1))
-    data = data.transpose()
-else:
-    data = data.reshape(n1, n2)
-
-if args.background is not None:
-    if args.transpose == 0:
-        backdata = backdata.reshape((n2, n1))
-        backdata = backdata.transpose()
-    else:
-        backdata = backdata.reshape(n1, n2)
-
-if isnan(sum(data)):
-    udata = data[~isnan(data)]
-    if udata.shape == (0, ):
-        print('error: input dataset is nan')
-        exit()
-    else:
-        dmin = udata.min()
-        dmax = udata.max()
-else:
-    dmin = data.min()
-    dmax = data.max()
-
-# print value range of input matrix
-print()
-print('input <<    ', infile)
-print('shape       ', data.shape)
-print('value range ', dmin, ' -- ', dmax)
+# input
+data, n1, n2, dmin, dmax = read_array(args, which='fore', dim=2)
+backdata, _, _, backdmin, backdmax = read_array(args, which='back', dim=2)
+mask, _, _, _, _ = read_array(args, which='mask', dim=2)
+if mask is not None:
+    data = data * mask
+    if backdata is not None:
+        backdata = backdata * mask
 
 # dimension information
 d1 = float(args.d1)
 d2 = float(args.d2)
 
 # limit of axis
-sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.f1, n1, d1, args.x1beg, args.x1end)
-sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.f2, n2, d2, args.x2beg, args.x2end)
+sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.o1, n1, d1, args.x1beg, args.x1end)
+sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.o2, n2, d2, args.x2beg, args.x2end)
 data = data[n1beg:n1end, n2beg:n2end]
-if args.norm == 'log':
-    data = np.log10(data)
 if args.background is not None:
     backdata = backdata[n1beg:n1end, n2beg:n2end]
 
@@ -151,7 +64,7 @@ if args.background is not None:
 figheight, figwidth = set_size(args, n1beg, n1end, n2beg, n2end)
 
 # set clip
-cmin, cmax = set_clip(args, data)
+cmin, cmax = set_clip(args, data, 'fore', dmin, dmax)
 if args.norm == 'log':
     if cmin > np.floor(cmax) or cmax < np.ceil(cmin):
         print('error: values in dataset have same order of magnitude')
@@ -167,9 +80,6 @@ ax = fig.add_axes([0, 0, 1, 1])
 # set frame
 set_frame(args)
 
-# # set contours
-# ax = plt.gca()
-
 # if automatically determine contour levels
 mcontour = int(args.mcontour) + 1
 if mcontour <= 0:
@@ -179,14 +89,14 @@ if mcontour <= 0:
 # linear data norm
 if args.norm == 'linear':
 
-    if len(args.contours) == 0:
+    if args.contours is None:
 
-        if len(args.contourlevel) == 0:
+        if args.contourlevel is None:
             ctrd = nice((cmax - cmin) / 10.0)
         else:
             ctrd = float(args.contourlevel)
 
-        if len(args.contourbeg) == 0:
+        if args.contourbeg is None:
             ctrbeg = nice(cmin)
             base = 0.5
             nb = 0
@@ -196,7 +106,7 @@ if args.norm == 'linear':
                 nb = nb + 1
         else:
             ctrbeg = float(args.contourbeg)
-        if len(args.contourend) == 0:
+        if args.contourend is None:
             ctrend = cmax
         else:
             ctrend = float(args.contourend)
@@ -223,18 +133,18 @@ if args.norm == 'linear':
 # log data norm
 if args.norm == 'log':
 
-    if len(args.contours) == 0:
+    if args.contours is None:
 
-        if len(args.contourbeg) == 0:
+        if args.contourbeg is None:
             ctrbeg = np.floor(cmin)
         else:
             ctrbeg = float(args.contourbeg)
-        if len(args.contourend) == 0:
+        if args.contourend is None:
             ctrend = np.ceil(cmax) + 1
         else:
             ctrend = float(args.contourend)
 
-        if len(args.contourlevel) == 0:
+        if args.contourlevel is None:
             ctrd = max(1, int((ctrbeg - ctrend) / 5.0))
         else:
             ctrd = int(args.contourlevel)
@@ -267,13 +177,13 @@ if args.norm == 'log':
         levels = np.append(levels, levels[-1])
 
 # contour font size
-if len(args.clabelsize) == 0:
+if args.clabelsize is None:
     clabelsize = min(float(args.label1size), float(args.label2size)) - 1
 else:
     clabelsize = float(args.clabelsize)
 
 # contour widths
-if len(args.mcontourwidth) == 0:
+if args.mcontourwidth is None:
     mw = 0.25 * float(args.contourwidth)
 else:
     mw = float(args.mcontourwidth)
@@ -296,7 +206,6 @@ xx, yy = np.meshgrid(x, y)
 # show filled contours if necessary
 if args.contourfill and not args.overlay and args.background is None:
     # set colormap
-    from module_colormap import set_colormap
     colormap = set_colormap(args)
     # plot contour face
     cf = plt.contourf(xx,
@@ -355,7 +264,7 @@ if clabelsize != 0:
         txt.set_fontproperties(font)
         txt.set_fontsize(clabelsize)
         txt.set_color(args.clabelcolor)
-        if len(args.clabelbackcolor) != 0:
+        if args.clabelbackcolor is not None:
             txt.set_backgroundcolor(args.clabelbackcolor)
 
 # show original image if necessary
@@ -389,11 +298,7 @@ if not args.overlay and args.background is not None:
     im.set_cmap(colormap)
 
     # set clip
-    backcmin, backcmax = set_clip(args, backdata, 'back')
-    #    if args.norm == 'log':
-    #        if backcmin > np.floor(backcmax) or backcmax < np.ceil(backcmin):
-    #            print('error: values in dataset have same order of magnitude')
-    #            exit()
+    backcmin, backcmax = set_clip(args, backdata, 'back', backdmin, backdmax)
     im.set_clim(backcmin, backcmax)
 
     # set interpolation

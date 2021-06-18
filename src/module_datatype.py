@@ -1,4 +1,7 @@
-## set data type for data input
+'''
+    Module:
+        Set data type
+'''
 import numpy as np
 
 

@@ -1,4 +1,7 @@
-## set frame styles
+'''
+    Module:
+        Set frame properties
+'''
 import matplotlib.pyplot as plt
 
 
@@ -8,17 +11,17 @@ def set_frame(args):
     ax = plt.gca()
 
     # top frame
-    if args.topframe == 'off':
+    if not args.frametop:
         ax.spines['top'].set_visible(False)
 
     # bottom frame
-    if args.bottomframe == 'off':
+    if not args.framebottom:
         ax.spines['bottom'].set_visible(False)
 
     # left frame
-    if args.leftframe == 'off':
+    if not args.frameleft:
         ax.spines['left'].set_visible(False)
 
     # right frame
-    if args.rightframe == 'off':
+    if not args.frameright:
         ax.spines['right'].set_visible(False)

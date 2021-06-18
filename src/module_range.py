@@ -1,18 +1,20 @@
-## set range
-
+'''
+    Module:
+        Set plotting range for axis
+'''
 
 def set_range(f, n, d, xbeg, xend):
-
+    
     # sampling point begin and end
     sample_beg = float(f)
     sample_end = sample_beg + (n - 1) * d
-
+    
     # limit of axis
-    if len(xbeg) == 0:
+    if xbeg is None:
         xbeg = sample_beg
     else:
         xbeg = float(xbeg)
-    if len(xend) == 0:
+    if xend is None:
         xend = sample_end
     else:
         xend = float(xend)

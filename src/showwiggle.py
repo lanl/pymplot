@@ -8,91 +8,25 @@ import matplotlib.pyplot as plt
 import os
 import math
 import argparse
-from module_getarg import *
+from module_getarg import getarg
+from argparse import RawTextHelpFormatter
 
 # this is to ignore warnings
 import warnings
+
 warnings.filterwarnings("ignore", module="matplotlib")
 
+# tag
+program = 'wiggle'
+print()
+
 ## read arguments
-# assign description to the help doc
-parser = argparse.ArgumentParser(description='''Read a 2D array from binary file and plot as wiggles, 
-    written by K.G. @ 2016.05, 2016.06, 2016.08, 2016.10''')
-
-# arguments -- general
-parser = getarg_general(parser)
-
-# arguments -- color
-parser = getarg_color(parser)
-
-# arguments -- axis
-parser = getarg_axis(parser, 2)
-
-# arguments -- tick
-parser = getarg_tick(parser, 2)
-
-# arguments -- colorbar
-parser = getarg_colorbar(parser)
-
-# arguments -- title
-parser = getarg_title(parser)
-
-# arguments -- annotation
-parser = getarg_annotation(parser)
-
-# arguments -- wiggle
-parser = getarg_wiggle(parser)
-parser.add_argument('-plotlabel',
-                    '--plotlabel',
-                    type=str,
-                    help='Legend labels for each plot',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-plotlabelloc',
-                    '--plotlabelloc',
-                    type=str,
-                    help='Legend label location',
-                    required=False,
-                    default='upper_right')
-parser.add_argument('-plotlabelsize',
-                    '--plotlabelsize',
-                    type=str,
-                    help='Legend label font size',
-                    required=False,
-                    default='14.0')
-parser.add_argument('-wiggleloc',
-                    '--wiggleloc',
-                    type=str,
-                    help='ASCII file containing the spatial location of traces',
-                    required=False,
-                    default='')
-parser.add_argument('-wx1beg',
-                    '--wx1beg',
-                    type=str,
-                    help='Axis 1 begin value, in consistent with the real value of axis',
-                    required=False,
-                    default='')
-parser.add_argument('-wx1end',
-                    '--wx1end',
-                    type=str,
-                    help='Axis 1 end value, in consistent with the real value of axis',
-                    required=False,
-                    default='')
-parser.add_argument('-wx2beg',
-                    '--wx2beg',
-                    type=str,
-                    help='Axis 2 begin value, in consistent with the real value of axis',
-                    required=False,
-                    default='')
-parser.add_argument('-wx2end',
-                    '--wx2end',
-                    type=str,
-                    help='Axis 2 end value, in consistent with the real value of axis',
-                    required=False,
-                    default='')
-
-# array for all arguments passed to script
+parser = argparse.ArgumentParser(description='''
+                                purpose:
+                                    Plot a 2D array as wiggles along the 1st or the 2nd dimenison.
+                                ''',
+                                 formatter_class=RawTextHelpFormatter)
+parser = getarg(parser, program)
 args = parser.parse_args()
 
 ## input data
@@ -101,7 +35,6 @@ nf = len(infile)
 
 for i in range(0, nf):
     if not os.path.exists(infile[i]):
-        print()
         print('input file', infile[i], 'does not exists')
         print()
         exit()
@@ -116,7 +49,7 @@ if datatype == 'int':
     fsize = fsize / 2
 
 n1 = args.n1
-if args.n2 == 0:
+if args.n2 is None:
     n2 = int(fsize * 1.0 / n1)
 else:
     n2 = args.n2
@@ -125,7 +58,8 @@ d1 = float(args.d1)
 d2 = float(args.d2)
 
 # if wiggle locations are read from a file
-if len(args.wiggleloc) != 0:
+if args.wiggleloc is not None:
+    
     # from ASCII file
     wloc = np.loadtxt(args.wiggleloc, ndmin=2)
     [i for i in wloc if i]
@@ -137,7 +71,7 @@ if len(args.wiggleloc) != 0:
     if args.along == 2 and n1 != shape[0]:
         print(" Error: n1 = ", n1, ' != size(wiggleloc) = ', shape[0])
         exit()
-
+        
     # n, o, d
     if args.along == 1:
         n2 = shape[0]
@@ -145,7 +79,7 @@ if len(args.wiggleloc) != 0:
         d2 = (wloc.max() - wloc.min()) / (n2 - 1.0)
 
         n1 = n1
-        f1 = float(args.f1)
+        f1 = float(args.o1)
         d1 = d1
     else:
         n1 = shape[0]
@@ -153,19 +87,16 @@ if len(args.wiggleloc) != 0:
         d1 = (wloc.max() - wloc.min()) / (n1 - 1.0)
 
         n2 = n2
-        f2 = float(args.f2)
+        f2 = float(args.o2)
         d2 = d2
 
 else:
-    f1 = float(args.f1)
-    f2 = float(args.f2)
-
-# print(n1, d1, f1)
-# print(n2, d2, f2)
-# print(wloc)
+    f1 = float(args.o1)
+    f2 = float(args.o2)
 
 ## limit of axis
 from module_range import *
+
 sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(f1, n1, d1, args.x1beg, args.x1end)
 sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(f2, n2, d2, args.x2beg, args.x2end)
 
@@ -176,6 +107,7 @@ for i in range(0, nf):
 
 # data type
 from module_datatype import *
+
 dt = set_datatype(args)
 
 adata = np.empty([nf, n1end - n1beg, n2end - n2beg])
@@ -183,7 +115,7 @@ for i in range(0, nf):
 
     # read binary data
     data = fromfile(infile[i], dtype=dt, count=n1 * n2)
-    if args.transpose == 0:
+    if not args.transpose:
         data = data.reshape((n2, n1))
         data = data.transpose()
     else:
@@ -227,7 +159,7 @@ if args.background is not None:
     backdata = fromfile(args.background, dtype=dt, count=n1 * n2)
 
     # transpose
-    if args.transpose == 0:
+    if not args.transpose:
         backdata = backdata.reshape((n2, n1))
         backdata = backdata.transpose()
     else:
@@ -238,12 +170,14 @@ if args.background is not None:
 
 ## set clip
 from module_clip import *
-cmin, cmax = set_clip(args, adata, 'fore')
+
+cmin, cmax = set_clip(args, adata, 'fore', dmin, dmax)
 if args.background is not None:
     backcmin, backcmax = set_clip(args, backdata, 'back')
 
 ## figure size
 from module_size import *
+
 figheight, figwidth = set_size(args, n1beg, n1end, n2beg, n2end)
 
 ## begin plot
@@ -252,6 +186,7 @@ ax = fig.add_axes([0, 0, 1, 1])
 
 ## set frame
 from module_frame import *
+
 set_frame(args)
 
 ## plot image
@@ -293,10 +228,12 @@ if not args.overlay and args.background is not None:
 
 ## set font
 from module_font import *
+
 font, fontbold = set_font(args)
 
 ## set tick
 from module_tick import *
+
 set_tick(args,
          font,
          x1beg,
@@ -315,21 +252,24 @@ set_tick(args,
 
 ## set grid line
 from module_gridline import *
+
 set_gridline(args)
 
 ## set title
 from module_title import *
+
 set_title(args, fontbold)
 
 ## set annotation
 from module_annotation import *
+
 set_annotation(args, font, x1beg, n1end - n1beg, d1, figheight, x2beg, n2end - n2beg, d2, figwidth)
 
 ## plot wiggles
 ax = plt.gca()
 
 # scaling factors
-if len(args.wiggleloc) != 0 and args.along == 2:
+if args.wiggleloc is not None and args.along == 2:
     scale1 = wloc.max() - wloc.min() + d1
     scale1 = scale1 / figheight
 else:
@@ -337,7 +277,7 @@ else:
 if scale1 == 0:
     scale1 = 1.0
 
-if len(args.wiggleloc) != 0 and args.along == 1:
+if args.wiggleloc is not None and args.along == 1:
     scale2 = wloc.max() - wloc.min() + d2
     scale2 = scale2 / figwidth
 else:
@@ -369,7 +309,7 @@ linewidth = set_default(args.wigglewidth, ',', nf, 1.0, 'float')
 linestyle = set_default(args.wigglestyle, ',', nf, '-')
 
 # plot labels if necessary
-if len(args.plotlabel) != 0:
+if args.plotlabel is not None:
     plotlabel = args.plotlabel[0].split(',')
     if len(plotlabel) < nf:
         l = len(plotlabel)
@@ -411,14 +351,14 @@ if args.along == 1:
     traces = np.arange(0, n2end - n2beg, int(args.every))
     y = (np.arange(0, n1end - n1beg) * d1) / scale1
 
-    if len(args.interp1) != 0:
+    if args.interp1 is not None:
         yy = np.linspace(y.min(), y.max(), int((n1end - n1beg) * float(args.interp1) + 1))
     else:
         yy = y
 
     for i in traces:
 
-        if len(args.wiggleloc) != 0:
+        if args.wiggleloc is not None:
             offset = (wloc[i][0] - wloc[0][0] + 0.5 * d2) / scale2
         else:
             offset = (i * d2 + 0.5 * d2) / scale2
@@ -432,7 +372,7 @@ if args.along == 1:
             # plot data
             x = data[:, i] + offset
 
-            if len(args.interp1) != 0:
+            if args.interp1 is not None:
                 spl = InterpolatedUnivariateSpline(y, x, k=3)
                 xx = spl(yy)
             else:
@@ -506,14 +446,14 @@ if args.along == 2:
     traces = np.arange(0, n1end - n1beg, int(args.every))
     y = (np.arange(0, n2end - n2beg) * d2) / scale2
 
-    if len(args.interp2) != 0:
+    if args.interp2 is not None:
         yy = np.linspace(y.min(), y.max(), int((n2end - n2beg) * float(args.interp2) + 1))
     else:
         yy = y
 
     for i in traces:
 
-        if len(args.wiggleloc) != 0:
+        if args.wiggleloc is not None:
             offset = (wloc[i][0] - wloc[0][0] + 0.5 * d1) / scale1
         else:
             offset = (i * d1 + 0.5 * d1) / scale1
@@ -527,7 +467,7 @@ if args.along == 2:
             # plot data
             x = data[i, :] + offset
 
-            if len(args.interp2) != 0:
+            if args.interp2 is not None:
                 spl = InterpolatedUnivariateSpline(y, x, k=3)
                 xx = spl(yy)
             else:
@@ -585,7 +525,7 @@ if args.along == 2:
     omax = (traces[-1] * d1 + d1) / scale1
 
 # add plot labels
-if len(args.plotlabel) != 0:
+if args.plotlabel is not None:
     if args.plotlabelloc in list(locdict.keys()):
         lg = plt.legend(loc=labelloc)
     else:
@@ -610,9 +550,9 @@ apad = float(args.axispad)
 if args.along == 1:
     wmin = wmin - apad
     wmax = wmax + apad
-    if len(args.wx2beg) != 0:
+    if args.wx2beg is not None:
         wmin = (float(args.wx2beg) - wloc[0][0] + 0.5 * d2) / scale2
-    if len(args.wx2end) != 0:
+    if args.wx2end is not None:
         wmax = (float(args.wx2end) - wloc[0][0] + 0.5 * d2) / scale2
     ax.set_xlim([wmin, wmax])
     ax.set_ylim([figheight, 0])
@@ -620,9 +560,9 @@ if args.along == 1:
 if args.along == 2:
     wmin = wmin - apad
     wmax = wmax + apad
-    if len(args.wx1beg) != 0:
+    if args.wx1beg is not None:
         wmin = (float(args.wx1beg) - wloc[0][0] + 0.5 * d1) / scale1
-    if len(args.wx1end) != 0:
+    if args.wx1end is not None:
         wmax = (float(args.wx1end) - wloc[0][0] + 0.5 * d1) / scale1
     ax.set_xlim([0, figwidth])
     if args.reverse1 == 0:
@@ -643,5 +583,6 @@ if nf == 1 and args.overlay and args.legend:
     set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
 
 ## output
-from module_output import *
+from module_io import *
+
 output(args)

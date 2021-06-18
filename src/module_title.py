@@ -1,14 +1,16 @@
-## set title
-
+'''
+    Module:
+        Set title
+'''
 import matplotlib.pyplot as plt
 
 
 def set_title(args, font):
 
     # figure is 1x1 in size
-    if len(args.title) != 0:
+    if args.title is not None:
 
-        if len(args.titlesize) == 0:
+        if args.titlesize is None:
             title_font_size = max(float(args.label1size), float(args.label2size)) + 2
         else:
             title_font_size = float(args.titlesize)

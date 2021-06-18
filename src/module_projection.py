@@ -1,3 +1,7 @@
+'''
+    Module:
+        Project a rectangular image to a skewed domain for volume plots
+'''
 import numpy as np
 from matplotlib.collections import LineCollection, PolyCollection
 from module_utility import *
@@ -49,10 +53,10 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
                  ticklabel_orient, tick_size, label, label_orient, label_size, label_pad, tick_format):
 
     # regular ticks
-    if len(ticks) == 0:
+    if ticks is None:
 
         # major tick interval
-        if len(tickd) == 0:
+        if tickd is None:
             tick_interval = nice((xend - xbeg) / 5.0)
             if tick_interval == 0:
                 tick_interval = 1.0e10
@@ -60,7 +64,7 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
             tick_interval = float(tickd)
 
         # tick begin location
-        if len(tickbeg) == 0:
+        if tickbeg is None:
             tick_beg = nice(xbeg)
             base = 0.5
             nb = 0
@@ -78,7 +82,7 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
             tick_beg = float(tickbeg)
 
         # tick end location
-        if len(tickend) == 0:
+        if tickend is None:
             tick_end = tick_beg + (round((xend - xbeg) / tick_interval) + 2) * tick_interval
             if tick_interval > 0:
                 while tick_end < xend:
@@ -303,7 +307,7 @@ def project_axis(ax, p1x, p1y, p2x, p2y, ticks, tickbeg, tickend, tickd, mtick, 
     # axis label position
     labelx = hx + hx2 / np.sqrt(hx2**2 + hy2**2) * pad
     labely = hy + hy2 / np.sqrt(hx2**2 + hy2**2) * pad
-    if len(label) != 0:
+    if label is not None:
         ax.text(labelx,
                 labely,
                 label,

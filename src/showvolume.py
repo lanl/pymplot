@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-# dependencies
-from module_output import *
+from module_io import *
 from module_annotation import set_default
 from module_font import *
 from module_clip import *
@@ -16,529 +15,44 @@ import matplotlib.pyplot as plt
 import os
 import math
 import argparse
-from module_getarg import *
+from module_getarg import getarg
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib import colors
 from matplotlib.colors import colorConverter
 from argparse import RawTextHelpFormatter
 from module_projection import *
 
-# this is to ignore warnings
+# ignore warnings
 import warnings
 warnings.filterwarnings("ignore", module="matplotlib")
 
+# tag
+program = 'volume'
+print()
+
 # read arguments
-# assign description to the help doc
-parser = argparse.ArgumentParser(
-    description='''Read a 3D array from binary file and plot a volume with faces and slices,
-written by K.G. @ 2016.06, 2016.07, 2016.08, 2016.10, 2018.10, 2019.06 ''',
-    formatter_class=RawTextHelpFormatter)
-
-# arguments -- general
-flags = parser.add_argument_group('required arguments')
-
-flags.add_argument('-in', '--infile', type=str, help='Input binary file', nargs='+', required=True)
-parser.add_argument('-out', '--outfile', type=str, help='Output file', nargs='+', required=False, default='')
-flags.add_argument('-n1', '--n1', type=int, help='Number of points along axis 1', required=True)
-flags.add_argument('-n2', '--n2', type=int, help='Number of points along axis 2', required=False)
-parser.add_argument('-n3', '--n3', type=int, help='Number of points along axis 3', required=False, default=0)
-parser.add_argument('-dtype',
-                    '--datatype',
-                    type=str,
-                    help='Input file data type, =float or =int',
-                    required=False,
-                    default='float')
-parser.add_argument('-endian',
-                    '--endian',
-                    type=str,
-                    help='Big or little endian of data',
-                    required=False,
-                    default='little')
-parser.add_argument('-transpose',
-                    '--transpose',
-                    type=int,
-                    help='Plot transposed data, =0 by default or =1',
-                    required=False,
-                    default=0)
-parser.add_argument('-size1', '--size1', type=str, help='Figure height', required=False, default='')
-parser.add_argument('-size2', '--size2', type=str, help='Figure width', required=False, default='')
-parser.add_argument('-size3',
-                    '--size3',
-                    type=str,
-                    help='Figure size along axis 3',
-                    required=False,
-                    default='')
-parser.add_argument('-slice1',
-                    '--slice1',
-                    type=str,
-                    help='Position of slice on axis 1 in data value',
-                    required=False,
-                    default='')
-parser.add_argument('-slice2',
-                    '--slice2',
-                    type=str,
-                    help='Position of slice on axis 2 in data value',
-                    required=False,
-                    default='')
-parser.add_argument('-slice3',
-                    '--slice3',
-                    type=str,
-                    help='Position of slice on axis 3 in data value',
-                    required=False,
-                    default='')
-parser.add_argument('-dpi',
-                    '--dpi',
-                    type=str,
-                    help='Figure export DPI, =300 by default',
-                    required=False,
-                    default='300')
-parser.add_argument('-norm',
-                    '--norm',
-                    type=str,
-                    help='''Data norm, =linear by default or =log;
-for log norm, the base is 10 and the raw data will be operated to logarithmic norm,
-the xbeg/xend, cmin/cmax, etc., will be based on the power of the calculated data,
-rather than on the raw data''',
-                    required=False,
-                    default='linear')
-parser.add_argument('-font',
-                    '--font',
-                    type=str,
-                    help='''Font style for the plot; valid options,
-=arial (Arial),
-=times (Times New Roman),
-=courier (Courier New)',
-=helvetica (Helvetica) by default,
-=consolas (Consolas) ''',
-                    required=False,
-                    default='arial')
-parser.add_argument('-imageonly',
-                    '--imageonly',
-                    type=int,
-                    help='Save only plotting region, no frame or axes',
-                    required=False,
-                    default=0)
-parser.add_argument('-octant',
-                    '--octant',
-                    type=str,
-                    help='''Octant of the view, composed by + (large end)
-and - (small end), order is 1,2,3 dimensions;
-dimension 1 only has +; so valid options are
--++
--+-
---+
----
-see the sketch for a detailed view of octans:
-
-       sketch of cavalier projection
-    point position is also applicable to
-          isometric projection
-
-
-         8 *------------------------* 6
-          /  -+-      /    -++     /|
-         /           /            / |
-        /------------------------/  |
-       /           /            /   |
-      /  ---      /   --+      /    |
-   2 /           /            /     |
-    *------------------------*      * 5 (size2)
-    | size1                  |     /
-    |                        |    /
-    |                        |   /
-    |                        |  /
-    |                        | / ) angle1
-    *------------------------*  ----
-    1                        3 (size3)
-
-''',
-                    required=False,
-                    default='--+')
-parser.add_argument('-angle',
-                    '--angle',
-                    type=str,
-                    help='''Angles specify the view, valid range is [0,90]x[0,90]; unit is degree''',
-                    required=False,
-                    nargs='+',
-                    default='')
-
-# arguments -- color
-parser = getarg_color(parser)
-
-# arguments -- axis
-parser.add_argument('-d1',
-                    '--d1',
-                    type=str,
-                    help='Sample interval along axis 1, <0 then descending values, =1 default',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-d2',
-                    '--d2',
-                    type=str,
-                    help='Sample interval along axis 2, <0 then descending values, =1 default',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-d3',
-                    '--d3',
-                    type=str,
-                    help='Sample interval along axis 3, <0 then descending values, =1 default',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-f1',
-                    '--f1',
-                    type=str,
-                    help='First sample value along axis 1, =0 default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-f2',
-                    '--f2',
-                    type=str,
-                    help='First sample value along axis 2, =0 default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-f3',
-                    '--f3',
-                    type=str,
-                    help='First sample value along axis 3, =0 default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-label1',
-                    '--label1',
-                    type=str,
-                    help='Label of axis 1 ',
-                    required=False,
-                    default='Axis 1')
-parser.add_argument('-label2',
-                    '--label2',
-                    type=str,
-                    help='Label of axis 2 ',
-                    required=False,
-                    default='Axis 2')
-parser.add_argument('-label3', '--label3', type=str, help='Label of axis 3', required=False, default='Axis 3')
-parser.add_argument('-label1size',
-                    '--label1size',
-                    type=str,
-                    help='Font size of axis 1 label, =16 by default',
-                    required=False,
-                    default='16.0')
-parser.add_argument('-label2size',
-                    '--label2size',
-                    type=str,
-                    help='Font size of axis 2 label, =16 by default',
-                    required=False,
-                    default='16.0')
-parser.add_argument('-label3size',
-                    '--label3size',
-                    type=str,
-                    help='Font size of axis 3 label, =16 by default',
-                    required=False,
-                    default='16.0')
-parser.add_argument('-x1beg', '--x1beg', type=str, help='Plot axis 1 begin ', required=False, default='')
-parser.add_argument('-x1end', '--x1end', type=str, help='Plot axis 1 end ', required=False, default='')
-parser.add_argument('-x2beg', '--x2beg', type=str, help='Plot axis 2 begin ', required=False, default='')
-parser.add_argument('-x2end', '--x2end', type=str, help='Plot axis 2 end ', required=False, default='')
-parser.add_argument('-x3beg', '--x3beg', type=str, help='Plot axis 3 begin ', required=False, default='')
-parser.add_argument('-x3end', '--x3end', type=str, help='Plot axis 3 end ', required=False, default='')
-parser.add_argument('-axis1loc',
-                    '--axis1loc',
-                    type=str,
-                    help='Location of axis 1, =left, right or both',
-                    required=False,
-                    default='left')
-parser.add_argument('-axis2loc',
-                    '--axis2loc',
-                    type=str,
-                    help='Location of axis 1, =top, bottom or both',
-                    required=False,
-                    default='top')
-parser.add_argument('-axis3loc',
-                    '--axis3loc',
-                    type=str,
-                    help='Location of axis 3, =top, bottom or both',
-                    required=False,
-                    default='top')
-parser.add_argument('-label1pad',
-                    '--label1pad',
-                    type=str,
-                    help='Pad size of axis 1 label, unit is inch, =0.05 by default',
-                    required=False,
-                    default='0.05')
-parser.add_argument('-label2pad',
-                    '--label2pad',
-                    type=str,
-                    help='Pad size of axis 2 label, unit is inch, =0.05 by default',
-                    required=False,
-                    default='0.05')
-parser.add_argument('-label3pad',
-                    '--label3pad',
-                    type=str,
-                    help='Pad size of axis 3 label, unit is inch, =0.05 by default',
-                    required=False,
-                    default='0.05')
-
-# arguments -- tick
-parser.add_argument('-ticks1',
-                    '--ticks1',
-                    type=str,
-                    help='Mannualy set ticks along axis 1',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-ticks2',
-                    '--ticks2',
-                    type=str,
-                    help='Mannualy set ticks along axis 2',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-ticks3',
-                    '--ticks3',
-                    type=str,
-                    help='Mannualy set ticks along axis 3',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-tick1beg',
-                    '--tick1beg',
-                    type=str,
-                    help='First tick along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2beg',
-                    '--tick2beg',
-                    type=str,
-                    help='First tick along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tick3beg',
-                    '--tick3beg',
-                    type=str,
-                    help='First tick along axis 3',
-                    required=False,
-                    default='')
-parser.add_argument('-tick1end',
-                    '--tick1end',
-                    type=str,
-                    help='Last tick in the 1st dimension',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2end',
-                    '--tick2end',
-                    type=str,
-                    help='Last tick in the 2nd dimension',
-                    required=False,
-                    default='')
-parser.add_argument('-tick3end',
-                    '--tick3end',
-                    type=str,
-                    help='Last tick in the 3rd dimension',
-                    required=False,
-                    default='')
-parser.add_argument('-tick1d',
-                    '--tick1d',
-                    type=str,
-                    help='Tick interval along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2d',
-                    '--tick2d',
-                    type=str,
-                    help='Tick interval along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tick3d',
-                    '--tick3d',
-                    type=str,
-                    help='Tick interval along axis 3',
-                    required=False,
-                    default='')
-parser.add_argument('-mtick1',
-                    '--mtick1',
-                    type=int,
-                    help='Number of minor ticks between two major ticks along axis 1',
-                    required=False,
-                    default=0)
-parser.add_argument('-mtick2',
-                    '--mtick2',
-                    type=int,
-                    help='Number of minor ticks between two major ticks along axis 2',
-                    required=False,
-                    default=0)
-parser.add_argument('-mtick3',
-                    '--mtick3',
-                    type=int,
-                    help='Number of minor ticks between two major ticks along axis 3',
-                    required=False,
-                    default=0)
-parser.add_argument('-tick1size',
-                    '--tick1size',
-                    type=str,
-                    help='Tick font size on axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2size',
-                    '--tick2size',
-                    type=str,
-                    help='Tick font size on axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tick3size',
-                    '--tick3size',
-                    type=str,
-                    help='Tick font size on axis 3',
-                    required=False,
-                    default='')
-parser.add_argument('-tickmajorlen',
-                    '--tickmajorlen',
-                    type=str,
-                    help='Length of major ticks, =5 by default',
-                    required=False,
-                    default='5.0')
-parser.add_argument('-tickminorlen',
-                    '--tickminorlen',
-                    type=str,
-                    help='Length of minor ticks, =0.5*tickmajorlen by default',
-                    required=False,
-                    default='')
-parser.add_argument('-tickmajorwid',
-                    '--tickmajorwid',
-                    type=str,
-                    help='Width of major ticks, =1 default ',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-tickminorwid',
-                    '--tickminorwid',
-                    type=str,
-                    help='Width of minor ticks, =0.75*tickmajorwid by default',
-                    required=False,
-                    default='')
-parser.add_argument('-tick1format',
-                    '--tick1format',
-                    type=str,
-                    help='''Axis 1 tick label format, =plain or =sci by default,
-or any legal format''',
-                    required=False,
-                    default='sci')
-parser.add_argument('-tick2format',
-                    '--tick2format',
-                    type=str,
-                    help='''Axis 2 tick label format, =plain or =sci by default,
-or any legal format''',
-                    required=False,
-                    default='sci')
-parser.add_argument('-tick3format',
-                    '--tick3format',
-                    type=str,
-                    help='''Axis 3 tick label format, =plain or =sci by default,
-or any legal format''',
-                    required=False,
-                    default='sci')
-parser.add_argument('-topframe',
-                    '--topframe',
-                    type=str,
-                    help='Show top frame or hide, =on by default or =off',
-                    required=False,
-                    default='on')
-parser.add_argument('-bottomframe',
-                    '--bottomframe',
-                    type=str,
-                    help='Show bottom frame or hide, =on by default or =off',
-                    required=False,
-                    default='on')
-parser.add_argument('-leftframe',
-                    '--leftframe',
-                    type=str,
-                    help='Show left frame or hide, =on by default or =off',
-                    required=False,
-                    default='on')
-parser.add_argument('-rightframe',
-                    '--rightframe',
-                    type=str,
-                    help='Show right frame or hide, =on by default or =off',
-                    required=False,
-                    default='on')
-parser.add_argument('-centerframe',
-                    '--centerframe',
-                    type=str,
-                    help='Show center frame or hide, =on or =off by default',
-                    required=False,
-                    default='on')
-
-# arguments -- colorbar
-parser = getarg_colorbar(parser)
-
-# arguments -- title
-parser = getarg_title(parser, 3)
-
-# arguments -- annotation
-parser = getarg_annotation(parser)
-
-# array for all arguments passed to script
+parser = argparse.ArgumentParser(description='''
+                                purpose:
+                                    Plot a 3D array as a full or cropped volume.
+                                ''',
+                                 formatter_class=RawTextHelpFormatter)
+parser = getarg(parser, program)
 args = parser.parse_args()
 
 # input data
-infile = args.infile[0]
-
-if not os.path.exists(infile):
-    print()
-    print('input file', infile, 'does not exists')
-    print()
-    exit()
-
-fsize = os.path.getsize(infile)
-datatype = args.datatype
-if datatype == 'double':
-    fsize = fsize / 8
-if datatype == 'float':
-    fsize = fsize / 4
-if datatype == 'int':
-    fsize = fsize / 2
-
-n1 = args.n1
-n2 = args.n2
-if args.n3 == 0:
-    n3 = int(fsize * 1.0 / (n1 * n2))
-else:
-    n3 = args.n3
-
-# data type
-dt = set_datatype(args)
-
-data = np.empty([n1, n2, n3])
-data = fromfile(infile, dtype=dt, count=n1 * n2 * n3)
-
-if args.transpose == 0:
-    data = data.reshape((n3, n2, n1))
-    data = data.transpose((2, 1, 0))
-else:
-    data = data.reshape((n1, n2, n3))
-
-# data min and max
-if isnan(sum(data)):
-    udata = data[~isnan(data)]
-    if udata.shape == (0, ):
-        print('error: input dataset is nan')
-        exit()
-    else:
-        dmin = udata.min()
-        dmax = udata.max()
-else:
-    dmin = data.min()
-    dmax = data.max()
-
-print()
-print('input <<    ', infile)
-print('shape       ', data.shape)
-print('value range ', dmin, ' -- ', dmax)
+data, n1, n2, n3, dmin, dmax = read_array(args, which='fore', dim=3)
+mask, _, _, _, _, _ = read_array(args, which='mask', dim=3)
+if mask is not None:
+    data = data * mask
 
 d1 = float(args.d1)
 d2 = float(args.d2)
 d3 = float(args.d3)
 
 # limit of axis
-sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.f1, n1, d1, args.x1beg, args.x1end)
-sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.f2, n2, d2, args.x2beg, args.x2end)
-sp3beg, sp3end, x3beg, x3end, n3beg, n3end = set_range(args.f3, n3, d3, args.x3beg, args.x3end)
+sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.o1, n1, d1, args.x1beg, args.x1end)
+sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.o2, n2, d2, args.x2beg, args.x2end)
+sp3beg, sp3end, x3beg, x3end, n3beg, n3end = set_range(args.o3, n3, d3, args.x3beg, args.x3end)
 
 n1 = n1end - n1beg + 1
 n2 = n2end - n2beg + 1
@@ -546,7 +60,7 @@ n3 = n3end - n3beg + 1
 
 # octant
 # select data based on angle
-if len(args.angle) == 0:
+if args.angle is None:
     angle1 = 40.0
     angle2 = 10.0
 else:
@@ -560,11 +74,11 @@ else:
 
 # check angle ranges
 octant = args.octant
-if not (octant in ['--+', '---', '-+-', '-++']):
-    print('error: octant should be one of --+, ---, -+-, -++')
+if not octant in ['--+', '---', '-+-', '-++']:
+    print(' Error: octant should be one of --+, ---, -+-, -++. Exit.')
     exit()
 if angle1 < 0 or angle1 > 90 or angle2 < 0 or angle2 > 90:
-    print('error: angles should be in [0,90]')
+    print(' Error: angles should be in [0, 90]. Exit.')
     exit()
 
 # reassign angle
@@ -576,19 +90,19 @@ octant_4 = (octant == '-++')
 
 # set slice
 # axis 1
-if len(args.slice1) == 0:
+if args.slice1 is None:
     sl1 = (x1end + x1beg) / 2.0
 else:
     sl1 = eval(args.slice1)
 
 # axis 2
-if len(args.slice2) == 0:
+if args.slice2 is None:
     sl2 = (x2end + x2beg) / 2.0
 else:
     sl2 = eval(args.slice2)
 
 # axis 3
-if len(args.slice3) == 0:
+if args.slice3 is None:
     sl3 = (x3end + x3beg) / 2.0
 else:
     sl3 = eval(args.slice3)
@@ -599,13 +113,13 @@ slice2 = int(round((sl2 - sp2beg) / d2))
 slice3 = int(round((sl3 - sp3beg) / d3))
 
 if slice1 <= 0 or slice1 >= n1end:
-    print('error: slice 1 selection error')
+    print(' Error: Slice 1 selection our of range. Exit. ')
     exit()
 if slice2 <= 0 or slice2 >= n2end:
-    print('error: slice 2 selection error')
+    print(' Error: Slice 2 selection our of range. Exit. ')
     exit()
 if slice3 <= 0 or slice3 >= n3end:
-    print('error: slice 3 selection error')
+    print(' Error: Slice 3 selection our of range. Exit. ')
     exit()
 
 # note the global index of slices
@@ -620,34 +134,22 @@ if octant_1:
     # slice data
     # slice xy
     data12 = data[n1beg:slice1, n2beg:slice2, slice3 - 1]
-    if args.norm == 'log':
-        data12 = np.log10(data12)
-
+    
     # slice xz
     data13 = data[n1beg:slice1, slice2, slice3:n3end]
-    if args.norm == 'log':
-        data13 = np.log10(data13)
 
     # slice yz
     data23 = data[slice1, n2beg:slice2, slice3:n3end]
-    if args.norm == 'log':
-        data23 = np.log10(data23)
 
     # face data
     # slice xy
     fdata12 = data[n1beg:n1end, n2beg:n2end, n3end - 1]
-    if args.norm == 'log':
-        fdata12 = np.log10(fdata12)
 
     # slice xz
     fdata13 = data[n1beg:n1end, n2beg, n3beg:n3end]
-    if args.norm == 'log':
-        fdata13 = np.log10(fdata13)
 
     # slice yz
     fdata23 = data[n1beg, n2beg:n2end, n3beg:n3end]
-    if args.norm == 'log':
-        fdata23 = np.log10(fdata23)
 
 if octant_2:
 
@@ -659,34 +161,22 @@ if octant_2:
     # slice data
     # slice xy
     data12 = data[n1beg:slice1, n2beg:slice2, slice3]
-    if args.norm == 'log':
-        data12 = np.log10(data12)
 
     # slice xz
     data13 = data[n1beg:slice1, slice2, n3beg:slice3]
-    if args.norm == 'log':
-        data13 = np.log10(data13)
 
     # slice yz
     data23 = data[slice1, n2beg:slice2, n3beg:slice3]
-    if args.norm == 'log':
-        data23 = np.log10(data23)
 
     # face data
     # slice xy
     fdata12 = data[n1beg:n1end, n2beg:n2end, n3beg]
-    if args.norm == 'log':
-        fdata12 = np.log10(fdata12)
 
     # slice xz
     fdata13 = data[n1beg:n1end, n2beg, n3beg:n3end]
-    if args.norm == 'log':
-        fdata13 = np.log10(fdata13)
 
     # slice yz
     fdata23 = data[n1beg, n2beg:n2end, n3beg:n3end]
-    if args.norm == 'log':
-        fdata23 = np.log10(fdata23)
 
 if octant_3:
 
@@ -698,34 +188,22 @@ if octant_3:
     # slice data
     # slice xy
     data12 = data[n1beg:slice1, slice2 + 1:n2end, slice3]
-    if args.norm == 'log':
-        data12 = np.log10(data12)
 
     # slice xz
     data13 = data[n1beg:slice1, slice2, n3beg:slice3]
-    if args.norm == 'log':
-        data13 = np.log10(data13)
 
     # slice yz
     data23 = data[slice1, slice2 + 1:n2end, n3beg:slice3]
-    if args.norm == 'log':
-        data23 = np.log10(data23)
 
     # face data
     # slice xy
     fdata12 = data[n1beg:n1end, n2beg:n2end, n3beg]
-    if args.norm == 'log':
-        fdata12 = np.log10(fdata12)
 
     # slice xz
     fdata13 = data[n1beg:n1end, n2end - 1, n3beg:n3end]
-    if args.norm == 'log':
-        fdata13 = np.log10(fdata13)
 
     # slice yz
     fdata23 = data[n1beg, n2beg:n2end, n3beg:n3end]
-    if args.norm == 'log':
-        fdata23 = np.log10(fdata23)
 
 if octant_4:
 
@@ -737,34 +215,22 @@ if octant_4:
     # slice data
     # slice xy
     data12 = data[n1beg:slice1, slice2 + 1:n2end, slice3]
-    if args.norm == 'log':
-        data12 = np.log10(data12)
 
     # slice xz
     data13 = data[n1beg:slice1, slice2, slice3 + 1:n3end]
-    if args.norm == 'log':
-        data13 = np.log10(data13)
 
     # slice yz
     data23 = data[slice1, slice2 + 1:n2end, slice3 + 1:n3end]
-    if args.norm == 'log':
-        data23 = np.log10(data23)
 
     # face data
     # slice xy
     fdata12 = data[n1beg:n1end, n2beg:n2end, n3end - 1]
-    if args.norm == 'log':
-        fdata12 = np.log10(fdata12)
 
     # slice xz
     fdata13 = data[n1beg:n1end, n2end - 1, n3beg:n3end]
-    if args.norm == 'log':
-        fdata13 = np.log10(fdata13)
 
     # slice yz
     fdata23 = data[n1beg, n2beg:n2end, n3beg:n3end]
-    if args.norm == 'log':
-        fdata23 = np.log10(fdata23)
 
 # set figure size
 # inch per point
@@ -778,7 +244,7 @@ nmax = max(n1end - n1beg, n2end - n2beg, n3end - n3beg)
 # if figure width/height or vice versa larger than 6 then use golden ratio
 limit = 6.0
 
-if len(args.size1) == 0:
+if args.size1 is None:
     ratio = float(n1end - n1beg) / nmax
     if ratio < 1.0 / limit:
         ratio = golden_ratio
@@ -786,7 +252,7 @@ if len(args.size1) == 0:
 else:
     size1 = float(args.size1)
 
-if len(args.size2) == 0:
+if args.size2 is None:
     ratio = float(n2end - n2beg) / nmax
     if ratio < 1.0 / limit:
         ratio = golden_ratio
@@ -794,7 +260,7 @@ if len(args.size2) == 0:
 else:
     size2 = float(args.size2)
 
-if len(args.size3) == 0:
+if args.size3 is None:
     ratio = float(n3end - n3beg) / nmax
     if ratio < 1.0 / limit:
         ratio = golden_ratio
@@ -815,9 +281,8 @@ if octant_1:
     angles = [angle1, angle2]
 
     #
-    #    sketch of cavalier projection
-    #    point position is also applicable to
-    #    isometric projection
+    #    A sketch of cavalier projection. 
+    #    The relative point positions also apply to isometric projection. 
     #
     #
     #         8 *------------------------* 6
@@ -903,22 +368,22 @@ if octant_1:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe:
+    if args.frametop:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe:
+    if args.framebottom:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe:
+    if args.frameleft:
         leftline = [[(p1x, p1y), (p2x, p2y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q1x, q1y), (q2x, q2y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe:
+    if args.frameright:
         rightline = [[(p5x, p5y), (p6x, p6y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q5x, q5y), (q6x, q6y)]]
@@ -932,9 +397,8 @@ if octant_1:
 if octant_2:
 
     #
-    #    sketch of cavalier projection
-    #    point position is also applicable to
-    #    isometric projection
+    #    A sketch of cavalier projection. 
+    #    The relative point positions also apply to isometric projection
     #
     #
     #         8 *------------------------* 6
@@ -1020,22 +484,22 @@ if octant_2:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe:
+    if args.frametop:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe:
+    if args.framebottom:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe:
+    if args.frameleft:
         leftline = [[(p2x, p2y), (p1x, p1y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q2x, q2y), (q1x, q1y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe:
+    if args.frameright:
         rightline = [[(p6x, p6y), (p5x, p5y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q6x, q6y), (q5x, q5y)]]
@@ -1049,9 +513,8 @@ if octant_2:
 if octant_3:
 
     #
-    #    sketch of cavalier projection
-    #    point position is also applicable to
-    #    isometric projection
+    #    A sketch of cavalier projection. 
+    #    The relative point positions also apply to isometric projection
     #
     #
     #         8 *------------------------* 6
@@ -1137,22 +600,22 @@ if octant_3:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe:
+    if args.frametop:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe:
+    if args.framebottom:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe:
+    if args.frameleft:
         leftline = [[(p1x, p1y), (p2x, p2y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q1x, q1y), (q2x, q2y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe:
+    if args.frameright:
         rightline = [[(p5x, p5y), (p6x, p6y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q5x, q5y), (q6x, q6y)]]
@@ -1166,9 +629,8 @@ if octant_3:
 if octant_4:
 
     #
-    #    sketch of cavalier projection
-    #    point position is also applicable to
-    #    isometric projection
+    #    A sketch of cavalier projection. 
+    #    The relative point positions also apply to isometric projection
     #
     #
     #         8 *------------------------* 6
@@ -1254,22 +716,22 @@ if octant_4:
     ylim = [p3y - 0.01, p8y + 0.01]
 
     # frames
-    if args.topframe:
+    if args.frametop:
         topline = [[(p2x, p2y), (p8x, p8y), (p6x, p6y)]]
         topline = LineCollection(topline, color='k')
         topline2 = [[(q2x, q2y), (q8x, q8y), (q6x, q6y)]]
         topline2 = LineCollection(topline2, color='k')
-    if args.bottomframe:
+    if args.framebottom:
         bottomline = [[(p1x, p1y), (p3x, p3y), (p5x, p5y)]]
         bottomline = LineCollection(bottomline, color='k')
         bottomline2 = [[(q1x, q1y), (q3x, q3y), (q5x, q5y)]]
         bottomline2 = LineCollection(bottomline2, color='k')
-    if args.leftframe:
+    if args.frameleft:
         leftline = [[(p2x, p2y), (p1x, p1y)]]
         leftline = LineCollection(leftline, color='k')
         leftline2 = [[(q2x, q2y), (q1x, q1y)]]
         leftline2 = LineCollection(leftline2, color='k')
-    if args.rightframe:
+    if args.frameright:
         rightline = [[(p6x, p6y), (p5x, p5y)]]
         rightline = LineCollection(rightline, color='k')
         rightline2 = [[(q6x, q6y), (q5x, q5y)]]
@@ -1285,13 +747,13 @@ colormap = set_colormap(args)
 
 # set clip
 data = np.concatenate((fdata12.flatten(), fdata13.flatten(), fdata23.flatten()))
-if len(args.slice1) != 0:
+if args.slice1 is not None:
     data = np.concatenate((data, data23.flatten()))
-if len(args.slice2) != 0:
+if args.slice2 is not None:
     data = np.concatenate((data, data13.flatten()))
-if len(args.slice3) != 0:
+if args.slice3 is not None:
     data = np.concatenate((data, data12.flatten()))
-cmin, cmax = set_clip(args, data)
+cmin, cmax = set_clip(args, data, 'fore', dmin, dmax)
 if args.norm == 'log':
     if cmin > np.floor(cmax) or cmax < np.ceil(cmin):
         print('error: values in dataset have same order of magnitude')
@@ -1310,30 +772,30 @@ project_image(ax, fdata13, face13x, face13y, colormap, cmin, cmax)
 project_image(ax, fdata23, face23x, face23y, colormap, cmin, cmax)
 project_image(ax, fdata12, face12x, face12y, colormap, cmin, cmax)
 
-if args.topframe:
+if args.frametop:
     ax.add_collection(topline)
-if args.bottomframe:
+if args.framebottom:
     ax.add_collection(bottomline)
-if args.leftframe:
+if args.frameleft:
     ax.add_collection(leftline)
-if args.rightframe:
+if args.frameright:
     ax.add_collection(rightline)
 if args.centerframe:
     ax.add_collection(centerline)
 
-if len(args.slice1) != 0 or len(args.slice2) != 0 or len(args.slice3) != 0:
+if args.slice1 is not None or args.slice2 is not None or args.slice3 is not None:
 
     project_image(ax, data13, slice13x, slice13y, colormap, cmin, cmax)
     project_image(ax, data23, slice23x, slice23y, colormap, cmin, cmax)
     project_image(ax, data12, slice12x, slice12y, colormap, cmin, cmax)
 
-    if args.topframe:
+    if args.frametop:
         ax.add_collection(topline2)
-    if args.bottomframe:
+    if args.framebottom:
         ax.add_collection(bottomline2)
-    if args.leftframe:
+    if args.frameleft:
         ax.add_collection(leftline2)
-    if args.rightframe:
+    if args.frameright:
         ax.add_collection(rightline2)
     if args.centerframe:
         ax.add_collection(centerline2)
@@ -1347,12 +809,12 @@ tick_major_length = float(args.tickmajorlen)
 tick_major_width = float(args.tickmajorwid)
 
 # minor ticks style
-if len(args.tickminorlen) == 0:
+if args.tickminorlen is None:
     tick_minor_length = 0.5 * tick_major_length
 else:
     tick_minor_length = float(args.tickminorlen)
 
-if len(args.tickminorwid) == 0:
+if args.tickminorwid is None:
     tick_minor_width = 0.75 * tick_major_width
 else:
     tick_minor_width = float(args.tickminorwid)
@@ -1362,17 +824,17 @@ label_1_size = float(args.label1size)
 label_2_size = float(args.label2size)
 label_3_size = float(args.label3size)
 
-if len(args.tick1size) == 0:
+if args.tick1size is None:
     tick_1_size = label_1_size - 2
 else:
     tick_1_size = float(args.tick1size)
 
-if len(args.tick2size) == 0:
+if args.tick2size is None:
     tick_2_size = label_2_size - 2
 else:
     tick_2_size = float(args.tick2size)
 
-if len(args.tick3size) == 0:
+if args.tick3size is None:
     tick_3_size = label_3_size - 2
 else:
     tick_3_size = float(args.tick3size)
@@ -1562,7 +1024,7 @@ ax.tick_params(which='both',
 # annotation
 
 # get values of curves
-if len(args.curve) != 0:
+if args.curve is not None:
 
     curvefile = args.curve[0].split(",")
     nf = len(curvefile)
@@ -1656,14 +1118,14 @@ if args.legend and cmin != cmax:
 
     if lloc in ['left', 'right']:
 
-        if len(args.lheight) == 0:
+        if args.lheight is None:
             lheight = figheight
         else:
             lheight = float(args.lheight)
             if lheight > figheight:
                 lheight = figheight
 
-        if len(args.lwidth) == 0:
+        if args.lwidth is None:
             lwidth = 0.2
         else:
             lwidth = float(args.lwidth)
@@ -1675,7 +1137,7 @@ if args.legend and cmin != cmax:
                 pad = tick_1_size * ipp + float(args.tickmajorlen) * ipp + 0.5 + label_1_size * ipp
             else:
                 pad = 0.2
-            if len(args.lpad) == 0:
+            if args.lpad is None:
                 cbpad = 0.0
             else:
                 cbpad = float(args.lpad)
@@ -1686,12 +1148,12 @@ if args.legend and cmin != cmax:
 
     if args.lloc in ['top', 'bottom']:
 
-        if len(args.lheight) == 0:
+        if args.lheight is None:
             lheight = 0.2
         else:
             lheight = float(args.lheight)
 
-        if len(args.lwidth) == 0:
+        if args.lwidth is None:
             lwidth = figwidth
         else:
             lwidth = float(args.lwidth)
@@ -1706,7 +1168,7 @@ if args.legend and cmin != cmax:
                     label_2_size, label_3_size) * ipp + 0.1 * abs(cos(angle1 * np.pi / 180.0))
             else:
                 pad = 0.2
-            if len(args.lpad) == 0:
+            if args.lpad is None:
                 cbpad = 0.0
             else:
                 cbpad = float(args.lpad)
@@ -1723,13 +1185,13 @@ if args.legend and cmin != cmax:
     line = LineCollection(line, linewidth=1.0, color='k')
     ax.add_collection(line)
 
-    if len(args.unitsize) == 0:
+    if args.unitsize is None:
         lufs = min(float(args.label1size), float(args.label2size), float(args.label3size)) - 1
     else:
         lufs = float(args.unitsize)
 
     # tick font size
-    if len(args.lticksize) == 0:
+    if args.lticksize is None:
         ltfs = lufs - 1
     else:
         ltfs = float(args.lticksize)
@@ -1737,12 +1199,12 @@ if args.legend and cmin != cmax:
     if args.norm == 'linear':
 
         # set colorbar major ticks
-        if len(args.ld) == 0:
+        if args.ld is None:
             ld = nice((cmax - cmin) / 5.0)
         else:
             ld = float(args.ld)
 
-        if len(args.ltickbeg) == 0:
+        if args.ltickbeg is None:
             ltickbeg = nice(cmin, 0.5)
             base = 0.5
             nb = 0
@@ -1754,7 +1216,7 @@ if args.legend and cmin != cmax:
                 ltickbeg = 0.0
         else:
             ltickbeg = float(args.ltickbeg)
-        if len(args.ltickend) == 0:
+        if args.ltickend is None:
             ltickend = cmax
         else:
             ltickend = float(args.ltickend)
@@ -1798,15 +1260,15 @@ if args.legend and cmin != cmax:
     if args.norm == 'log':
 
         # set colorbar major ticks
-        if len(args.ltickbeg) == 0:
+        if args.ltickbeg is None:
             ltickbeg = np.floor(cmin)
         else:
             ltickbeg = float(args.ltickbeg)
-        if len(args.ltickend) == 0:
+        if args.ltickend is None:
             ltickend = np.ceil(cmax)
         else:
             ltickend = float(args.ltickend)
-        if len(args.ld) == 0:
+        if args.ld is None:
             ld = max(1, round((ltickend - ltickbeg) / 5.0))
         else:
             ld = int(args.ld)
@@ -1893,24 +1355,9 @@ if args.legend and cmin != cmax:
             minortick = LineCollection(minortick, linewidths=tick_minor_width, colors='k')
             ax.add_collection(minortick)
 
-        # # add power
-        # if args.norm == 'linear' and cscale != 1.0:
-        #     p1 = cx[2] + 0.01
-        #     p2 = max(cend + 0.01, last_tick + 0.75 * ltfs * ipp)
-        #     ha = 'left'
-        #     va = 'bottom'
-        #     ct = ax.text(p1,
-        #                  p2,
-        #                  r'$\mathregular{\times 10^{%i}}$' % scalar,
-        #                  size=ltfs,
-        #                  fontproperties=font,
-        #                  ha=ha,
-        #                  va=va)
-        #     ct.size_size(ltfs)
-
         # set unit
         if args.unit is not None:
-            if len(args.unitpad) == 0:
+            if args.unitpad is None:
                 upad = 0.05
             else:
                 upad = float(args.unitpad)
@@ -1992,24 +1439,9 @@ if args.legend and cmin != cmax:
             minortick = LineCollection(minortick, linewidths=tick_minor_width, colors='k')
             ax.add_collection(minortick)
 
-        # # add power
-        # if args.norm == 'linear' and cscale != 1.0:
-        #     p1 = cx[2] + 0.025
-        #     p2 = cy[3]
-        #     ha = 'left'
-        #     va = 'center'
-        #     ct = ax.text(p1,
-        #                  p2,
-        #                  r'$\mathregular{\times 10^{%i}}$' % scalar,
-        #                  size=ltfs,
-        #                  fontproperties=font,
-        #                  ha=ha,
-        #                  va=va)
-        #     ct.set_size(ltfs)
-
         # set unit
         if args.unit is not None:
-            if len(args.unitpad) == 0:
+            if args.unitpad is None:
                 upad = 0.05
             else:
                 upad = float(args.unitpad)
@@ -2023,14 +1455,14 @@ if args.legend and cmin != cmax:
             ct.set_size(lufs)
 
 # set title
-if len(args.title) != 0:
+if args.title is not None:
 
-    if len(args.titlesize) == 0:
+    if args.titlesize is None:
         title_font_size = max(float(args.label1size), float(args.label2size), float(args.label3size)) + 2
     else:
         title_font_size = float(args.titlesize)
 
-    if len(args.titlex) == 0:
+    if args.titlex is None:
         if octant_1:
             title_x = 0.5 * (p2x + p6x)
         if octant_2:
@@ -2038,7 +1470,7 @@ if len(args.title) != 0:
     else:
         title_x = float(args.titlex)
 
-    if len(args.titley) == 0:
+    if args.titley is None:
         if args.axis2loc == 'top' or args.axis2loc == 'both' or args.axis3loc == 'top' or args.axis3loc == 'both':
             title_y = p8y + 2 * max(label_2_size, label_3_size) * ipp + 0.1
         else:

@@ -1,9 +1,10 @@
+'''
+    Module:
+        Set regular or irregular axis ticks for a plot.
+'''
 from module_utility import *
 import numpy as np
 import matplotlib.pyplot as plt
-
-## set regular or irregular ticks on axis
-
 
 # ticks : contains irregular ticks locations
 # tickbeg : regular major ticks begin location
@@ -18,10 +19,10 @@ import matplotlib.pyplot as plt
 def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axislen, format, extend=False):
 
     # regular ticks
-    if len(ticks) == 0:
+    if ticks is None:
 
         # major tick interval
-        if len(tickd) == 0:
+        if tickd is None:
             tick_interval = nice((xend - xbeg) / 5.0)
             if tick_interval == 0:
                 tick_interval = 1.0e10
@@ -29,7 +30,7 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axisle
             tick_interval = float(tickd)
 
         # tick begin location
-        if len(tickbeg) == 0:
+        if tickbeg is None:
             tick_beg = nice(xbeg)
             base = 0.5
             nb = 0
@@ -47,7 +48,7 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axisle
             tick_beg = float(tickbeg)
 
         # tick end location
-        if len(tickend) == 0:
+        if tickend is None:
             tick_end = tick_beg + (round((xend - xbeg) / tick_interval) + 2) * tick_interval
             if tick_interval > 0:
                 while tick_end < xend:
@@ -99,15 +100,15 @@ def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axisle
 
     # irregular ticks
     else:
-
+        
         # get contents from user-specified ticks
-        ticks = ticks[0].split(':')
+        ticks = ticks[0].split(',')
         location = [0 for i in range(0, len(ticks))]
         label = ['' for i in range(0, len(ticks))]
-
+        
         # set tick locations
         for i in range(0, len(ticks)):
-            t = ticks[i].split(',')
+            t = ticks[i].split(':')
             location[i] = (float(t[0]) + 0.5 * d) / ((ns - 1) * d) * axislen
             label[i] = t[1]
 
@@ -153,28 +154,8 @@ def set_tick(args,
     label_1_size = float(args.label1size)
     label_2_size = float(args.label2size)
 
-    if args.ticktop:
-        ticktop = 1
-    else:
-        ticktop = 0
-
-    if args.tickbottom:
-        tickbottom = 1
-    else:
-        tickbottom = 0
-
-    if args.tickleft:
-        tickleft = 1
-    else:
-        tickleft = 0
-
-    if args.tickright:
-        tickright = 1
-    else:
-        tickright = 0
-
-    xlabel = ax.set_xlabel(args.label2, fontsize=label_2_size, labelpad=float(args.label2pad))
-    ylabel = ax.set_ylabel(args.label1, fontsize=label_1_size, labelpad=float(args.label1pad))
+    xlabel = ax.set_xlabel(args.label2, fontsize=label_2_size, labelpad=float(args.label2pad)*72*2)
+    ylabel = ax.set_ylabel(args.label1, fontsize=label_1_size, labelpad=float(args.label1pad)*72*2)
 
     l = ax.yaxis.get_label()
     l.set_fontproperties(font)
@@ -183,10 +164,21 @@ def set_tick(args,
     l.set_fontproperties(font)
     l.set_fontsize(label_2_size)
 
-    ax.xaxis.set_label_position(args.label2loc)
-    ax.yaxis.set_label_position(args.label1loc)
-    if args.label1loc == 'right':
-        ylabel.set_rotation(270)
+    if args.label2loc is not None:
+        ax.xaxis.set_label_position(args.label2loc)
+    else:
+    	if args.ticktop:
+    		ax.xaxis.set_label_position('top')
+    	else:
+    		ax.xaxis.set_label_position('bottom')
+    if args.label1loc is not None:
+    	ax.yaxis.set_label_position(args.label1loc)
+    else:
+    	if args.tickleft:
+    		ax.yaxis.set_label_position('left')
+    	else:
+    		ax.yaxis.set_label_position('right')
+    		ylabel.set_rotation(270)
 
     # ticks on/off
     ax.get_yaxis().set_tick_params(which='both', direction='out')
@@ -194,25 +186,25 @@ def set_tick(args,
     plt.tick_params(
         axis='x',  # changes apply to the x1-axis
         which='both',  # both major and minor ticks are affected
-        bottom=tickbottom,  # ticks along the bottom axis
-        top=ticktop,  # ticks along the top axis
-        labelbottom=tickbottom,  # labels along the bottom axis
-        labeltop=ticktop)  # labels along the top axis
+        bottom=args.tickbottom,  # ticks along the bottom axis
+        top=args.ticktop,  # ticks along the top axis
+        labelbottom=args.tickbottom,  # labels along the bottom axis
+        labeltop=args.ticktop)  # labels along the top axis
     plt.tick_params(
         axis='y',  # changes apply to the x2-axis
         which='both',  # both major and minor ticks are affected
-        left=tickleft,  # ticks along the left axis
-        right=tickright,  # ticks along the right axis
-        labelleft=tickleft,  # labels along the left axis
-        labelright=tickright)  # labels along the right axis
+        left=args.tickleft,  # ticks along the left axis
+        right=args.tickright,  # ticks along the right axis
+        labelleft=args.tickleft,  # labels along the left axis
+        labelright=args.tickright)  # labels along the right axis
 
     # if tick font size and family not speciefied, then inherit from axis labels
-    if len(args.tick1size) == 0:
+    if args.tick1size is None:
         tick_1_font_size = label_1_size - 2
     else:
         tick_1_font_size = float(args.tick1size)
 
-    if len(args.tick2size) == 0:
+    if args.tick2size is None:
         tick_2_font_size = label_2_size - 2
     else:
         tick_2_font_size = float(args.tick2size)
@@ -243,12 +235,12 @@ def set_tick(args,
     ax.set_xticks(tick_2_minor, minor=True)
 
     # minor ticks style
-    if len(args.tickminorlen) == 0:
+    if args.tickminorlen is None:
         tick_minor_length = 0.5 * float(args.tickmajorlen)
     else:
         tick_minor_length = float(args.tickminorlen)
 
-    if len(args.tickminorwid) == 0:
+    if args.tickminorwid is None:
         tick_minor_width = 0.75 * float(args.tickmajorwid)
     else:
         tick_minor_width = float(args.tickminorwid)

@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+system "pip install matplotlib numpy scipy pyvista "
+
 system "mkdir -p ~/.fonts; cp -rp ./fonts/* ~/.fonts; fc-cache -f -v"
 
 exec = [

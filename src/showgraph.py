@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-# dependencies
-from module_output import *
+from module_io import *
 from math import *
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from module_annotation import set_default
@@ -23,687 +22,21 @@ import argparse
 from module_getarg import *
 from argparse import RawTextHelpFormatter
 
-# this is to ignore warnings
+# ignore warnings
 import warnings
 warnings.filterwarnings("ignore", module="matplotlib")
 
+# tag
+program = 'graph'
+print()
+
 # read arguments
-# assign description to the help doc
-parser = argparse.ArgumentParser(
-    description='''Read data from binary or ascii file and plot as curves or scatters,
-    written by K.G. @ 2016.07, 2016.08, 2016.10, 2020.04''',
-    formatter_class=RawTextHelpFormatter)
-
-flags = parser.add_argument_group('required arguments')
-
-# arguments -- general
-flags.add_argument('-in', '--infile', type=str, help='Input binary or ascii file', nargs='+', required=True)
-parser.add_argument('-out', '--outfile', type=str, help='Output file', nargs='+', required=False, default='')
-parser.add_argument('-n1',
-                    '--n1',
-                    type=str,
-                    help='''Number of points to plot in each set; separated by colon (,)''',
-                    nargs='+',
-                    required=False,
-                    default='')
-parser.add_argument('-n2', '--n2', type=str, help='Second dimension size', required=False, default='')
-parser.add_argument('-select',
-                    '--select',
-                    type=str,
-                    help='Select specific columns of second dimension',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-dtype',
-                    '--datatype',
-                    type=str,
-                    help='Data type, =float or =int',
-                    required=False,
-                    default='float')
-parser.add_argument('-endian',
-                    '--endian',
-                    type=str,
-                    help='Big or little endian of data',
-                    required=False,
-                    default='little')
-parser.add_argument('-transpose',
-                    '--transpose',
-                    type=int,
-                    help='Plot transposed data, =0 by default or =1',
-                    required=False,
-                    default=0)
-parser.add_argument('-size1', '--size1', type=str, help='Axis 1 length', required=False, default='')
-parser.add_argument('-size2', '--size2', type=str, help='Axis 2 length', required=False, default='')
-parser.add_argument('-dpi',
-                    '--dpi',
-                    type=str,
-                    help='Figure export DPI, =300 by default',
-                    required=False,
-                    default='300')
-parser.add_argument('-ftype',
-                    '--filetype',
-                    type=str,
-                    help='File format, =binary by default or =ascii to read ascii file',
-                    required=False,
-                    default='binary')
-parser.add_argument('-ptype',
-                    '--plottype',
-                    type=int,
-                    help="""Plot type,
-=1, plot simple curves (x,y) given only y;
-=2, plot simple curves (x,y) given both x and y;
-=3, plot valued scattered points v at (x,y) given x, y and v;
-same for all plots""",
-                    required=False,
-                    default=1)
-parser.add_argument('-direction',
-                    '--direction',
-                    type=str,
-                    help="""Plotting direction,
-=horizontal, then x is horizontal y is vertical;
-=vertical then x is vertical y is horizontal""",
-                    required=False,
-                    default='horizontal')
-parser.add_argument('-norm',
-                    '--norm',
-                    type=str,
-                    help='Data norm, = linear by default or =log',
-                    required=False,
-                    default='linear')
-parser.add_argument('-projection',
-                    '--projection',
-                    type=str,
-                    help='Projection =cartesian or =polar',
-                    required=False,
-                    default='cartesian')
-parser.add_argument('-font',
-                    '--font',
-                    type=str,
-                    help='''Font style for the plot; valid options,
-=arial (Arial) by default,
-=times (Times New Roman),
-=courier (Courier New)',
-=helvetica (Helvetica),
-=georgia (Georgia),
-=consolas (Consolas) ''',
-                    required=False,
-                    default='arial')
-
-parser.add_argument('-imageonly',
-                    '--imageonly',
-                    type=int,
-                    help='Save only plotting region, no frame or axes',
-                    required=False,
-                    default=0)
-
-# arguments -- color
-parser = getarg_color(parser)
-
-# arguments -- axis
-parser.add_argument('-d1',
-                    '--d1',
-                    type=str,
-                    help='Sample interval along axis 1, <0 then descending values, =1 default',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-d2',
-                    '--d2',
-                    type=str,
-                    help='Sample interval along axis 2, <0 then descending values, =1 default',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-f1',
-                    '--f1',
-                    type=str,
-                    help='First sample value along axis 1, =0 default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-f2',
-                    '--f2',
-                    type=str,
-                    help='First sample value along axis 2, =0 default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-label1',
-                    '--label1',
-                    type=str,
-                    help='Label of axis 1 ',
-                    required=False,
-                    default='Axis 1')
-parser.add_argument('-label2', '--label2', type=str, help='Label of axis 2', required=False, default='Axis 2')
-parser.add_argument('-label1loc',
-                    '--label1loc',
-                    type=str,
-                    help='Label location of axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-label2loc',
-                    '--label2loc',
-                    type=str,
-                    help='Label location of axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-label1pad',
-                    '--label1pad',
-                    type=str,
-                    help='''Axis 1 label
-    padding size from tick labels, unit is point''',
-                    required=False,
-                    default='5.0')
-parser.add_argument('-label2pad',
-                    '--label2pad',
-                    type=str,
-                    help='''Axis 2 label
-    padding size from tick labels, unit is point''',
-                    required=False,
-                    default='5.0')
-parser.add_argument('-label1size',
-                    '--label1size',
-                    type=str,
-                    help='Axis 1 label font size, =16 default',
-                    required=False,
-                    default='16.0')
-parser.add_argument('-label2size',
-                    '--label2size',
-                    type=str,
-                    help='Axis 2 label font size, =16 default',
-                    required=False,
-                    default='16.0')
-parser.add_argument('-x1beg', '--x1beg', type=str, help='Plot axis 1 begin ', required=False, default='')
-parser.add_argument('-x1end', '--x1end', type=str, help='Plot axis 1 end ', required=False, default='')
-parser.add_argument('-x2beg', '--x2beg', type=str, help='Plot axis 2 begin ', required=False, default='')
-parser.add_argument('-x2end', '--x2end', type=str, help='Plot axis 2 end ', required=False, default='')
-parser.add_argument('-reverse1',
-                    '--reverse1',
-                    type=str2bool,
-                    help='Reverse axis 1 ',
-                    required=False,
-                    default='n')
-parser.add_argument('-reverse2',
-                    '--reverse2',
-                    type=str2bool,
-                    help='Reverse axis 2 ',
-                    required=False,
-                    default='n')
-parser.add_argument('-norm1',
-                    '--norm1',
-                    type=str,
-                    help='Norm of x-axis, = linear by default or =log',
-                    required=False,
-                    default='linear')
-parser.add_argument('-norm2',
-                    '--norm2',
-                    type=str,
-                    help='Norm of y-axis, = linear by default or =log',
-                    required=False,
-                    default='linear')
-parser.add_argument('-base1',
-                    '--base1',
-                    type=str,
-                    help='Log base of x-axis, = 10 by default',
-                    required=False,
-                    default='10')
-parser.add_argument('-base2',
-                    '--base2',
-                    type=str,
-                    help='Log base of y-axis, = 10 by default',
-                    required=False,
-                    default='10')
-
-# arguments -- tick
-parser.add_argument('-ticks1',
-                    '--ticks1',
-                    type=str,
-                    help='Mannualy set ticks along axis 1',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-ticks2',
-                    '--ticks2',
-                    type=str,
-                    help='Mannualy set ticks along axis 2',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-tick1beg',
-                    '--tick1beg',
-                    type=str,
-                    help='First tick along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2beg',
-                    '--tick2beg',
-                    type=str,
-                    help='First tick along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tick1end',
-                    '--tick1end',
-                    type=str,
-                    help='Last tick along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2end',
-                    '--tick2end',
-                    type=str,
-                    help='Last tick along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tick1d',
-                    '--tick1d',
-                    type=str,
-                    help='Tick interval along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2d',
-                    '--tick2d',
-                    type=str,
-                    help='Tick interval along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-mtick1',
-                    '--mtick1',
-                    type=int,
-                    help='Number of minor ticks between two major ticks along axis 1',
-                    required=False,
-                    default=0)
-parser.add_argument('-mtick2',
-                    '--mtick2',
-                    type=int,
-                    help='Number of minor ticks between two major ticks along axis 2',
-                    required=False,
-                    default=0)
-parser.add_argument('-tick1size',
-                    '--tick1size',
-                    type=str,
-                    help='Tick font size on axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-tick2size',
-                    '--tick2size',
-                    type=str,
-                    help='Tick font size on axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-tickmajorlen',
-                    '--tickmajorlen',
-                    type=str,
-                    help='Major tick length, =5 default',
-                    required=False,
-                    default='5.0')
-parser.add_argument('-tickminorlen',
-                    '--tickminorlen',
-                    type=str,
-                    help='Minor tick length, =0.5*tickmajorlen default',
-                    required=False,
-                    default='')
-parser.add_argument('-tickmajorwid',
-                    '--tickmajorwid',
-                    type=str,
-                    help='Major tick width, =1 default ',
-                    required=False,
-                    default='1.0')
-parser.add_argument('-tickminorwid',
-                    '--tickminorwid',
-                    type=str,
-                    help='Minor tick width, =0.75*tickmajorwid default',
-                    required=False,
-                    default='')
-parser.add_argument('-tickleft',
-                    '--tickleft',
-                    type=str2bool,
-                    help='Ticks on the left axis, =y (default) or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-tickright',
-                    '--tickright',
-                    type=str2bool,
-                    help='Ticks on the right axis, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-ticktop',
-                    '--ticktop',
-                    type=str2bool,
-                    help='Ticks on the top axis, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-tickbottom',
-                    '--tickbottom',
-                    type=str2bool,
-                    help='Ticks on the bottom axis, =y (default) or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-tick1label',
-                    '--tick1label',
-                    type=str2bool,
-                    help='Axis 1 tick labels, =y (default) or n',
-                    required=False,
-                    default='y')
-parser.add_argument('-tick2label',
-                    '--tick2label',
-                    type=str2bool,
-                    help='Axis 2 tick labels, =y (default) or n',
-                    required=False,
-                    default='y')
-parser.add_argument('-tick1format',
-                    '--tick1format',
-                    type=str,
-                    help='''Axis 1 tick label format, =plain or =sci by default,
-or any legal format''',
-                    required=False,
-                    default='sci')
-parser.add_argument('-tick2format',
-                    '--tick2format',
-                    type=str,
-                    help='''Axis 2 tick label format, =plain or =sci by default,
-or any legal format''',
-                    required=False,
-                    default='sci')
-parser.add_argument('-grid1',
-                    '--grid1',
-                    type=str2bool,
-                    help='Grid lines along axis 1, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-grid2',
-                    '--grid2',
-                    type=str2bool,
-                    help='Grid lines along axis 2, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-grid1width',
-                    '--grid1width',
-                    type=str,
-                    help='Width of grid lines along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-grid2width',
-                    '--grid2width',
-                    type=str,
-                    help='Width of grid lines along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-grid1color',
-                    '--grid1color',
-                    type=str,
-                    help='Color of grid lines along axis 1',
-                    required=False,
-                    default='k')
-parser.add_argument('-grid2color',
-                    '--grid2color',
-                    type=str,
-                    help='Color of grid lines along axis 2',
-                    required=False,
-                    default='k')
-parser.add_argument('-grid1style',
-                    '--grid1style',
-                    type=str,
-                    help='''Style of grid lines along axis 1, available styles:
-solid or -, dashed or --, dashdot or -., dotted or :''',
-                    required=False,
-                    default='-')
-parser.add_argument('-grid2style',
-                    '--grid2style',
-                    type=str,
-                    help='''Style of grid lines along axis 2, available styles:
-solid or -, dashed or --, dashdot or -., dotted or :''',
-                    required=False,
-                    default='-')
-
-parser.add_argument('-mgrid1',
-                    '--mgrid1',
-                    type=str2bool,
-                    help='Minor grid lines along axis 1, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-mgrid2',
-                    '--mgrid2',
-                    type=str2bool,
-                    help='Minor grid lines along axis 2, =y or =n (default)',
-                    required=False,
-                    default='n')
-parser.add_argument('-mgrid1width',
-                    '--mgrid1width',
-                    type=str,
-                    help='Width of minor grid lines along axis 1',
-                    required=False,
-                    default='')
-parser.add_argument('-mgrid2width',
-                    '--mgrid2width',
-                    type=str,
-                    help='Width of minor grid lines along axis 2',
-                    required=False,
-                    default='')
-parser.add_argument('-mgrid1color',
-                    '--mgrid1color',
-                    type=str,
-                    help='Color of minor grid lines along axis 1',
-                    required=False,
-                    default='k')
-parser.add_argument('-mgrid2color',
-                    '--mgrid2color',
-                    type=str,
-                    help='Color of minor grid lines along axis 2',
-                    required=False,
-                    default='k')
-parser.add_argument('-mgrid1style',
-                    '--mgrid1style',
-                    type=str,
-                    help='''Style of minor grid lines along axis 1, available styles:
-solid or -, dashed or --, dashdot or -., dotted or :''',
-                    required=False,
-                    default=':')
-parser.add_argument('-mgrid2style',
-                    '--mgrid2style',
-                    type=str,
-                    help='''Style of minor grid lines along axis 2, available styles:
-solid or -, dashed or --, dashdot or -., dotted or :''',
-                    required=False,
-                    default=':')
-
-parser.add_argument('-topframe',
-                    '--topframe',
-                    type=str2bool,
-                    help='Show top frame or hide, =y by default or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-bottomframe',
-                    '--bottomframe',
-                    type=str2bool,
-                    help='Show bottom frame or hide, =y by default or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-leftframe',
-                    '--leftframe',
-                    type=str2bool,
-                    help='Show left frame or hide, =y by default or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-rightframe',
-                    '--rightframe',
-                    type=str2bool,
-                    help='Show right frame or hide, =y by default or =n',
-                    required=False,
-                    default='y')
-parser.add_argument('-centerframe',
-                    '--centerframe',
-                    type=str2bool,
-                    help='Show center frame or hide, =y or =n by default',
-                    required=False,
-                    default='y')
-parser.add_argument('-tick1rot',
-                    '--tick1rot',
-                    type=str,
-                    help='Axis 1 tick label rotation, =0 by default',
-                    required=False,
-                    default='0.0')
-parser.add_argument('-tick2rot',
-                    '--tick2rot',
-                    type=str,
-                    help='Axis 2 tick label rotation, =0 by default',
-                    required=False,
-                    default='0.0')
-
-# arguments -- colorbar
-parser = getarg_colorbar(parser)
-
-# arguments -- title
-parser.add_argument('-title', '--title', type=str, help='Figure title', required=False, default='')
-parser.add_argument('-titlesize', '--titlesize', type=str, help='Title font size', required=False, default='')
-parser.add_argument('-titlex',
-                    '--titlex',
-                    type=str,
-                    help='Title position horizontal direction (in [0,1]), =0.50 default',
-                    required=False,
-                    default='0.50')
-parser.add_argument('-titley',
-                    '--titley',
-                    type=str,
-                    help='Title position vertical direction (in [0,1]), =1.05 default',
-                    required=False,
-                    default='1.05')
-
-# arguments -- annotation
-parser = getarg_annotation(parser)
-
-# arguments -- plots
-parser.add_argument('-linestyle',
-                    '--linestyle',
-                    type=str,
-                    help='Line style',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-linewidth',
-                    '--linewidth',
-                    type=str,
-                    help='Line width',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-linecolor',
-                    '--linecolor',
-                    type=str,
-                    help='Line color',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-linealpha',
-                    '--linealpha',
-                    type=str,
-                    help='Line transparency',
-                    required=False,
-                    nargs='+',
-                    default='')
-
-parser.add_argument('-close',
-                    '--close',
-                    type=str,
-                    help='Curve closed or not',
-                    required=False,
-                    nargs='+',
-                    default='')
-
-parser.add_argument('-marker',
-                    '--marker',
-                    type=str,
-                    help='Marker style',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markerevery',
-                    '--markerevery',
-                    type=str,
-                    help='Marker every',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markersize',
-                    '--markersize',
-                    type=str,
-                    help='Marker size',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markerfacecolor',
-                    '--markerfacecolor',
-                    type=str,
-                    help='Marker face color',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markeredgecolor',
-                    '--markeredgecolor',
-                    type=str,
-                    help='Marker edge color',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markeralpha',
-                    '--markeralpha',
-                    type=str,
-                    help='Marker transparency',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markersizemax',
-                    '--markersizemax',
-                    type=str,
-                    help='Maximum marker size',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-markersizemin',
-                    '--markersizemin',
-                    type=str,
-                    help='Minimum marker size',
-                    required=False,
-                    nargs='+',
-                    default='')
-
-parser.add_argument('-plotlabel',
-                    '--plotlabel',
-                    type=str,
-                    help='''Legend labels for each plot, separated by semi-colon : ''',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-plotlabelloc',
-                    '--plotlabelloc',
-                    type=str,
-                    help='Legend label location',
-                    required=False,
-                    default='upper_right')
-parser.add_argument('-plotlabelsize',
-                    '--plotlabelsize',
-                    type=str,
-                    help='Legend label font size',
-                    required=False,
-                    default='14.0')
-
-parser.add_argument('-fillwrt',
-                    '--fillwrt',
-                    type=str,
-                    help='Fill the curve w.r.t. to line, e.g., y=0 or x=0',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-fillcolor',
-                    '--fillcolor',
-                    type=str,
-                    help='Fill (w.r.t line) with color',
-                    required=False,
-                    nargs='+',
-                    default='')
-parser.add_argument('-fillalpha',
-                    '--fillalpha',
-                    type=str,
-                    help='Fill (w.r.t line) with transparency',
-                    required=False,
-                    nargs='+',
-                    default='')
-
-# array for all arguments passed to script
+parser = argparse.ArgumentParser(description='''
+                                purpose:
+                                    Plot 1D array(s) as curves or scatters.
+                                ''',
+                                 formatter_class=RawTextHelpFormatter)
+parser = getarg(parser, program)
 args = parser.parse_args()
 
 # input data
@@ -715,7 +48,6 @@ print()
 # check if input files exist
 for i in range(0, ninput):
     if not os.path.exists(infile[i]):
-        print()
         print('input file', infile[i], 'does not exists')
         print()
         exit()
@@ -759,7 +91,7 @@ if args.filetype == 'ascii':
 
     # from textual file
     data = np.loadtxt(infile, ndmin=2)
-    if args.transpose == 1:
+    if args.transpose:
         data = data.transpose()
 
     # shape of input data
@@ -767,7 +99,7 @@ if args.filetype == 'ascii':
     print('shape:      ', shape)
 
     # get first dimension
-    if len(args.n1) == 0:
+    if args.n1 is None:
         n = np.array([shape[0]])
         nps = n
         nf = 1
@@ -799,12 +131,12 @@ if args.filetype == 'binary':
     if datatype == 'int':
         n0 = int(np.floor(n0 * 1.0 / 2))
 
-    if len(args.n1) == 0:
+    if args.n1 is None:
         nf = 1
         # if first dimension not given, all data goes to 1st dimension
         n = np.array([n0])
         # second dimension is calculated or given
-        if len(args.n2) == 0:
+        if args.n2 is None:
             n2 = ns
         else:
             n2 = int(args.n2)
@@ -817,7 +149,7 @@ if args.filetype == 'binary':
         nps = sum(n)
         nf = len(n)
         # second dimension is calculated or given
-        if len(args.n2) == 0:
+        if args.n2 is None:
             n2 = int(np.floor(n0 * 1.0 / nps))
         else:
             n2 = int(args.n2)
@@ -831,18 +163,6 @@ if n2 < ns:
     print(n2, ns)
     print('error: second dimension size smaller than that required by plot type')
     exit()
-
-# # for type 1 plot (simple point plot), number of points must be the same
-# # for all sets of data
-# equallen=True
-# for i in range(0,nf-1):
-#     if n[i]!=n[i+1]:
-#         equallen=(equallen and False)
-#         break
-#
-# if args.plottype==1 and equallen==False:
-#     print 'error: type 1 plot requires all sets of data have same length'
-#     exit()
 
 # set index range for each set of data
 nrange = np.zeros([nf, 2], dtype=int)
@@ -860,7 +180,7 @@ if args.filetype == 'binary':
 
     # read binary file
     data = fromfile(infile, dtype=dt, count=nps * n2)
-    if args.transpose == 0:
+    if not args.transpose:
         data = data.reshape((n2, nps))
         data = data.transpose()
     else:
@@ -869,7 +189,7 @@ if args.filetype == 'binary':
     print('shape:      ', data.shape)
 
 # select part of the 2nd dimension
-if len(args.select) != 0:
+if args.select is not None:
     if (args.select)[0] == 'all':
         select = np.array([i for i in range(0, n2)])
     else:
@@ -901,7 +221,7 @@ if args.projection == 'polar':
 
 # get plot styles
 # line style
-if len(args.linestyle) != 0:
+if args.linestyle is not None:
     linestyle = args.linestyle[0].split(',')
     if len(linestyle) < nf:
         l = len(linestyle)
@@ -911,7 +231,7 @@ else:
     linestyle = ['none' for i in range(0, nf)]
 
 # line width
-if len(args.linewidth) != 0:
+if args.linewidth is not None:
     linewidth = args.linewidth[0].split(',')
     if len(linewidth) < nf:
         l = len(linewidth)
@@ -923,7 +243,7 @@ linewidth = [float(i) for i in linewidth]
 
 # line color
 defaultcolor = cycle(['blue', 'red', 'green', 'yellow', 'black', 'cyan', 'magenta'])
-if len(args.linecolor) != 0:
+if args.linecolor is not None:
     linecolor = args.linecolor[0].split(',')
     nc = len(linecolor)
 else:
@@ -938,7 +258,7 @@ if nc < nf:
             break
 
 # line transparency
-if len(args.linealpha) != 0:
+if args.linealpha is not None:
     linealpha = args.linealpha[0].split(',')
     if len(linealpha) < nf:
         l = len(linealpha)
@@ -949,22 +269,22 @@ else:
 linealpha = [float(i) for i in linealpha]
 
 # line close or not
-if len(args.close) != 0:
-    close = args.close[0].split(',')
-    if len(close) < nf:
-        l = len(close)
-        aclose = [0 for i in range(l, nf)]
-        close.extend(aclose)
+if args.close is None:
+    close = []
 else:
-    close = [0 for i in range(0, nf)]
-close = [int(i) for i in close]
+    close = args.close
+if len(close) > 0:
+    for i in range(nf - len(close)):
+        close.extend(False)
+else:
+    close =  [False for i in range(nf)]
 
 # marker style
 if args.plottype == 1 or args.plottype == 2:
     defaultmarker = 'none'
 if args.plottype == 3:
     defaultmarker = 'o'
-if len(args.marker) != 0:
+if args.marker is not None:
     marker = args.marker[0].split(',')
     if len(marker) < nf:
         l = len(marker)
@@ -974,7 +294,7 @@ else:
     marker = [defaultmarker for i in range(0, nf)]
 
 # marker size
-if len(args.markersize) != 0:
+if args.markersize is not None:
     markersize = args.markersize[0].split(',')
     if len(markersize) < nf:
         l = len(markersize)
@@ -1003,7 +323,7 @@ markersize = [float(i) for i in markersize]
 # the display-cordinate-diagonal-distance along the line.
 #
 # here simple integer every is used
-if len(args.markerevery) != 0:
+if args.markerevery is not None:
     markerevery = args.markerevery[0].split(',')
     if len(markerevery) < nf:
         l = len(markerevery)
@@ -1014,7 +334,7 @@ else:
 markerevery = [int(i) for i in markerevery]
 
 # marker face color
-if len(args.markerfacecolor) != 0:
+if args.markerfacecolor is not None:
     markerfacecolor = args.markerfacecolor[0].split(',')
     if len(markerfacecolor) < nf:
         l = len(markerfacecolor)
@@ -1025,7 +345,7 @@ else:
 
 # marker edge color
 if args.plottype == 1 or args.plottype == 2:
-    if len(args.markeredgecolor) != 0:
+    if args.markeredgecolor is not None:
         markeredgecolor = args.markeredgecolor[0].split(',')
         if len(markeredgecolor) < nf:
             l = len(markeredgecolor)
@@ -1039,7 +359,7 @@ for i in range(0, nf):
         markeredgecolor[i] = linecolor[i]
 
 if args.plottype == 3:
-    if len(args.markeredgecolor) != 0:
+    if args.markeredgecolor is not None:
         markeredgecolor = args.markeredgecolor[0].split(',')
         if len(markeredgecolor) < nf:
             l = len(markeredgecolor)
@@ -1049,7 +369,7 @@ if args.plottype == 3:
         markeredgecolor = ['k' for i in range(0, nf)]
 
 # marker transparency
-if len(args.markeralpha) != 0:
+if args.markeralpha is not None:
     markeralpha = args.markeralpha[0].split(',')
     if len(markeralpha) < nf:
         l = len(markeralpha)
@@ -1060,7 +380,7 @@ else:
 markeralpha = [float(i) for i in markeralpha]
 
 # marker size
-if len(args.markersizemax) != 0:
+if args.markersizemax is not None:
     markersizemax = args.markersizemax[0].split(',')
     if len(markersizemax) < nf:
         l = len(markersizemax)
@@ -1070,7 +390,7 @@ else:
     markersizemax = [15.0 for i in range(0, nf)]
 markersizemax = [float(i) for i in markersizemax]
 
-if len(args.markersizemin) != 0:
+if args.markersizemin is not None:
     markersizemin = args.markersizemin[0].split(',')
     if len(markersizemin) < nf:
         l = len(markersizemin)
@@ -1081,7 +401,7 @@ else:
 markersizemin = [float(i) for i in markersizemin]
 
 # plot labels
-if len(args.plotlabel) != 0:
+if args.plotlabel is not None:
     plotlabel = args.plotlabel[0].split(':')
     if len(plotlabel) < nf:
         l = len(plotlabel)
@@ -1116,7 +436,7 @@ for i in range(0, nf):
 if args.plottype == 1 or args.plottype == 2:
 
     # fill w.r.t
-    if len(args.fillwrt) != 0:
+    if args.fillwrt is not None:
         fillwrt = args.fillwrt[0].split(',')
         if len(fillwrt) < nf:
             l = len(fillwrt)
@@ -1126,7 +446,7 @@ if args.plottype == 1 or args.plottype == 2:
         fillwrt = ['none' for i in range(0, nf)]
 
     # fill color positive
-    if len(args.fillcolor) != 0:
+    if args.fillcolor is not None:
         fillcolor = args.fillcolor[0].split(',')
         if len(fillcolor) < nf:
             l = len(fillcolor)
@@ -1136,7 +456,7 @@ if args.plottype == 1 or args.plottype == 2:
         fillcolor = [linecolor[i] for i in range(0, nf)]
 
     # fill color transparency
-    if len(args.fillalpha) != 0:
+    if args.fillalpha is not None:
         fillalpha = args.fillalpha[0].split(',')
         if len(fillalpha) < nf:
             l = len(fillalpha)
@@ -1158,15 +478,15 @@ if args.plottype == 1:
     d1 = float(args.d1)
 
     # sampling point begin and end
-    sp1beg = float(args.f1)
+    sp1beg = float(args.o1)
     sp1end = sp1beg + (max(n) - 1) * d1
 
     # limit of axis
-    if len(args.x1beg) == 0:
+    if args.x1beg is None:
         x1beg = sp1beg
     else:
         x1beg = float(args.x1beg)
-    if len(args.x1end) == 0:
+    if args.x1end is None:
         x1end = sp1end
     else:
         x1end = float(args.x1end)
@@ -1186,11 +506,11 @@ if args.plottype == 1:
     ymin = data[~isnan(data)].min()
     ymax = data[~isnan(data)].max()
     extray = 0.05 * abs(ymax - ymin)
-    if len(args.x2beg) == 0:
+    if args.x2beg is None:
         x2beg = data.min() - extray
     else:
         x2beg = float(args.x2beg)
-    if len(args.x2end) == 0:
+    if args.x2end is None:
         x2end = data.max() + extray
     else:
         x2end = float(args.x2end)
@@ -1218,11 +538,11 @@ if args.plottype == 2 or args.plottype == 3:
     xmin = x[~isnan(x)].min()
     xmax = x[~isnan(x)].max()
     extrax = 0.05 * abs(xmax - xmin)
-    if len(args.x1beg) == 0:
+    if args.x1beg is None:
         x1beg = xmin - extrax
     else:
         x1beg = float(args.x1beg)
-    if len(args.x1end) == 0:
+    if args.x1end is None:
         x1end = xmax + extrax
     else:
         x1end = float(args.x1end)
@@ -1245,11 +565,11 @@ if args.plottype == 2 or args.plottype == 3:
     ymin = y[~isnan(y)].min()
     ymax = y[~isnan(y)].max()
     extray = 0.05 * abs(ymax - ymin)
-    if len(args.x2beg) == 0:
+    if args.x2beg is None:
         x2beg = ymin - extray
     else:
         x2beg = float(args.x2beg)
-    if len(args.x2end) == 0:
+    if args.x2end is None:
         x2end = ymax + extray
     else:
         x2end = float(args.x2end)
@@ -1297,7 +617,7 @@ if args.plottype == 2 or args.plottype == 3:
 
         # set clip
         from module_clip import *
-        cmin, cmax = set_clip(args, data[:, 2])
+        cmin, cmax = set_clip(args, data[:, 2], 'fore', zmin, zmax)
         if args.norm == 'log':
             if cmin > np.floor(cmax) or cmax < np.ceil(cmin):
                 print('error: values in dataset have same order of magnitude')
@@ -1327,7 +647,7 @@ if args.direction == 'vertical':
 figbase = 5.0
 golden_ratio = 1.61803398875
 
-if len(args.size1) == 0:
+if args.size1 is None:
     size1 = figbase
 else:
     size1 = float(args.size1)
@@ -1336,7 +656,7 @@ range1 = abs(x1end - x1beg)
 range2 = abs(x2end - x2beg)
 ratio = range1 / range2
 
-if len(args.size2) == 0:
+if args.size2 is None:
     if ratio >= 1.0 / 3.0 and ratio <= 3.0:
         size2 = size1 / ratio
     else:
@@ -1389,7 +709,7 @@ for i in range(0, nf):
                 # define x
                 y = data[nrange[i, 0]:nrange[i, 1], 0]
 
-            if close[i] == 1:
+            if close[i]:
                 x = np.append(x, x[0])
                 y = np.append(y, y[0])
 
@@ -1469,7 +789,7 @@ for i in range(0, nf):
                     zorder=1)
 
         # add legend
-        if len(args.plotlabel) != 0:
+        if args.plotlabel is not None:
             if args.plotlabelloc in list(locdict.keys()):
                 lg = plt.legend(loc=labelloc)
             else:
@@ -1528,7 +848,7 @@ for i in range(0, nf):
             zorder=1)
         sc.set_cmap(colormap)
         sc.set_antialiaseds(True)
-        if len(args.markeredgecolor) == 0:
+        if args.markeredgecolor is None:
             sc.set_edgecolor('face')
             sc.set_linewidths(0)
         else:
@@ -1558,7 +878,7 @@ def define_tick(ticks,
     if norm == 'linear':
 
         # regular ticks
-        if len(ticks) == 0:
+        if ticks is None:
 
             # scale tick values if too large or too small
             maxtick = max(abs(xbeg), abs(xend))
@@ -1573,7 +893,7 @@ def define_tick(ticks,
             xend = xend / cscale
 
             # major tick interval
-            if len(tickd) == 0:
+            if tickd is None:
                 tick_interval = nice((xend - xbeg) / 5.0)
                 if tick_interval == 0:
                     tick_interval = 1.0e10
@@ -1581,7 +901,7 @@ def define_tick(ticks,
                 tick_interval = float(tickd) / cscale
 
             # tick begin location
-            if len(tickbeg) == 0:
+            if tickbeg is None:
                 tick_beg = nice(xbeg)
                 base = 0.5
                 nb = 0
@@ -1599,7 +919,7 @@ def define_tick(ticks,
                 tick_beg = float(tickbeg) / cscale
 
             # tick end location
-            if len(tickend) == 0:
+            if tickend is None:
                 tick_end = tick_beg + (round((xend - xbeg) / tick_interval) + 2) * tick_interval
                 if tick_interval > 0:
                     while tick_end < xend:
@@ -1663,10 +983,10 @@ def define_tick(ticks,
     if norm == 'log':
 
         # regular ticks
-        if len(ticks) == 0:
+        if ticks is None:
 
             # major ticks
-            if len(tickbeg) == 0:
+            if tickbeg is None:
                 if xbeg <= 0:
                     print('error: invalid axis start value')
                     exit()
@@ -1678,7 +998,7 @@ def define_tick(ticks,
                     exit()
                 else:
                     tick_beg = math.log(float(tickbeg), base)
-            if len(tickend) == 0:
+            if tickend is None:
                 if xend <= 0:
                     print('error: invalid axis end value')
                     exit()
@@ -1689,7 +1009,7 @@ def define_tick(ticks,
                     print('error: invalid tick end value')
                 else:
                     tick_end = math.log(float(tickend), base)
-            if len(tickd) == 0:
+            if tickd is None:
                 tick_interval = max(1, round((tick_beg - tick_end) / 5.0))
             else:
                 if float(tickd) <= 0:
@@ -1833,11 +1153,11 @@ if args.projection == 'cartesian':
         l.set_fontproperties(font)
         l.set_fontsize(label_2_size)
 
-        if len(args.label1loc) == 0:
+        if args.label1loc is None:
             label1loc = 'bottom'
         else:
             label1loc = args.label1loc
-        if len(args.label2loc) == 0:
+        if args.label2loc is None:
             label2loc = 'left'
         else:
             label2loc = args.label2loc
@@ -1866,12 +1186,12 @@ if args.projection == 'cartesian':
 
         # if tick font size and family not speciefied, then inherit from axis
         # labels
-        if len(args.tick1size) == 0:
+        if args.tick1size is None:
             tick_1_font_size = label_1_size - 2
         else:
             tick_1_font_size = float(args.tick1size)
 
-        if len(args.tick2size) == 0:
+        if args.tick2size is None:
             tick_2_font_size = label_2_size - 2
         else:
             tick_2_font_size = float(args.tick2size)
@@ -1910,12 +1230,12 @@ if args.projection == 'cartesian':
         ax.tick_params('both', length=float(args.tickmajorlen), width=float(args.tickmajorwid), which='major')
 
         # minor ticks style
-        if len(args.tickminorlen) == 0:
+        if args.tickminorlen is None:
             tick_minor_length = 0.5 * float(args.tickmajorlen)
         else:
             tick_minor_length = float(args.tickminorlen)
 
-        if len(args.tickminorwid) == 0:
+        if args.tickminorwid is None:
             tick_minor_width = 0.75 * float(args.tickmajorwid)
         else:
             tick_minor_width = float(args.tickminorwid)
@@ -1995,11 +1315,7 @@ if args.projection == 'cartesian':
 
         # set axis label
         ylabel = ax.set_ylabel(args.label1, fontsize=label_1_size, labelpad=float(args.label1pad))
-        #        ,
-        #            fontproperties=font)
         xlabel = ax.set_xlabel(args.label2, fontsize=label_2_size, labelpad=float(args.label2pad))
-        #            ,
-        #            fontproperties=font)
 
         l = ax.yaxis.get_label()
         l.set_fontproperties(font)
@@ -2008,11 +1324,11 @@ if args.projection == 'cartesian':
         l.set_fontproperties(font)
         l.set_fontsize(label_2_size)
 
-        if len(args.label1loc) == 0:
+        if args.label1loc is None:
             label1loc = 'left'
         else:
             label1loc = args.label1loc
-        if len(args.label2loc) == 0:
+        if args.label2loc is None:
             label2loc = 'bottom'
         else:
             label2loc = args.label2loc
@@ -2041,12 +1357,12 @@ if args.projection == 'cartesian':
 
         # if tick font size and family not speciefied, then inherit from axis
         # labels
-        if len(args.tick1size) == 0:
+        if args.tick1size is None:
             tick_1_font_size = label_1_size - 2
         else:
             tick_1_font_size = float(args.tick1size)
 
-        if len(args.tick2size) == 0:
+        if args.tick2size is None:
             tick_2_font_size = label_2_size - 2
         else:
             tick_2_font_size = float(args.tick2size)
@@ -2085,12 +1401,12 @@ if args.projection == 'cartesian':
         ax.tick_params('both', length=float(args.tickmajorlen), width=float(args.tickmajorwid), which='major')
 
         # minor ticks style
-        if len(args.tickminorlen) == 0:
+        if args.tickminorlen is None:
             tick_minor_length = 0.5 * float(args.tickmajorlen)
         else:
             tick_minor_length = float(args.tickminorlen)
 
-        if len(args.tickminorwid) == 0:
+        if args.tickminorwid is None:
             tick_minor_width = 0.75 * float(args.tickmajorwid)
         else:
             tick_minor_width = float(args.tickminorwid)
@@ -2170,12 +1486,12 @@ if args.projection == 'polar':
 
     # if tick font size and family not speciefied, then inherit from axis
     # labels
-    if len(args.tick1size) == 0:
+    if args.tick1size is None:
         tick_1_font_size = label_1_size - 2
     else:
         tick_1_font_size = float(args.tick1size)
 
-    if len(args.tick2size) == 0:
+    if args.tick2size is None:
         tick_2_font_size = label_2_size - 2
     else:
         tick_2_font_size = float(args.tick2size)
@@ -2213,7 +1529,7 @@ if args.direction == 'vertical':
 
 if args.grid1:
     # grid line width
-    if len(args.grid1width) == 0:
+    if args.grid1width is None:
         grid1width = float(args.tickmajorwid)
     else:
         grid1width = float(args.grid1width)
@@ -2222,7 +1538,7 @@ if args.grid1:
 
 if args.grid2:
     # grid line width
-    if len(args.grid2width) == 0:
+    if args.grid2width is None:
         grid2width = float(args.tickmajorwid)
     else:
         grid2width = float(args.grid2width)
@@ -2231,7 +1547,7 @@ if args.grid2:
 
 if args.mgrid1 and args.mtick1 != 0:
     # minor grid line width
-    if len(args.mgrid1width) == 0:
+    if args.mgrid1width is None:
         mgrid1width = float(tick_minor_width)
     else:
         mgrid1width = float(args.mgrid1width)
@@ -2244,7 +1560,7 @@ if args.mgrid1 and args.mtick1 != 0:
 
 if args.mgrid2 and args.mtick2 != 0:
     # minor grid line width
-    if len(args.mgrid2width) == 0:
+    if args.mgrid2width is None:
         mgrid2width = float(tick_minor_width)
     else:
         mgrid2width = float(args.mgrid2width)
@@ -2261,7 +1577,7 @@ set_title(args, fontbold)
 # set annotation
 
 # plot curve
-if len(args.curve) != 0:
+if args.curve is not None:
 
     curvefile = args.curve[0].split(",")
     nf = len(curvefile)
@@ -2314,7 +1630,7 @@ if len(args.curve) != 0:
             ax.add_artist(extra)
 
 # place text
-if len(args.text) != 0:
+if args.text is not None:
 
     # text contents
     text = args.text[0].split(":")
@@ -2341,7 +1657,7 @@ if len(args.text) != 0:
         dtextloc[i] = center2
     dtextloc = reshape(dtextloc, (nf, 2))
 
-    if len(args.textloc) != 0:
+    if args.textloc is not None:
         textloc = args.textloc[0].split(":")
         if len(textloc) < nf:
             l = len(textloc)
@@ -2400,7 +1716,7 @@ if len(args.text) != 0:
                     rotation=textrotation[i])
 
 # add arrows
-if len(args.arrow) != 0:
+if args.arrow is not None:
 
     # arrow start and ending coordinates
     arrow = args.arrow[0].split(':')
@@ -2458,7 +1774,7 @@ if len(args.arrow) != 0:
             ax.add_artist(extra)
 
 # add circle/ellipse
-if len(args.circle) != 0:
+if args.circle is not None:
 
     circle = args.circle[0].split(':')
     nf = len(circle)
@@ -2505,7 +1821,7 @@ if len(args.circle) != 0:
         ax.add_artist(extra)
 
 # add filled polygons
-if len(args.polygon) != 0:
+if args.polygon is not None:
 
     polygon = args.polygon[0].split(':')
     nf = len(polygon)
@@ -2563,7 +1879,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
     if args.legend and plot_min_value != plot_max_value:
 
         # legend location
-        if len(args.lloc) == 0:
+        if args.lloc is None:
             lloc = 'right'
         else:
             lloc = args.lloc
@@ -2598,7 +1914,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             lbottom = 1
             lrotate = 0
 
-        if len(args.unitpad) == 0:
+        if args.unitpad is None:
             if lloc == 'right':
                 lpad = 20.0
             if lloc == 'bottom':
@@ -2611,25 +1927,25 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             lpad = float(args.unitpad)
 
         if lloc == 'left' or lloc == 'right':
-            if len(args.lheight) == 0:
+            if args.lheight is None:
                 lheight = figheight
             else:
                 lheight = float(args.lheight)
-            if len(args.lwidth) == 0:
+            if args.lwidth is None:
                 lwidth = 0.15
             else:
                 lwidth = float(args.lwidth)
         if lloc == 'top' or lloc == 'bottom':
-            if len(args.lheight) == 0:
+            if args.lheight is None:
                 lheight = 0.15
             else:
                 lheight = float(args.lheight)
-            if len(args.lwidth) == 0:
+            if args.lwidth is None:
                 lwidth = figwidth
             else:
                 lwidth = float(args.lwidth)
 
-        if len(args.lpad) == 0:
+        if args.lpad is None:
             cbpad = 0.05
         else:
             cbpad = float(args.lpad)
@@ -2649,7 +1965,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         cb = plt.colorbar(im, cax=cax, orientation=lorient)
 
         # set colorbar label and styles
-        if len(args.unitsize) == 0:
+        if args.unitsize is None:
             lufs = min(float(args.label1size), float(args.label2size)) - 1
         else:
             lufs = float(args.unitsize)
@@ -2666,7 +1982,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             cb.ax.xaxis.label.set_fontsize(lufs)
 
         # set colorbar tick styles: font size, family, and ticks direction
-        if len(args.lticksize) == 0:
+        if args.lticksize is None:
             ltfs = lufs - 1
         else:
             ltfs = float(args.lticksize)
@@ -2699,12 +2015,12 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         if args.norm == 'linear':
 
             # set colorbar major ticks
-            if len(args.ld) == 0:
+            if args.ld is None:
                 ld = nice((plot_max_value - plot_min_value) / 5.0)
             else:
                 ld = float(args.ld)
 
-            if len(args.ltickbeg) == 0:
+            if args.ltickbeg is None:
                 ltickbeg = nice(plot_min_value)
                 base = 0.5
                 nb = 0
@@ -2716,7 +2032,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                     ltickbeg = 0.0
             else:
                 ltickbeg = float(args.ltickbeg)
-            if len(args.ltickend) == 0:
+            if args.ltickend is None:
                 ltickend = plot_max_value
             else:
                 ltickend = float(args.ltickend)
@@ -2743,63 +2059,6 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                 cb.ax.yaxis.set_ticks(ticks)
             else:
                 cb.ax.xaxis.set_ticks(ticks)
-
-            # add power
-            # if cscale != 1.0:
-
-            #     last_tick = ticks[-1]
-            #     first_tick = ticks[0]
-
-            #     ptscale = 0.01388888889
-
-            #     if lloc == 'left':
-            #         p1 = -0.5 * last_tick
-            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
-            #         ha = 'right'
-            #         va = 'bottom'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{10^{%i}}\times$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'right':
-            #         p1 = 2 * last_tick
-            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
-            #         ha = 'left'
-            #         va = 'bottom'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'top':
-            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
-            #         p2 = 2.7 * last_tick
-            #         ha = 'left'
-            #         va = 'center'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'bottom':
-            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
-            #         p2 = -1.55 * last_tick
-            #         ha = 'left'
-            #         va = 'center'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
 
             # set tick labels on colorbar
             tick_labels = ['' for i in range(0, len(ticks))]
@@ -2838,12 +2097,6 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                     i for i in mticks if i >= tbeg - 1.0e-10 * abs(tbeg) and i <= tend + 1.0e-10 * abs(tend)
                 ])
                 # set minor ticks
-                # if lloc == 'left' or lloc == 'right':
-                #    cb.ax.yaxis.set_ticks(
-                #        (mticks - pminv) / (pmaxv - pminv), minor=True)
-                # else:
-                #    cb.ax.xaxis.set_ticks(
-                #        (mticks - pminv) / (pmaxv - pminv), minor=True)
                 if lloc == 'left' or lloc == 'right':
                     cb.ax.yaxis.set_ticks(mticks, minor=True)
                 else:
@@ -2853,15 +2106,15 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         if args.norm == 'log':
 
             # set colorbar major ticks
-            if len(args.ltickbeg) == 0:
+            if args.ltickbeg is None:
                 ltickbeg = np.floor(plot_min_value)
             else:
                 ltickbeg = float(args.ltickbeg)
-            if len(args.ltickend) == 0:
+            if args.ltickend is None:
                 ltickend = np.ceil(plot_max_value) + 1
             else:
                 ltickend = float(args.ltickend)
-            if len(args.ld) == 0:
+            if args.ld is None:
                 ld = max(1, round((ltickend - ltickbeg) / 5.0))
             else:
                 ld = int(args.ld)
@@ -2884,7 +2137,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             # set tick labels on colorbar
             tick_labels = ['' for i in range(0, len(ticks))]
             for i in range(0, len(ticks)):
-                tick_labels[i] = '$\mathregular{10^{%i}}$' % (ticks[i])
+                tick_labels[i] = r'$\mathregular{10^{%i}}$' % (ticks[i])
             if lloc in ['left', 'right']:
                 cb.ax.yaxis.set_ticklabels(tick_labels)
             else:

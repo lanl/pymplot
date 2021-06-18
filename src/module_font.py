@@ -1,5 +1,7 @@
-## set font style
-
+'''
+    Module:
+        Set font style for a plot.
+'''
 import matplotlib.font_manager as fm
 import matplotlib as mplt
 import inspect
@@ -63,17 +65,20 @@ def set_font(args):
     mplt.rcParams['mathtext.bf'] = basefont + ':bold'
 
     # enforce type 1 font in output: usually result in larger files than type 3 font
-    # however, type 3 font is sometimes not accepted for publications
-    # mplt.rcParams['pdf.fonttype'] = 42
-    # mplt.rcParams['ps.fonttype'] = 42
-    #mplt.rcParams['text.antialiased']=True
-    #mplt.rcParams['text.usetex']=True
+    if not args.type3font:
+        mplt.rcparams['pdf.fonttype'] = 42
+        mplt.rcparams['ps.fonttype'] = 42
+        
+    # tex math expressions
+    mplt.rcParams['mathtext.default'] = 'regular'
 
     # font paths
     srcdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    font = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + '.ttf')
-    fontbold = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + 'Bold.ttf')
-    #font=fm.FontProperties(fname=srcdir+'/fonts/'+basefont+'.ttf')
-    #fontbold=fm.FontProperties(fname=srcdir+'/fonts/'+basefont+'Bold.ttf')
+    if not args.type3font:
+        font = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + '.ttf')
+        fontbold = fm.FontProperties(fname=srcdir + '/fonts_subset/' + basefont + 'Bold.ttf')
+    else:
+        font = fm.FontProperties(fname=srcdir + '/fonts/' + basefont + '.ttf')
+        fontbold = fm.FontProperties(fname=srcdir + '/fonts/' + basefont + 'Bold.ttf')
 
     return font, fontbold

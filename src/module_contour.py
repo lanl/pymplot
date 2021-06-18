@@ -1,4 +1,7 @@
-## set contours
+'''
+    Module:
+        Set contours
+'''
 import matplotlib.pyplot as plt
 from module_utility import *
 import numpy as np
@@ -22,7 +25,7 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
         cf = ax.contourf(xx,
                          yy,
                          data,
-                         levels[0:size(levels) - 1],
+                         levels[0:len(levels) - 1],
                          cmap=colormap,
                          extend='both',
                          antialiased=True)
@@ -34,7 +37,7 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
     cs = ax.contour(xx,
                     yy,
                     data,
-                    levels[0:size(levels) - 1],
+                    levels[0:len(levels) - 1],
                     colors=lc,
                     linewidths=lw,
                     linestyles=ls,
@@ -49,9 +52,9 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
         lvl = cs.levels[::mcontour]
 
         # set format
-        clabels = ['' for i in range(0, size(lvl))]
+        clabels = ['' for i in range(0, len(lvl))]
         if args.norm == 'linear':
-            for i in range(0, size(lvl)):
+            for i in range(0, len(lvl)):
                 if lvl[i] != 0 and (abs(lvl[i]) < 1.0e-3 or abs(lvl[i]) > 1.0e3):
                     scalar = int(floor(log10(abs(lvl[i]))))
                     cscale = pow(10, scalar)
@@ -61,7 +64,7 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
                     clabels[i] = ('%f' % (lvl[i])).rstrip('0').rstrip('.')
 
         if args.norm == 'log':
-            for i in range(0, size(lvl)):
+            for i in range(0, len(lvl)):
                 clabels[i] = r'$\mathregular{10^{%i}}$' % (lvl[i])
 
         fmt = {}
@@ -70,12 +73,12 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
 
         # place contour labels
         clabels = ax.clabel(cs, cs.levels[::mcontour], fmt=fmt,
-                            fontsize=clabelsize)  #, fontproperties=font)inline=True,
+                            fontsize=clabelsize)
         for txt in clabels:
             txt.set_fontproperties(font)
             txt.set_fontsize(clabelsize)
             txt.set_color(args.clabelcolor)
-            if len(args.clabelbackcolor) != 0:
+            if args.clabelbackcolor is not None:
                 txt.set_backgroundcolor(args.clabelbackcolor)
 
     ## show original image if necessary
@@ -104,12 +107,6 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
         im = ax.imshow(backdata)
 
         # set clip
-        #        backcmin, backcmax = set_clip(args, backdata, 'back')
-        #        if args.norm == 'log':
-        #            if backcmin > np.floor(backcmax) or backcmax < np.ceil(backcmin):
-        #                print(' Error: Values in dataset have same order of magnitude')
-        #                exit()
-        #        print(backcmin, backcmax)
         im.set_clim(backcmin, backcmax)
 
         # set colormap

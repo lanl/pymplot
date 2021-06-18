@@ -1,5 +1,7 @@
-## set colorbar
-
+'''
+    Module:
+        Set colorbar
+'''
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 from module_utility import *
@@ -16,7 +18,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
     if args.legend and plot_min_value != plot_max_value:
 
         # legend location
-        if len(args.lloc) == 0:
+        if args.lloc is None:
             lloc = 'right'
         else:
             lloc = args.lloc
@@ -51,7 +53,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             lbottom = 1
             lrotate = 0
 
-        if len(args.unitpad) == 0:
+        if args.unitpad is None:
             if lloc == 'right':
                 lpad = 20.0
             if lloc == 'bottom':
@@ -64,25 +66,25 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             lpad = float(args.unitpad)
 
         if lloc == 'left' or lloc == 'right':
-            if len(args.lheight) == 0:
+            if args.lheight is None:
                 lheight = figheight
             else:
                 lheight = float(args.lheight)
-            if len(args.lwidth) == 0:
+            if args.lwidth is None:
                 lwidth = 0.15
             else:
                 lwidth = float(args.lwidth)
         if lloc == 'top' or lloc == 'bottom':
-            if len(args.lheight) == 0:
+            if args.lheight is None:
                 lheight = 0.15
             else:
                 lheight = float(args.lheight)
-            if len(args.lwidth) == 0:
+            if args.lwidth is None:
                 lwidth = figwidth
             else:
                 lwidth = float(args.lwidth)
 
-        if len(args.lpad) == 0:
+        if args.lpad is None:
             cbpad = 0.05
         else:
             cbpad = float(args.lpad)
@@ -102,7 +104,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         cb = fig.colorbar(im, cax=cax, orientation=lorient)
 
         # set colorbar label and styles
-        if len(args.unitsize) == 0:
+        if args.unitsize is None:
             lufs = min(float(args.label1size), float(args.label2size)) - 1
         else:
             lufs = float(args.unitsize)
@@ -116,7 +118,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
             cb.ax.xaxis.label.set_fontsize(lufs)
 
         # set colorbar tick styles: font size, family, and ticks direction
-        if len(args.lticksize) == 0:
+        if args.lticksize is None:
             ltfs = lufs - 1
         else:
             ltfs = float(args.lticksize)
@@ -149,12 +151,12 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         if args.norm == 'linear':
 
             # set colorbar major ticks
-            if len(args.ld) == 0:
+            if args.ld is None:
                 ld = nice((plot_max_value - plot_min_value) / 5.0)
             else:
                 ld = float(args.ld)
 
-            if len(args.ltickbeg) == 0:
+            if args.ltickbeg is None:
                 ltickbeg = nice(plot_min_value)
                 base = 0.5
                 nb = 0
@@ -166,7 +168,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                     ltickbeg = 0.0
             else:
                 ltickbeg = float(args.ltickbeg)
-            if len(args.ltickend) == 0:
+            if args.ltickend is None:
                 ltickend = plot_max_value
             else:
                 ltickend = float(args.ltickend)
@@ -193,63 +195,6 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
                 cb.ax.yaxis.set_ticks(ticks)
             else:
                 cb.ax.xaxis.set_ticks(ticks)
-
-            # add power
-            # if cscale != 1.0:
-
-            #     last_tick = ticks[-1]
-            #     first_tick = ticks[0]
-
-            #     ptscale = 0.01388888889
-
-            #     if lloc == 'left':
-            #         p1 = -0.5 * last_tick
-            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
-            #         ha = 'right'
-            #         va = 'bottom'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{10^{%i}}\times$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'right':
-            #         p1 = 2 * last_tick
-            #         p2 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lheight
-            #         ha = 'left'
-            #         va = 'bottom'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'top':
-            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
-            #         p2 = 2.7 * last_tick
-            #         ha = 'left'
-            #         va = 'center'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
-            #     if lloc == 'bottom':
-            #         p1 = last_tick + 1.0 * ltfs * ptscale * (last_tick - first_tick) / lwidth
-            #         p2 = -1.55 * last_tick
-            #         ha = 'left'
-            #         va = 'center'
-            #         cb.ax.text(p1,
-            #                    p2,
-            #                    r'$\mathregular{\times 10^{%i}}$' % scalar,
-            #                    fontproperties=font,
-            #                    size=ltfs,
-            #                    ha=ha,
-            #                    va=va)
 
             # set tick labels on colorbar
             tick_labels = ['' for i in range(0, len(ticks))]
@@ -296,15 +241,15 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
         if args.norm == 'log':
 
             # set colorbar major ticks
-            if len(args.ltickbeg) == 0:
+            if args.ltickbeg is None:
                 ltickbeg = np.floor(plot_min_value)
             else:
                 ltickbeg = float(args.ltickbeg)
-            if len(args.ltickend) == 0:
+            if args.ltickend is None:
                 ltickend = np.ceil(plot_max_value) + 1
             else:
                 ltickend = float(args.ltickend)
-            if len(args.ld) == 0:
+            if args.ld is None:
                 ld = max(1, round((ltickend - ltickbeg) / 5.0))
             else:
                 ld = int(args.ld)
@@ -383,14 +328,14 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 #     if lloc in ['left', 'right']:
 
-#         if len(args.lheight) == 0:
+#         if args.lheight is None:
 #             lheight = figheight
 #         else:
 #             lheight = float(args.lheight)
 #             if lheight > figheight:
 #                 lheight = figheight
 
-#         if len(args.lwidth) == 0:
+#         if args.lwidth is None:
 #             lwidth = 0.2
 #         else:
 #             lwidth = float(args.lwidth)
@@ -399,7 +344,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 #             # colorbar location
 #             pad = 0.1
-#             if len(args.lpad) == 0:
+#             if args.lpad is None:
 #                 cbpad = 0.0
 #             else:
 #                 cbpad = float(args.lpad)
@@ -413,12 +358,12 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 #     if args.lloc in ['top', 'bottom']:
 
-#         if len(args.lheight) == 0:
+#         if args.lheight is None:
 #             lheight = 0.2
 #         else:
 #             lheight = float(args.lheight)
 
-#         if len(args.lwidth) == 0:
+#         if args.lwidth is None:
 #             lwidth = figwidth
 #         else:
 #             lwidth = float(args.lwidth)
@@ -433,7 +378,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 #                     label_2_size, label_3_size) * ipp + 0.1 * abs(cos(angle1 * np.pi / 180.0))
 #             else:
 #                 pad = 0.2
-#             if len(args.lpad) == 0:
+#             if args.lpad is None:
 #                 cbpad = 0.0
 #             else:
 #                 cbpad = float(args.lpad)
@@ -474,13 +419,13 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 #     line = LineCollection(line, linewidth=1.0, color='k')
 #     ax.add_collection(line)
 
-#     if len(args.unitsize) == 0:
+#     if args.unitsize is None:
 #         lufs = min(float(args.label1size), float(args.label2size)) - 1
 #     else:
 #         lufs = float(args.unitsize)
 
 #     # tick font size
-#     if len(args.lticksize) == 0:
+#     if args.lticksize is None:
 #         ltfs = lufs - 1
 #     else:
 #         ltfs = float(args.lticksize)
@@ -488,12 +433,12 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 #     if args.norm == 'linear':
 
 #         # set colorbar major ticks
-#         if len(args.ld) == 0:
+#         if args.ld is None:
 #             ld = nice((cmax - cmin) / 5.0)
 #         else:
 #             ld = float(args.ld)
 
-#         if len(args.ltickbeg) == 0:
+#         if args.ltickbeg is None:
 #             ltickbeg = nice(cmin, 0.5)
 #             base = 0.5
 #             nb = 0
@@ -505,7 +450,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 #                 ltickbeg = 0.0
 #         else:
 #             ltickbeg = float(args.ltickbeg)
-#         if len(args.ltickend) == 0:
+#         if args.ltickend is None:
 #             ltickend = cmax
 #         else:
 #             ltickend = float(args.ltickend)
@@ -548,15 +493,15 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 #     if args.norm == 'log':
 
 #         # set colorbar major ticks
-#         if len(args.ltickbeg) == 0:
+#         if args.ltickbeg is None:
 #             ltickbeg = np.floor(cmin)
 #         else:
 #             ltickbeg = float(args.ltickbeg)
-#         if len(args.ltickend) == 0:
+#         if args.ltickend is None:
 #             ltickend = np.ceil(cmax)
 #         else:
 #             ltickend = float(args.ltickend)
-#         if len(args.ld) == 0:
+#         if args.ld is None:
 #             ld = max(1, round((ltickend - ltickbeg) / 5.0))
 #         else:
 #             ld = int(args.ld)
@@ -661,7 +606,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 #         # set unit
 #         if args.unit is not None:
-#             if len(args.unitpad) == 0:
+#             if args.unitpad is None:
 #                 upad = 0.05
 #             else:
 #                 upad = float(args.unitpad)
@@ -745,7 +690,7 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 #         # set unit
 #         if args.unit is not None:
-#             if len(args.unitpad) == 0:
+#             if args.unitpad is None:
 #                 upad = 0.05
 #             else:
 #                 upad = float(args.unitpad)

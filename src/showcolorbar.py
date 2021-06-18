@@ -11,88 +11,39 @@ import argparse
 from module_getarg import *
 from argparse import RawTextHelpFormatter
 
-# this is to ignore warnings
+# ignore warnings
 import warnings
 warnings.filterwarnings("ignore", module="matplotlib")
 
-## read arguments
-# assign description to the help doc
-parser = argparse.ArgumentParser(description='''Plot a colorbar, K.G. @ 2018.12''',
-                                 formatter_class=RawTextHelpFormatter)
-
-# arguments -- general
-parser.add_argument('-norm',
-                    '--norm',
-                    type=str,
-                    help='''Norm of data values, =linear (default) or =log;
-for log norm, the base is 10, and values of the data
-will be converted to logarithmic norm,
-the options cmin/cmax should be based on the
-power of the converted data,
-rather than based on the values of the raw data''',
-                    required=False,
-                    default='linear')
-parser.add_argument('-font',
-                    '--font',
-                    type=str,
-                    help='''Font style for the plot; valid options,
-=arial (Arial) by default,
-=times (Times New Roman),
-=courier (Courier New)',
-=helvetica (Helvetica),
-=georgia (Georgia),
-=consolas (Consolas) ''',
-                    required=False,
-                    default='arial')
-
-# arguments -- output
-parser.add_argument('-dpi',
-                    '--dpi',
-                    type=str,
-                    help='DPI of generated figure, =300 (default)',
-                    required=False,
-                    default='300')
-parser.add_argument('-imageonly',
-                    '--imageonly',
-                    type=int,
-                    help='Save only plotting region, no frame or axes',
-                    required=False,
-                    default=0)
-parser.add_argument('-out',
-                    '--outfile',
-                    type=str,
-                    help='Output figure file',
-                    nargs='+',
-                    required=False,
-                    default='')
-
-# arguments -- color
-parser = getarg_color(parser)
-
-# arguments -- colorbar
-parser = getarg_colorbar(parser)
-
-# array for all arguments passed to script
-args = parser.parse_args()
-
+# tag
+program = 'colorbar'
 print()
+
+# read arguments
+parser = argparse.ArgumentParser(description='''
+                                purpose:
+                                    Plot a horizontal or vertical colorbar.
+                                ''',
+                                 formatter_class=RawTextHelpFormatter)
+parser = getarg(parser, program)
+args = parser.parse_args()
 
 # set font
 from module_font import *
 font, fontbold = set_font(args)
 
 # default plot range
-if len(args.cmin) == 0:
+if args.cmin is None:
     plot_min_value = 0
 else:
     plot_min_value = float(args.cmin)
 
-if len(args.cmax) == 0:
+if args.cmax is None:
     plot_max_value = 255
 else:
     plot_max_value = float(args.cmax)
 
-if len(args.lloc) == 0:
+if args.lloc is None:
     lloc = right
 else:
     lloc = args.lloc
@@ -130,25 +81,25 @@ if lloc == 'bottom':
 figheight = 4
 figwidth = 4
 if lloc == 'left' or lloc == 'right':
-    if len(args.lheight) == 0:
+    if args.lheight is None:
         lheight = figheight
     else:
         lheight = float(args.lheight)
-    if len(args.lwidth) == 0:
+    if args.lwidth is None:
         lwidth = 0.15
     else:
         lwidth = float(args.lwidth)
 if lloc == 'top' or lloc == 'bottom':
-    if len(args.lheight) == 0:
+    if args.lheight is None:
         lheight = 0.15
     else:
         lheight = float(args.lheight)
-    if len(args.lwidth) == 0:
+    if args.lwidth is None:
         lwidth = figwidth
     else:
         lwidth = float(args.lwidth)
 
-if len(args.unitpad) == 0:
+if args.unitpad is None:
     if lloc == 'right':
         lpad = 10.0
     if lloc == 'bottom':
@@ -172,26 +123,26 @@ if lloc == 'top' or lloc == 'bottom':
 
 fig = plt.figure(figsize=(lwidth, lheight))
 ax = fig.add_axes([0, 0, 1, 1])
-cb = ax.imshow(data, aspect='auto', cmap=args.colormap)
+cb = ax.imshow(data, aspect='auto', cmap=(args.colormap if args.colormap is not None else 'jet'))
 
 # set colorbar label and styles
-if len(args.unitsize) == 0:
+if args.unitsize is None:
     lufs = 12
 else:
     lufs = float(args.unitsize)
 
 if args.unit is not None:
     if lloc == 'right' or lloc == 'left':
-        ax.set_ylabel(legend_units, rotation=lrotate, labelpad=lpad, fontproperties=font)
+        ax.set_ylabel(args.unit, rotation=lrotate, labelpad=lpad, fontproperties=font)
         ax.yaxis.set_label_position(lloc)
         ax.yaxis.label.set_fontsize(lufs)
     if lloc == 'top' or lloc == 'bottom':
-        ax.set_xlabel(legend_units, rotation=lrotate, labelpad=lpad, fontproperties=font)
+        ax.set_xlabel(args.unit, rotation=lrotate, labelpad=lpad, fontproperties=font)
         ax.xaxis.set_label_position(lloc)
         ax.xaxis.label.set_fontsize(lufs)
 
 # set colorbar tick styles: font size, family, and ticks direction
-if len(args.lticksize) == 0:
+if args.lticksize is None:
     ltfs = lufs - 1
 else:
     ltfs = float(args.lticksize)
@@ -224,12 +175,12 @@ for l in ax.xaxis.get_ticklabels():
 if args.norm == 'linear':
 
     # set colorbar major ticks
-    if len(args.ld) == 0:
+    if args.ld is None:
         ld = nice((plot_max_value - plot_min_value) / 5.0)
     else:
         ld = float(args.ld)
 
-    if len(args.ltickbeg) == 0:
+    if args.ltickbeg is None:
         ltickbeg = nice(plot_min_value)
         base = 0.5
         nb = 0
@@ -241,7 +192,7 @@ if args.norm == 'linear':
             ltickbeg = 0.0
     else:
         ltickbeg = float(args.ltickbeg)
-    if len(args.ltickend) == 0:
+    if args.ltickend is None:
         ltickend = plot_max_value
     else:
         ltickend = float(args.ltickend)
@@ -268,39 +219,6 @@ if args.norm == 'linear':
         ax.yaxis.set_ticks((ticks - pminv) / (pmaxv - pminv) * 255)
     else:
         ax.xaxis.set_ticks((ticks - pminv) / (pmaxv - pminv) * 255)
-
-    # add power
-    # if cscale != 1.0:
-
-    #     last_tick = (ticks[-1] - pminv) / (pmaxv - pminv) * 255
-
-    #     if lloc == 'left':
-    #         p1 = -1.1
-    #         p2 = max(1.01, 1.075*last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-    #         ha = 'right'
-    #         va = 'bottom'
-    #     if lloc == 'right':
-    #         p1 = 1.1
-    #         p2 = max(1.01, 1.075*last_tick + 0.75 * ltfs * 0.01388888889 / lheight)
-    #         ha = 'left'
-    #         va = 'bottom'
-    #     if lloc == 'top':
-    #         p1 = max(1.01, 1.05*last_tick + 0.75 * ltfs * 0.01388888889 / lwidth)
-    #         p2 = -1.6
-    #         ha = 'left'
-    #         va = 'center'
-    #     if lloc == 'bottom':
-    #         p1 = max(1.01, 1.05*last_tick + 0.75 * ltfs * 0.01388888889 / lwidth)
-    #         p2 = 1.6
-    #         ha = 'left'
-    #         va = 'center'
-    #     ax.text(p1,
-    #             p2,
-    #             r'$\mathregular{\times 10^{%i}}$' % scalar,
-    #             fontproperties=font,
-    #             size=ltfs,
-    #             ha=ha,
-    #             va=va)
 
     # set tick labels on colorbar
     tick_labels = ['' for i in range(0, len(ticks))]
@@ -349,15 +267,15 @@ if args.norm == 'log':
     plot_max_value = np.log10(plot_max_value)
 
     # set colorbar major ticks
-    if len(args.ltickbeg) == 0:
+    if args.ltickbeg is None:
         ltickbeg = np.floor(plot_min_value)
     else:
         ltickbeg = float(args.ltickbeg)
-    if len(args.ltickend) == 0:
+    if args.ltickend is None:
         ltickend = np.ceil(plot_max_value) + 1
     else:
         ltickend = float(args.ltickend)
-    if len(args.ld) == 0:
+    if args.ld is None:
         ld = max(1, round((ltickend - ltickbeg) / 5.0))
     else:
         ld = int(args.ld)
@@ -417,5 +335,5 @@ else:
         ax.invert_xaxis()
 
 ## output
-from module_output import *
+from module_io import *
 output(args)

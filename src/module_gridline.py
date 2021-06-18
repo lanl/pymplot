@@ -1,5 +1,7 @@
-## set grid line
-
+'''
+    Module:
+        Set grid lines
+'''
 import matplotlib.pyplot as plt
 
 
@@ -9,7 +11,7 @@ def set_gridline(args):
 
     if args.grid1:
         # grid line width
-        if len(args.grid1width) == 0:
+        if args.grid1width is None:
             grid1width = float(args.tickmajorwid)
         else:
             grid1width = float(args.grid1width)
@@ -22,7 +24,7 @@ def set_gridline(args):
 
     if args.grid2:
         # grid line width
-        if len(args.grid2width) == 0:
+        if args.grid2width is None:
             grid2width = float(args.tickmajorwid)
         else:
             grid2width = float(args.grid2width)
