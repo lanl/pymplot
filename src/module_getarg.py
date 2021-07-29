@@ -214,7 +214,8 @@ def getarg(parser, program):
     # annotations
     parser.add_argument('-curve', '--curve', type=str, help='filename of curves', nargs='+', default=None)
     parser.add_argument('-curvestyle', '--curvestyle', type=str, help='curve line styles', nargs='+', default=None)
-    parser.add_argument('-curvesize', '--curvesize', type=str, help='curve line width or scatter marker size', nargs='+', default=None)
+    parser.add_argument('-curvesize', '--curvesize', type=str, help='curve scatter marker size', nargs='+', default=None)
+    parser.add_argument('-curvewidth', '--curvewidth', type=str, help='curve line width size', nargs='+', default=None)
     parser.add_argument('-curvecolor', '--curvecolor', type=str, help='curve color', nargs='+', default=None)
     parser.add_argument('-curvefacecolor', '--curvefacecolor', type=str, help='curve face color', nargs='+', default=None)
     parser.add_argument('-curveedgecolor', '--curveedgecolor', type=str, help='curve edge color', nargs='+', default=None)
