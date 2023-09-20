@@ -3,11 +3,11 @@
 
 ## Description
 
-**pymplot** is a lightweight python + matplotlib based application package for efficiently generating high-quality plots for multi-dimensional scalar data. See our paper for further details. 
+**pymplot** is a lightweight Python application package for efficiently generating high-quality plots for multi-dimensional scalar data. See the paper draft in doc for more details. 
 
 LANL C number: C20105
 
-Author: Kai Gao @ EES-17, LANL
+Author: Kai Gao, <kaigao@lanl.gov>
 
 ## Installation
 
