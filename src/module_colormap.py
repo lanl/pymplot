@@ -30,7 +30,7 @@ import matplotlib.colors as colors
 		20140313 -- Small changes made and code posted online
 		20140320 -- Added the ability to set the position of each color
 '''
-def make_cmap(colors, position=None, bit=False):
+def make_cmap(colors, position=None, bit=False, ncolor=256):
 
     bit_rgb = np.linspace(0, 1, 256)
     if position == None:
@@ -49,7 +49,7 @@ def make_cmap(colors, position=None, bit=False):
         cdict['green'].append((pos, color[1], color[1]))
         cdict['blue'].append((pos, color[2], color[2]))
 
-    cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
+    cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, ncolor)
     return cmap
 
 
@@ -77,8 +77,25 @@ def set_colormap(args, which='foreground'):
     if colormap == []:
         # default colormap is jet of matplotlib
         colormap = cm.jet
+        if argcolor == 'mild':
+            colormap = cm.RdYlBu_r
+        elif argcolor == 'mild_r':
+            colormap = cm.RdYlBu
+        elif argcolor == 'spectral':
+            colormap = cm.Spectral
+        elif argcolor == 'spectral_r':
+            colormap = cm.Spectral_r
+        elif argcolor == 'ncar':
+            colormap = cm.gist_ncar
+        elif argcolor == 'ncar_r':
+            colormap = cm.gist_ncar_r
+        elif argcolor == 'nspec':
+            colormap = cm.nipy_spectral
+        elif argcolor == 'nspec_r':
+            colormap = cm.nipy_spectral_r
     else:
         colormap = colormap[0]
+            
     cmap = plt.get_cmap(colormap, args.ncolor)
 
     colors = []
@@ -86,72 +103,110 @@ def set_colormap(args, which='foreground'):
     # several self-defined colormaps
     if argcolor == 'warmcold':
         colors = [(255, 0, 0), (255, 255, 0), (255, 255, 255), (0, 255, 0), (0, 0, 255)]
+        position = [0, 0.25, 0.5, 0.75, 1]
     if argcolor == 'coldwarm':
         colors = [(0, 0, 255), (0, 255, 0), (255, 255, 255), (255, 255, 0), (255, 0, 0)]
+        position = [0, 0.25, 0.5, 0.75, 1]
 
     if argcolor == 'rainbow256':
         colors = [(0, 0, 255), (0, 255, 255), (0, 255, 0), (255, 255, 0), (255, 0, 0)]
+        position = [0, 0.25, 0.5, 0.75, 1]
     if argcolor == 'rainbow256_r':
         colors = [(0, 0, 255), (0, 255, 255), (0, 255, 0), (255, 255, 0), (255, 0, 0)]
         colors = list(reversed(colors))
+        position = [0, 0.25, 0.5, 0.75, 1]
 
     if argcolor == 'honeypot':
         colors = [(16, 91, 99), (255, 250, 213), (255, 211, 78), (219, 158, 54), (189, 73, 50)]
+        position = [0, 0.25, 0.5, 0.75, 1]
     if argcolor == 'honeypot_r':
         colors = [(16, 91, 99), (255, 250, 213), (255, 211, 78), (219, 158, 54), (189, 73, 50)]
         colors = list(reversed(colors))
+        position = [0, 0.25, 0.5, 0.75, 1]
 
     if argcolor == 'dbwr':
         colors = [(0, 0, 215), (5, 75, 255), (255, 255, 255), (215, 35, 15), (185, 0, 15)]
+        position = [0, 0.25, 0.5, 0.75, 1]
     if argcolor == 'dbwr_r':
         colors = [(0, 0, 215), (5, 75, 255), (255, 255, 255), (215, 35, 15), (185, 0, 15)]
         colors = list(reversed(colors))
+        position = [0, 0.25, 0.5, 0.75, 1]
 
     if argcolor == 'kwr':
         colors = [(0, 0, 0), (255, 255, 255), (255, 0, 0)]
+        position = [0, 0.5, 1]
     if argcolor == 'kwr_r':
         colors = [(0, 0, 0), (255, 255, 255), (255, 0, 0)]
         colors = list(reversed(colors))
+        position = [0, 0.5, 1]
 
     if argcolor == 'kwyr':
         colors = [(0, 0, 0), (128, 128, 128), (255, 255, 255), (255, 255, 0), (255, 0, 0)]
+        position = [0, 0.25, 0.5, 0.75, 1]
     if argcolor == 'kwyr_r':
         colors = [(0, 0, 0), (128, 128, 128), (255, 255, 255), (255, 255, 0), (255, 0, 0)]
         colors = list(reversed(colors))
+        position = [0, 0.25, 0.5, 0.75, 1]
 
     if argcolor == 'ywr':
         colors = [(255, 255, 0), (255, 255, 255), (255, 0, 0)]
+        position = [0, 0.5, 1]
     if argcolor == 'ywr_r':
         colors = [(255, 255, 0), (255, 255, 255), (255, 0, 0)]
         colors = list(reversed(colors))
+        position = [0, 0.5, 1]
 
     if argcolor == 'ryw':
         colors = [(255, 0, 0), (255, 255, 0), (255, 255, 255)]
+        position = [0, 0.5, 1]
     if argcolor == 'ryw_r':
         colors = [(255, 0, 0), (255, 255, 0), (255, 255, 255)]
         colors = list(reversed(colors))
+        position = [0, 0.5, 1]
 
     if argcolor == 'ry':
         colors = [(255, 0, 0), (255, 255, 0)]
+        position = [0, 1]
     if argcolor == 'ry_r':
         colors = [(255, 0, 0), (255, 255, 0)]
         colors = list(reversed(colors))
+        position = [0, 1]
 
     if argcolor == 'by':
         colors = [(0, 0, 255), (255, 255, 0)]
+        position = [0, 1]
     if argcolor == 'by_r':
         colors = [(0, 0, 255), (255, 255, 0)]
         colors = list(reversed(colors))
+        position = [0, 1]
 
     if argcolor == 'by':
         colors = [(0, 0, 255), (255, 255, 0)]
+        position = [0, 1]
     if argcolor == 'by_r':
         colors = [(0, 0, 255), (255, 255, 0)]
         colors = list(reversed(colors))
+        position = [0, 1]
+        
+    if argcolor == 'rainbowcmyk':
+        colors = [(int(0.00*255), int(0.00*255), int(0.51*255)), 
+                  (int(0.00*255), int(0.81*255), int(1.00*255)), 
+                  (int(0.87*255), int(1.00*255), int(0.12*255)), 
+                  (int(1.00*255), int(0.20*255), int(0.00*255)), 
+                  (int(0.51*255), int(0.00*255), int(0.00*255))]
+        position = [0.00, 0.34, 0.61, 0.84, 1.00]
+    if argcolor == 'rainbowcmyk_r':
+        colors = [(int(0.00*255), int(0.00*255), int(0.51*255)), 
+                  (int(0.00*255), int(0.81*255), int(1.00*255)), 
+                  (int(0.87*255), int(1.00*255), int(0.12*255)), 
+                  (int(1.00*255), int(0.20*255), int(0.00*255)), 
+                  (int(0.51*255), int(0.00*255), int(0.00*255))]
+        colors = list(reversed(colors))
+        position = [0.00, 0.34, 0.61, 0.84, 1.00]
 
     # make self-defined colormap
     if colors != []:
-        cmap = make_cmap(colors, bit=True)
+        cmap = make_cmap(colors, position, bit=True)
 
     # truncate colormap if necessary
     if which == 'foreground':
@@ -161,7 +216,11 @@ def set_colormap(args, which='foreground'):
 
     # make nan values transparent
     colormap.set_bad('white', 0.0)
-
+    
+    # resampled
+    if args.ncolor != 256:
+    	colormap = colormap.resampled(args.ncolor)
+    
     return colormap
 
 ## set colormap with non-uniform alphas

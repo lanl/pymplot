@@ -21,6 +21,7 @@ import math
 import argparse
 from module_getarg import *
 from argparse import RawTextHelpFormatter
+# from sklearn.metrics import r2_score
 
 # ignore warnings
 import warnings
@@ -209,6 +210,10 @@ if args.select is not None:
         nrange = np.append(nrange, nrange0 + nps * i, axis=0)
     nps = nps * nset
     data = data0[:, :]
+    
+if args.normalize2 == 'max':
+    for i in range(size(data, axis=1)):
+        data[:, i] = data[:, i]/max(data[:, i])
 
 # plot
 if args.projection == 'cartesian':
@@ -607,7 +612,7 @@ if args.plottype == 2 or args.plottype == 3:
         msize = []
         for i in range(0, nf):
             if zmin == zmax:
-                msize = np.append(msize, [j for j in data[nrange[i, 0]:nrange[i, 1], 2]])
+                msize = np.append(msize, [markersizemin[i] for j in data[nrange[i, 0]:nrange[i, 1], 2]])
             else:
                 msize = np.append(msize, [(j - zmin) / (zmax - zmin) *
                                           (markersizemax[i] - markersizemin[i]) + markersizemin[i]
@@ -761,7 +766,7 @@ for i in range(0, nf):
                     label=plotlabel[i],
                     markevery=markerevery[i],
                     antialiased=True,
-                    zorder=1)
+                    zorder=args.plotorder)
         if linestyle[i] == 'none' and marker[i] in markers:
             ax.plot(x,
                     y,
@@ -772,7 +777,7 @@ for i in range(0, nf):
                     markerfacecolor=markerfacecolor[i],
                     markeredgecolor=markeredgecolor[i],
                     markevery=markerevery[i],
-                    zorder=1)
+                    zorder=args.plotorder)
         if linestyle[i] in linestyles and marker[i] in markers:
             ax.plot(x,
                     y,
@@ -786,7 +791,7 @@ for i in range(0, nf):
                     markerfacecolor=markerfacecolor[i],
                     markeredgecolor=markeredgecolor[i],
                     markevery=markerevery[i],
-                    zorder=1)
+                    zorder=args.plotorder)
 
         # add legend
         if args.plotlabel is not None:
@@ -840,12 +845,11 @@ for i in range(0, nf):
             x,
             y,
             c=v,  # variable color
-            # variable size
-            s=msize[nrange[i, 0]:nrange[i, 1]],
+            s=msize[nrange[i, 0]:nrange[i, 1]], # variable size
             vmin=cmin,  # clip min
             vmax=cmax,  # clip max
             marker=marker[i],
-            zorder=1)
+            zorder=args.plotorder)
         sc.set_cmap(colormap)
         sc.set_antialiaseds(True)
         if args.markeredgecolor is None:
@@ -1104,14 +1108,14 @@ if args.projection == 'cartesian':
 
     if args.direction == 'horizontal':
         if args.norm1 == 'log':
-            ax.set_xscale('log', nonposx='clip', basex=int(args.base1))
+            ax.set_xscale('log', nonpositive='clip', base=int(args.base1))
         if args.norm2 == 'log':
-            ax.set_yscale('log', nonposy='clip', basey=int(args.base2))
+            ax.set_yscale('log', nonpositive='clip', base=int(args.base2))
     if args.direction == 'vertical':
         if args.norm1 == 'log':
-            ax.set_yscale('log', nonposx='clip', basey=int(args.base1))
+            ax.set_yscale('log', nonpositive='clip', base=int(args.base1))
         if args.norm2 == 'log':
-            ax.set_xscale('log', nonposy='clip', basex=int(args.base2))
+            ax.set_xscale('log', nonpositive='clip', base=int(args.base2))
 
     if args.ticktop:
         ticktop = 1
@@ -1534,7 +1538,12 @@ if args.grid1:
     else:
         grid1width = float(args.grid1width)
     # add grid
-    ax.grid(which='major', axis=axx, linestyle=args.grid1style, color=args.grid1color, linewidth=grid1width)
+    ax.grid(which='major', 
+            axis=axx, 
+            linestyle=args.grid1style, 
+            color=args.grid1color, 
+            linewidth=grid1width, 
+            zorder=args.gridorder)
 
 if args.grid2:
     # grid line width
@@ -1543,7 +1552,12 @@ if args.grid2:
     else:
         grid2width = float(args.grid2width)
     # add grid
-    ax.grid(which='major', axis=axy, linestyle=args.grid2style, color=args.grid2color, linewidth=grid2width)
+    ax.grid(which='major', 
+            axis=axy, 
+            linestyle=args.grid2style, 
+            color=args.grid2color, 
+            linewidth=grid2width, 
+            zorder=args.gridorder)
 
 if args.mgrid1 and args.mtick1 != 0:
     # minor grid line width
@@ -1556,7 +1570,8 @@ if args.mgrid1 and args.mtick1 != 0:
             axis=axx,
             linestyle=args.mgrid1style,
             color=args.mgrid1color,
-            linewidth=mgrid1width)
+            linewidth=mgrid1width, 
+            zorder=args.gridorder)
 
 if args.mgrid2 and args.mtick2 != 0:
     # minor grid line width
@@ -1569,7 +1584,8 @@ if args.mgrid2 and args.mtick2 != 0:
             axis=axy,
             linestyle=args.mgrid2style,
             color=args.mgrid2color,
-            linewidth=mgrid2width)
+            linewidth=mgrid2width, 
+            zorder=args.gridorder)
 
 # set title
 set_title(args, fontbold)
@@ -1590,6 +1606,7 @@ if args.curve is not None:
     curveorder = set_default(args.curveorder, ',', nf, 9, 'int')
 
     for i in range(0, nf):
+    
         curve = np.loadtxt(curvefile[i], ndmin=2)  # using ndmin=2 to ensure read as 2d array
         nsp = len(curve)
         px1 = curve[0:nsp, 0]
@@ -1599,35 +1616,83 @@ if args.curve is not None:
             px1 = px2
             px2 = temp
 
-        # plot scatter points on the figure
-        if 'scatter' in curvestyle[i]:
-            ax.scatter(px1,
-                       px2,
-                       marker=curvestyle[i][7:],
-                       c=curvefacecolor[i],
-                       zorder=curveorder[i],
-                       edgecolor=curveedgecolor[i],
-                       s=curvesize[i])
-        # plot line on the figure
-        if 'line' in curvestyle[i]:
-            extra = Line2D(px1,
+        if args.plottype == 1 or args.plottype == 2:
+            # plot scatter points on the figure
+            if 'scatter' in curvestyle[i]:
+                ax.scatter(px1,
                            px2,
-                           linestyle=curvestyle[i][4:],
+                           marker=curvestyle[i][7:],
+                           c=curvefacecolor[i],
                            zorder=curveorder[i],
-                           color=curvecolor[i],
-                           linewidth=curvesize[i])
-            ax.add_artist(extra)
-        # plot polygon on the figure
-        if 'polygon' in curvestyle[i]:
-            curve[0:nsp, 0] = px1
-            curve[0:nsp, 1] = px2
-            extra = Polygon(curve,
-                            fill=False,
-                            zorder=curveorder[i],
-                            color=curvecolor[i],
-                            linewidth=curvesize[i],
-                            antialiased=True)
-            ax.add_artist(extra)
+                           edgecolor=curveedgecolor[i],
+                           s=curvesize[i])
+            # plot line on the figure
+            if 'line' in curvestyle[i]:
+                extra = Line2D(px1,
+                               px2,
+                               linestyle=curvestyle[i][4:],
+                               zorder=curveorder[i],
+                               color=curvecolor[i],
+                               linewidth=curvesize[i])
+                ax.add_artist(extra)
+            # plot polygon on the figure
+            if 'polygon' in curvestyle[i]:
+                curve[0:nsp, 0] = px1
+                curve[0:nsp, 1] = px2
+                extra = Polygon(curve,
+                                fill=False,
+                                zorder=curveorder[i],
+                                color=curvecolor[i],
+                                linewidth=curvesize[i],
+                                antialiased=True)
+                ax.add_artist(extra)
+        else:
+            # plot scatter points on the figure
+            if 'scatter' in curvestyle[i]:
+                ax.scatter(px1,
+                           px2,
+                           marker=curvestyle[i][7:],
+                           facecolor=curvefacecolor[i],
+                           zorder=curveorder[i],
+                           edgecolor=curveedgecolor[i],
+                           s=curvesize[i],
+                           antialiased=True,
+                           label=plotlabel[i])
+            
+            # plot line on the figure
+            if 'line' in curvestyle[i]:
+                extra = Line2D(px1,
+                               px2,
+                               linestyle=curvestyle[i][4:],
+                               zorder=curveorder[i],
+                               color=curvecolor[i],
+                               linewidth=curvewidth[i],
+                               antialiased=True,
+                               label=plotlabel[i])
+                ax.add_artist(extra)
+            # plot polygon on the figure
+            if 'polygon' in curvestyle[i]:
+                curve[0:nsp, 0] = px1
+                curve[0:nsp, 1] = px2
+                extra = Polygon(curve,
+                                fill=False,
+                                zorder=curveorder[i],
+                                edgecolor=curvecolor[i],
+                                linewidth=curvewidth[i],
+                                antialiased=True,
+                                label=plotlabel[i])
+                ax.add_artist(extra)
+            # add legend
+            if args.plotlabel is not None:
+                if args.plotlabelloc in list(locdict.keys()):
+                    lg = plt.legend(loc=labelloc)
+                else:
+                    lg = plt.legend(bbox_to_anchor=(1.01, 1.0), loc=2, borderaxespad=0)
+                lg.set_zorder(10)
+                leg = ax.get_legend()
+                ltext = leg.get_texts()
+                plt.setp(ltext, fontproperties=font)
+                plt.setp(ltext, fontsize=float(args.plotlabelsize))
 
 # place text
 if args.text is not None:
@@ -2180,6 +2245,56 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
 if args.legend and args.plottype == 3:
     set_colorbar(args, sc, font, cmin, cmax, figheight, figwidth, fig)
+
+# # background
+# if args.background is not None:
+    
+#     bn1 = args.bn1
+    
+#     fsize = os.path.getsize(args.background)
+#     datatype = args.datatype
+#     if datatype == 'double':
+#         fsize = fsize / 8
+#     if datatype == 'float':
+#         fsize = fsize / 4
+#     if datatype == 'int':
+#         fsize = fsize / 2
+
+#     if args.bn2 is None:
+#         bn2 = int(fsize * 1.0 / bn1)
+#     else:
+#         bn2 = args.bn2
+    
+#     w = np.fromfile(args.background, count=bn1*bn2, dtype=np.float32)
+#     w = np.reshape(w, (bn2, bn1))
+#     w = np.transpose(w)
+    
+#     bd1 = float(args.bd1)
+#     bd2 = float(args.bd2)
+    
+#     backdmin = w.min()
+#     backdmax = w.max()
+    
+#     sp1beg, sp1end, x1beg, x1end, n1beg, n1end = set_range(args.bo1, bn1, bd1, args.x1beg, args.x1end)
+#     sp2beg, sp2end, x2beg, x2end, n2beg, n2end = set_range(args.bo2, bn2, bd2, args.x2beg, args.x2end)
+#     w = w[n1beg:n1end, n2beg:n2end]
+    
+#     from module_colormap import set_colormap, set_colormap_alpha
+
+#     backcmin, backcmax = set_clip(args, w, 'back', backdmin, backdmax)
+#     colormap = set_colormap(args, 'background')
+#     colormap = set_colormap_alpha(args, colormap, backcmin, backcmax, 'background')
+    
+#     print(ax)
+    
+#     if args.shading is not None:
+#         from matplotlib.colors import LightSource
+#         ls = LightSource(azdeg=360, altdeg=45)
+#         rgb = ls.hillshade(data, vert_exag=args.shading_scale) #, blend_mode=args.shading)
+#         ax.imshow(rgb, cmap=colormap, extent=[x2beg, x2end, x1beg, x1end], zorder=1)
+#     else:
+#         ax.imshow(data, cmap=colormap)
+        
 
 # clean
 # if multiple input files then remove temporary file

@@ -13,6 +13,7 @@ from module_io import *
 
 # this is to ignore warnings
 import warnings
+
 warnings.filterwarnings("ignore", module="matplotlib")
 
 # tag
@@ -67,6 +68,7 @@ if not args.imageonly:
 else:
     ax.set_axis_off()
 
+# show the image
 im = ax.imshow(data, zorder=2)
 im.set_extent([0, figwidth, figheight, 0])
 if args.background is not None:
@@ -82,7 +84,7 @@ from module_clip import *
 cmin, cmax = set_clip(args, data, 'fore', dmin, dmax)
 if args.norm == 'log':
     if cmin > np.floor(cmax) or cmax < np.ceil(cmin):
-        print('error: values in dataset have same order of magnitude')
+        print(' Error: Values in dataset have same order of magnitude. ')
         exit()
 im.set_clim(cmin, cmax)
 
@@ -90,7 +92,7 @@ if args.background is not None:
     backcmin, backcmax = set_clip(args, backdata, 'back', backdmin, backdmax)
     if args.norm == 'log':
         if backcmin > np.floor(backcmax) or backcmax < np.ceil(backcmin):
-            print('error: values in dataset have same order of magnitude')
+            print(' Error: Values in dataset have same order of magnitude. ')
             exit()
     imb.set_clim(backcmin, backcmax)
 
@@ -136,10 +138,21 @@ if args.legend and not args.backlegend:
 if args.backlegend:
     set_colorbar(args, imb, font, backcmin, backcmax, figheight, figwidth, fig)
 
+## set shading plot
+if args.shading is not None:
+
+    from matplotlib.colors import LightSource
+    angle = args.shading_angle.split(',')
+    az = np.float32(angle[0])
+    alt = np.float32(angle[1])
+    ls = LightSource(azdeg=az, altdeg=alt)
+    rgb = ls.shade(data, cmap=colormap, vert_exag=args.shading_scale, blend_mode=args.shading)
+    im = ax.imshow(rgb, cmap=colormap, extent=[0, figwidth, figheight, 0], zorder=2)
+
 ## axis invert
-if args.reverse1 == 1:
+if args.reverse1:
     ax.invert_yaxis()
-if args.reverse2 == 1:
+if args.reverse2:
     ax.invert_xaxis()
 
 ## output

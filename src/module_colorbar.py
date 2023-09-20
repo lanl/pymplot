@@ -15,7 +15,7 @@ import numpy as np
 
 def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figwidth, fig):
 
-    if args.legend and plot_min_value != plot_max_value:
+    if (args.legend or args.backlegend) and plot_min_value != plot_max_value:
 
         # legend location
         if args.lloc is None:
@@ -303,6 +303,151 @@ def set_colorbar(args, im, font, plot_min_value, plot_max_value, figheight, figw
 
         # make colorbar solid color continuous
         cb.solids.set_edgecolor("face")
+
+        # colorbar reverse
+        if lloc in ['left', 'right']:
+            if args.lreverse:
+                cb.ax.invert_yaxis()
+        else:
+            if args.lreverse:
+                cb.ax.invert_xaxis()
+                
+                
+def set_colorbar_contour(args, cs, cf, font, plot_min_value, plot_max_value, figheight, figwidth, fig):
+
+    if args.legend and plot_min_value != plot_max_value:
+
+        # legend location
+        if args.lloc is None:
+            lloc = 'right'
+        else:
+            lloc = args.lloc
+
+        # legend orientation and tick switc, unit rotation
+        if lloc == 'left':
+            lorient = 'vertical'
+            lleft = 1
+            lright = 0
+            ltop = 0
+            lbottom = 0
+            lrotate = 90
+        if lloc == 'right':
+            lorient = 'vertical'
+            lleft = 0
+            lright = 1
+            ltop = 0
+            lbottom = 0
+            lrotate = 270
+        if lloc == 'top':
+            lorient = 'horizontal'
+            lleft = 0
+            lright = 0
+            ltop = 1
+            lbottom = 0
+            lrotate = 0
+        if lloc == 'bottom':
+            lorient = 'horizontal'
+            lleft = 0
+            lright = 0
+            ltop = 0
+            lbottom = 1
+            lrotate = 0
+
+        if args.unitpad is None:
+            if lloc == 'right':
+                lpad = 20.0
+            if lloc == 'bottom':
+                lpad = 0.0
+            if lloc == 'left':
+                lpad = -50
+            if lloc == 'top':
+                lpad = -50.0
+        else:
+            lpad = float(args.unitpad)
+
+        if lloc == 'left' or lloc == 'right':
+            if args.lheight is None:
+                lheight = figheight
+            else:
+                lheight = float(args.lheight)
+            if args.lwidth is None:
+                lwidth = 0.15
+            else:
+                lwidth = float(args.lwidth)
+        if lloc == 'top' or lloc == 'bottom':
+            if args.lheight is None:
+                lheight = 0.15
+            else:
+                lheight = float(args.lheight)
+            if args.lwidth is None:
+                lwidth = figwidth
+            else:
+                lwidth = float(args.lwidth)
+
+        if args.lpad is None:
+            cbpad = 0.05
+        else:
+            cbpad = float(args.lpad)
+        if lloc == 'left':
+            cbx = -(cbpad + lwidth) / figwidth
+            cby = (figheight - lheight) / 2.0 / figheight
+        if lloc == 'right':
+            cbx = 1.0 + cbpad / figwidth
+            cby = (figheight - lheight) / 2.0 / figheight
+        if lloc == 'top':
+            cbx = (figwidth - lwidth) / 2.0 / figwidth
+            cby = 1.0 + cbpad / figheight
+        if lloc == 'bottom':
+            cbx = (figwidth - lwidth) / 2.0 / figwidth
+            cby = -(cbpad + lheight) / figheight
+        from matplotlib.cm import ScalarMappable
+        cax = fig.add_axes([cbx, cby, lwidth / figwidth, lheight / figheight])
+        cb = fig.colorbar(cf, cax=cax, orientation=lorient)
+        cb.add_lines(cs)
+
+        # set colorbar label and styles
+        if args.unitsize is None:
+            lufs = min(float(args.label1size), float(args.label2size)) - 1
+        else:
+            lufs = float(args.unitsize)
+
+        if args.unit is not None:
+            cb.set_label(args.unit, rotation=lrotate, labelpad=lpad, fontproperties=font)
+
+        if lloc == 'right' or lloc == 'left':
+            cb.ax.yaxis.label.set_fontsize(lufs)
+        if lloc == 'top' or lloc == 'bottom':
+            cb.ax.xaxis.label.set_fontsize(lufs)
+
+        # set colorbar tick styles: font size, family, and ticks direction
+        if args.lticksize is None:
+            ltfs = lufs - 1
+        else:
+            ltfs = float(args.lticksize)
+
+        cb.ax.tick_params(
+            direction='out',
+            axis='x',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            top=ltop,  # ticks along the left axis
+            bottom=lbottom,  # ticks along the right axis
+            labeltop=ltop,  # labels along the left axis
+            labelbottom=lbottom)
+        cb.ax.tick_params(
+            direction='out',
+            axis='y',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            left=lleft,  # ticks along the left axis
+            right=lright,  # ticks along the right axis
+            labelleft=lleft,  # labels along the left axis
+            labelright=lright)
+
+        for l in cb.ax.yaxis.get_ticklabels():
+            l.set_fontproperties(font)
+            l.set_fontsize(ltfs)
+        for l in cb.ax.xaxis.get_ticklabels():
+            l.set_fontproperties(font)
+            l.set_fontsize(ltfs)
 
         # colorbar reverse
         if lloc in ['left', 'right']:

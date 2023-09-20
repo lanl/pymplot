@@ -5,6 +5,7 @@
 import numpy as np
 import argparse
 
+
 ## round number x to base with specified precision
 def rounddecimalbase(x, base, prec=2):
     return round(base * round(float(x) / float(base)), prec)
@@ -29,7 +30,7 @@ def nice(x, base=0.5):
 
 ## convert string to bool
 def str2bool(v):
-    
+
     if isinstance(v, bool):
         return v
     if v.lower() in ('yes', 'true', 'on', 't', 'y', '1'):
@@ -38,16 +39,17 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Error: Boolean value expected. ')
- 
-## convert strings to bool      
+
+
+## convert strings to bool
 def strs2bool(v):
-        
+
     v = v.split(',')
     n = len(v)
     r = np.zeros(n, dtype=bool)
-            
+
     for i in range(n):
-            
+
         if isinstance(v[i], bool):
             r[i] = v[i]
         if v[i].lower() in ('yes', 'true', 'on', 't', 'y', '1'):
@@ -58,4 +60,3 @@ def strs2bool(v):
             raise argparse.ArgumentTypeError('Error: Boolean value expected.')
 
     return r
-

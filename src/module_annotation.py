@@ -52,6 +52,33 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
         curvefile = args.curve[0].split(",")
         nf = len(curvefile)
 
+        # plot labels
+        if args.plotlabel is not None:
+            plotlabel = args.plotlabel[0].split(':')
+            if len(plotlabel) < nf:
+                l = len(plotlabel)
+                aplotlabel = ['Set ' + str(i) for i in range(l, nf)]
+                plotlabel.extend(aplotlabel)
+        else:
+            plotlabel = ['Set ' + str(i) for i in range(0, nf)]
+        
+        locdict = {
+            'upper_right': 1,
+            'upper_left': 2,
+            'lower_left': 3,
+            'lower_right': 4,
+            'right': 5,
+            'center_left': 6,
+            'center_right': 7,
+            'lower_center': 8,
+            'upper_center': 9,
+            'center': 10
+        }
+        if args.plotlabelloc in list(locdict.keys()):
+            labelloc = locdict[args.plotlabelloc]
+        else:
+            labelloc = 2
+
         curvestyle = set_default(args.curvestyle, ',', nf, 'scatter.')
         curvecolor = set_default(args.curvecolor, ',', nf, 'k')
         curvefacecolor = set_default(args.curvefacecolor, ',', nf, 'k')
@@ -59,13 +86,15 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
         curvesize = set_default(args.curvesize, ',', nf, 1.0, 'float')
         curvewidth = set_default(args.curvewidth, ',', nf, 1.0, 'float')
         curveorder = set_default(args.curveorder, ',', nf, 9, 'int')
+        curveselect = set_default(args.curveselect, ',', 2, 0, 'int')
 
         for i in range(0, nf):
 
             curve = np.loadtxt(curvefile[i], ndmin=2)  # using ndmin=2 to ensure read as 2d array
             nsp = len(curve)
-            x1 = curve[0:nsp, 0]
-            x2 = curve[0:nsp, 1]
+            s = curveselect
+            x1 = curve[0:nsp, s[0] - 1]
+            x2 = curve[0:nsp, s[1] - 1]
             px1 = (x1 - x1beg + 0.5 * d1) / (n1 * d1) * axis1len
             px2 = (x2 - x2beg + 0.5 * d2) / (n2 * d2) * axis2len
             curve[0:nsp, 0] = px1
@@ -79,9 +108,12 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                            facecolor=curvefacecolor[i],
                            zorder=curveorder[i],
                            edgecolor=curveedgecolor[i],
-                           s=curvesize[i])
+                           s=curvesize[i],
+                           antialiased=True,
+                           label=plotlabel[i])
                 ax.set_xlim(0, axis2len)
                 ax.set_ylim(axis1len, 0)
+            
             # plot line on the figure
             if 'line' in curvestyle[i]:
                 extra = Line2D(px2,
@@ -89,7 +121,9 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                                linestyle=curvestyle[i][4:],
                                zorder=curveorder[i],
                                color=curvecolor[i],
-                               linewidth=curvewidth[i])
+                               linewidth=curvewidth[i],
+                               antialiased=True,
+                               label=plotlabel[i])
                 ax.add_artist(extra)
             # plot polygon on the figure
             if 'polygon' in curvestyle[i]:
@@ -99,8 +133,23 @@ def set_annotation(args, font, x1beg, n1, d1, axis1len, x2beg, n2, d2, axis2len)
                                 fill=False,
                                 zorder=curveorder[i],
                                 edgecolor=curvecolor[i],
-                                linewidth=curvewidth[i])
+                                linewidth=curvewidth[i],
+                                antialiased=True,
+                                label=plotlabel[i])
                 ax.add_artist(extra)
+
+
+        # add legend
+        if args.plotlabel is not None:
+            if args.plotlabelloc in list(locdict.keys()):
+                lg = plt.legend(loc=labelloc)
+            else:
+                lg = plt.legend(bbox_to_anchor=(1.01, 1.0), loc=2, borderaxespad=0)
+            lg.set_zorder(10)
+            leg = ax.get_legend()
+            ltext = leg.get_texts()
+            plt.setp(ltext, fontproperties=font)
+            plt.setp(ltext, fontsize=float(args.plotlabelsize))
 
     # place text
     if args.text is not None:

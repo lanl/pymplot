@@ -132,6 +132,9 @@ def getarg(parser, program):
     parser.add_argument('-backalphas', '--backalphas', type=str, help='alpha map of the background image', default=None)
     parser.add_argument('-backctruncbeg', '--backctruncbeg', type=str, help='background colormap truncation lower end', default='0.0')
     parser.add_argument('-backctruncend', '--backctruncend', type=str, help='background colormap truncation higher end', default='1.0')
+    parser.add_argument('-shading', '--shading', type=str, help='shading type', default=None)
+    parser.add_argument('-shading_scale', '--shading_scale', type=float, help='shading scale', default=1.0)
+    parser.add_argument('-shading_angle', '--shading_angle', type=str, help='shading angles', default='180,45')
 
     # colorbar
     parser.add_argument('-legend', '--legend', type=str2bool, help='show colorbar', default='n')
@@ -215,6 +218,7 @@ def getarg(parser, program):
     parser.add_argument('-curve', '--curve', type=str, help='filename of curves', nargs='+', default=None)
     parser.add_argument('-curvestyle', '--curvestyle', type=str, help='curve line styles', nargs='+', default=None)
     parser.add_argument('-curvesize', '--curvesize', type=str, help='curve scatter marker size', nargs='+', default=None)
+    parser.add_argument('-curveselect', '--curveselect', type=str, help='curve file cols select', nargs='+', default=None)
     parser.add_argument('-curvewidth', '--curvewidth', type=str, help='curve line width size', nargs='+', default=None)
     parser.add_argument('-curvecolor', '--curvecolor', type=str, help='curve color', nargs='+', default=None)
     parser.add_argument('-curvefacecolor', '--curvefacecolor', type=str, help='curve face color', nargs='+', default=None)
@@ -275,6 +279,16 @@ def getarg(parser, program):
         parser.add_argument('-markeralpha', '--markeralpha', type=str, help='marker transparency', nargs='+', default=None)
         parser.add_argument('-markersizemax', '--markersizemax', type=str, help='maximum marker size', nargs='+', default=None)
         parser.add_argument('-markersizemin', '--markersizemin', type=str, help='minimum marker size', nargs='+', default=None)
+        parser.add_argument('-plotorder', '--plotorder', type=int, help='larger order on top', default=20)
+        parser.add_argument('-gridorder', '--gridorder', type=int, help='grid line plot order, larger order on top', default=10)
+        parser.add_argument('-normalize1', '--normalize1', type=str, help='normalize along axis 1', default=None)
+        parser.add_argument('-normalize2', '--normalize2', type=str, help='normalize along axis 2', default=None)
+        # parser.add_argument('-bn1', '--bn1', type=int, help='', default=None)
+        # parser.add_argument('-bn2', '--bn2', type=int, help='', default=None)
+        # parser.add_argument('-bo1', '--bo1', type=str, help='origin of axis 1', default='0.0')
+        # parser.add_argument('-bo2', '--bo2', type=str, help='origin of axis 2', default='0.0')
+        # parser.add_argument('-bd1', '--bd1', type=str, help='sampling interval along axis 1', default='1.0')
+        # parser.add_argument('-bd2', '--bd2', type=str, help='sampling interval along axis 2', default='1.0')
 
     # contour
     if program in ['contour', 'slicon', 'volcon']:
@@ -285,6 +299,8 @@ def getarg(parser, program):
         parser.add_argument('-contourwidth', '--contourwidth', type=str, help='with of major contours', default='1.0')
         parser.add_argument('-contourstyle', '--contourstyle', type=str, help='style of major contours', default='-')
         parser.add_argument('-contourlevel', '--contourlevel', type=str, help='interval of major contours', default=None)
+        parser.add_argument('-contourextend', '--contourextend', type=str, help='extend major contours', default='both')
+        parser.add_argument('-contourevery', '--contourevery', type=int, help='plot every major contours', default=1)
         parser.add_argument('-clabelsize', '--clabelsize', type=str, help='font size of major contour labels', default=None)
         parser.add_argument('-clabelcolor', '--clabelcolor', type=str, help='color of major contour labels', default='k')
         parser.add_argument('-clabelbackcolor', '--clabelbackcolor', type=str, help='background color of major contour labels', default=None)
@@ -295,6 +311,7 @@ def getarg(parser, program):
 
     # wiggle
     if program in ['wiggle']:
+        parser.add_argument('-tracecolor', '--tracecolor', type=str, help='trace color', nargs='+', default=None)
         parser.add_argument('-wigglecolor', '--wigglecolor', type=str, help='wiggle color', nargs='+', default='k,b,r,g,y,p,c')
         parser.add_argument('-wigglewidth', '--wigglewidth', type=str, help='wiggle width', nargs='+', default=None)
         parser.add_argument('-wigglestyle', '--wigglestyle', type=str, help='wiggle style', nargs='+', default=None)
@@ -309,7 +326,7 @@ def getarg(parser, program):
         parser.add_argument('-wx1end', '--wx1end', type=str, help='axis 1 end value, in consistent with the real value of axis', default=None)
         parser.add_argument('-wx2beg', '--wx2beg', type=str, help='axis 2 begin value, in consistent with the real value of axis', default=None)
         parser.add_argument('-wx2end', '--wx2end', type=str, help='axis 2 end value, in consistent with the real value of axis', default=None)
-    if program in ['wiggle', 'graph']:
+    if program in ['wiggle', 'graph', 'contour', 'matrix']:
         parser.add_argument('-plotlabel', '--plotlabel', type=str, help='labels of different wiggles/graphs', nargs='+', default=None)
         parser.add_argument('-plotlabelloc', '--plotlabelloc', type=str, help='wiggle label location', default='upper_right')
         parser.add_argument('-plotlabelsize', '--plotlabelsize', type=str, help='wiggle label font size', default='14.0')
@@ -322,6 +339,7 @@ def getarg(parser, program):
     parser.add_argument('-type3font', '--type3font', type=str2bool, help='use type-3 font', default='y')
     parser.add_argument('-tr', '--topright', type=str, help='name of the image file added to the top-right corner of the slice plot', default=None)
     parser.add_argument('-render', '--render', type=str, help='type of slice rendering', default='2d')
+    parser.add_argument('-camera', '--camera', type=str, help='position of camera', default='1.5,1.5,1.5')
     parser.add_argument('-size1', '--size1', type=str, help='physical size of axis 1', default=None)
     parser.add_argument('-size2', '--size2', type=str, help='physical size of axis 2', default=None)
     parser.add_argument('-size3', '--size3', type=str, help='physical size of axis 3', default=None)

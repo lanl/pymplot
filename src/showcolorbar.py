@@ -120,10 +120,18 @@ if lloc == 'top' or lloc == 'bottom':
     data = np.empty([1, 256])
     for i in range(0, 256):
         data[0][i] = i
-
+        
 fig = plt.figure(figsize=(lwidth, lheight))
 ax = fig.add_axes([0, 0, 1, 1])
-cb = ax.imshow(data, aspect='auto', cmap=(args.colormap if args.colormap is not None else 'jet'))
+cb = ax.imshow(data, aspect='auto')
+
+from module_clip import *
+cmin, cmax = np.min(data), np.max(data)
+
+from module_colormap import set_colormap, set_colormap_alpha
+colormap = set_colormap(args)
+colormap = set_colormap_alpha(args, colormap, cmin, cmax)
+cb.set_cmap(colormap)
 
 # set colorbar label and styles
 if args.unitsize is None:
@@ -328,10 +336,11 @@ if args.norm == 'log':
 
 # colorbar reverse
 if lloc in ['left', 'right']:
-    if args.lreverse is None or args.lreverse == 1:
+    ax.invert_yaxis()
+    if args.lreverse is None or args.lreverse:
         ax.invert_yaxis()
 else:
-    if args.lreverse == 1:
+    if args.lreverse:
         ax.invert_xaxis()
 
 ## output

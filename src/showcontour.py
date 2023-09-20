@@ -213,7 +213,7 @@ if args.contourfill and not args.overlay and args.background is None:
                       data,
                       levels[0:size(levels) - 1],
                       cmap=colormap,
-                      extend='both',
+                      extend=args.contourextend,
                       antialiased=True)
     for l in cf.collections:
         l.set_edgecolor('face')
@@ -223,7 +223,7 @@ if args.contourfill and not args.overlay and args.background is None:
 cs = plt.contour(xx,
                  yy,
                  data,
-                 levels[0:size(levels) - 1],
+                 levels[0:size(levels) - 1:args.contourevery],
                  colors=lc,
                  linewidths=lw,
                  linestyles=ls,
@@ -347,6 +347,8 @@ if args.legend:
     # set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
     # custom_colorbar(args, im, font, cmin, cmax, figheight, figwidth, ax)
     # this part does not quite work, sorry
+    if args.contourfill and args.background is None:
+    	set_colorbar_contour(args, cs, cf, font, cmin, cmax, figheight, figwidth, fig)
 
 # axis invert
 if args.reverse1 == 1:

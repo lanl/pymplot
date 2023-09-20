@@ -290,6 +290,8 @@ from itertools import cycle
 # defaultcolor=cycle('brgykcp')
 defaultcolor = cycle(['blue', 'red', 'green', 'yellow', 'black', 'cyan', 'magenta'])
 color = args.wigglecolor[0].split(',')
+if args.tracecolor is not None:
+    tracecolor = args.tracecolor[0].split(',')
 
 nc = len(color)
 if nc < nf:
@@ -310,7 +312,7 @@ linestyle = set_default(args.wigglestyle, ',', nf, '-')
 
 # plot labels if necessary
 if args.plotlabel is not None:
-    plotlabel = args.plotlabel[0].split(',')
+    plotlabel = args.plotlabel[0].split(':')
     if len(plotlabel) < nf:
         l = len(plotlabel)
         aplotlabel = ['Set ' + str(i) for i in range(l, nf)]
@@ -356,18 +358,23 @@ if args.along == 1:
     else:
         yy = y
 
-    for i in traces:
+    # iterate through all datasets
+    for j in range(0, nf):
 
-        if args.wiggleloc is not None:
-            offset = (wloc[i][0] - wloc[0][0] + 0.5 * d2) / scale2
-        else:
-            offset = (i * d2 + 0.5 * d2) / scale2
+        # select data
+        data = adata[j, :, :]
+            
+        for i in traces:
 
-        # iterate through all datasets
-        for j in range(0, nf):
-
-            # select data
-            data = adata[j, :, :]
+            if args.wiggleloc is not None:
+                offset = (wloc[i][0] - wloc[0][0] + 0.5 * d2) / scale2
+            else:
+                offset = (i * d2 + 0.5 * d2) / scale2
+                
+            if args.tracecolor is not None:
+                cc = tracecolor[i]
+            else:
+                cc = color[j]
 
             # plot data
             x = data[:, i] + offset
@@ -385,14 +392,14 @@ if args.along == 1:
             if i != traces[-1]:
                 plt.plot(xx,
                          yy,
-                         color=color[j],
+                         color=cc,
                          linewidth=linewidth[j],
                          linestyle=linestyle[j],
                          antialiased=True)
             else:
                 plt.plot(xx,
                          yy,
-                         color=color[j],
+                         color=cc,
                          linewidth=linewidth[j],
                          linestyle=linestyle[j],
                          antialiased=True,
@@ -407,7 +414,7 @@ if args.along == 1:
                                  antialiased=True,
                                  lw=0,
                                  where=(xx > offset),
-                                 color=color[j],
+                                 color=cc,
                                  edgecolor='none')
             if args.fill == -1:
                 ax.fill_betweenx(yy,
@@ -417,7 +424,7 @@ if args.along == 1:
                                  antialiased=True,
                                  lw=0,
                                  where=(xx < offset),
-                                 color=color[j],
+                                 color=c,
                                  edgecolor='none')
 
             if i == traces[0]:
@@ -451,21 +458,26 @@ if args.along == 2:
     else:
         yy = y
 
-    for i in traces:
+    # iterate through all datasets
+    for j in range(0, nf):
 
-        if args.wiggleloc is not None:
-            offset = (wloc[i][0] - wloc[0][0] + 0.5 * d1) / scale1
-        else:
-            offset = (i * d1 + 0.5 * d1) / scale1
-
-        # iterate through all datasets
-        for j in range(0, nf):
-
-            # select data
-            data = adata[j, :, :]
+        # select data
+        data = adata[j, :, :]
+            
+        for i in traces:
+    
+            if args.wiggleloc is not None:
+                offset = (wloc[i][0] - wloc[0][0] + 0.5 * d1) / scale1
+            else:
+                offset = (i * d1 + 0.5 * d1) / scale1
 
             # plot data
             x = data[i, :] + offset
+            
+            if args.tracecolor is not None:
+                cc = tracecolor[i]
+            else:
+                cc = color[j]
 
             if args.interp2 is not None:
                 spl = InterpolatedUnivariateSpline(y, x, k=3)
@@ -480,14 +492,14 @@ if args.along == 2:
             if i != traces[-1]:
                 plt.plot(yy,
                          xx,
-                         color=color[j],
+                         color=cc,
                          linewidth=linewidth[j],
                          linestyle=linestyle[j],
                          antialiased=True)
             else:
                 plt.plot(yy,
                          xx,
-                         color=color[j],
+                         color=cc,
                          linewidth=linewidth[j],
                          linestyle=linestyle[j],
                          antialiased=True,
@@ -502,7 +514,7 @@ if args.along == 2:
                                 antialiased=True,
                                 lw=0,
                                 where=(xx > offset),
-                                facecolor=color[j],
+                                facecolor=cc,
                                 edgecolor='none')
             if args.fill == -1:
                 ax.fill_between(yy,
@@ -512,7 +524,7 @@ if args.along == 2:
                                 antialiased=True,
                                 lw=0,
                                 where=(xx < offset),
-                                facecolor=color[j],
+                                facecolor=cc,
                                 edgecolor='none')
 
             if i == traces[0]:

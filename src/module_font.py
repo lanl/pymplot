@@ -7,7 +7,7 @@ import matplotlib as mplt
 import inspect
 import os
 from matplotlib import rcParams
-from matplotlib import type1font
+#from matplotlib import type1font
 
 
 def set_font(args):
@@ -27,6 +27,11 @@ def set_font(args):
         basefamily = 'sans-serif'
         basefont = 'IBMPlexSans'
         fontset = 'custom'
+        
+    if args.font == 'noto-sans':
+        basefamily = 'sans-serif'
+        basefont = 'NotoSans'
+        fontset = 'custom'
 
     # serif fonts
     if args.font == 'times':
@@ -43,6 +48,11 @@ def set_font(args):
         basefamily = 'serif'
         basefont = 'CMU Serif'
         fontset = 'cm'
+        
+    if args.font == 'noto-serif':
+        basefamily = 'serif'
+        basefont = 'NotoSerif'
+        fontset = 'custom'
 
     # monospace fonts
     if args.font == 'courier':
@@ -53,6 +63,11 @@ def set_font(args):
     if args.font == 'consolas':
         basefamily = 'monospace'
         basefont = 'Consolas'
+        fontset = 'custom'
+        
+    if args.font == 'noto-mono':
+        basefamily = 'monospace'
+        basefont = 'NotoSansMono'
         fontset = 'custom'
 
     # set fonts
@@ -66,11 +81,12 @@ def set_font(args):
 
     # enforce type 1 font in output: usually result in larger files than type 3 font
     if not args.type3font:
-        mplt.rcparams['pdf.fonttype'] = 42
-        mplt.rcparams['ps.fonttype'] = 42
+        mplt.rcParams['pdf.fonttype'] = 42
+        mplt.rcParams['ps.fonttype'] = 42
         
     # tex math expressions
-    mplt.rcParams['mathtext.default'] = 'regular'
+    mplt.rcParams['mathtext.default'] = 'it' #'regular'
+    #mplt.rcParams["text.usetex"] = True
 
     # font paths
     srcdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))

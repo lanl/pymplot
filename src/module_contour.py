@@ -56,10 +56,9 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
         if args.norm == 'linear':
             for i in range(0, len(lvl)):
                 if lvl[i] != 0 and (abs(lvl[i]) < 1.0e-3 or abs(lvl[i]) > 1.0e3):
-                    scalar = int(floor(log10(abs(lvl[i]))))
-                    cscale = pow(10, scalar)
-                    clabels[i] = ('%f' % (lvl[i] / cscale)
-                                  ).rstrip('0').rstrip('.') + r'$\mathregular{\times 10^{%i}}$' % scalar
+                    scalar = int(np.floor(np.log10(abs(lvl[i]))))
+                    cscale = 10**scalar #pow(10, scalar)
+                    clabels[i] = ('%f' % (lvl[i] / cscale)).rstrip('0').rstrip('.') + r'$\mathregular{\times 10^{%i}}$' % scalar
                 else:
                     clabels[i] = ('%f' % (lvl[i])).rstrip('0').rstrip('.')
 

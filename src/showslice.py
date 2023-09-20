@@ -89,7 +89,7 @@ ipp = 0.0138889
 # default longest axis of three figures is 5 inch
 figbase = 5.0
 golden_ratio = 1.0 / 1.61803398875
-nmax = max(n1end - n1beg, n2end - n2beg, n3end - n3beg)
+nmax = max([n1end - n1beg, n2end - n2beg, n3end - n3beg])
 
 # if figure width/height or vice versa larger than 6 then use golden ratio
 limit = 6.0
@@ -125,7 +125,11 @@ if args.render == '3d':
     from module_colormap import set_colormap, set_colormap_alpha
     from module_clip import *
 
-    p = pyv.Plotter(lighting='three lights')
+    if args.outfile is not None:
+        off_screen = True
+    else:
+        off_screen = False
+    p = pyv.Plotter(lighting='three lights', off_screen=off_screen)
     p.set_background(color='white')
 
     x = np.flip(data, (0, 1, 2)).transpose()
@@ -144,14 +148,14 @@ if args.render == '3d':
     grid.dimensions = np.array(x.shape) + 1
     grid.origin = (0, 0, 0)  # The bottom left corner of the data set
     grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis
-    grid.cell_arrays["values"] = x.flatten(order="F")  # Flatten the array!
+    grid.cell_data["values"] = x.flatten(order="F")  # Flatten the array!
 
     slices = grid.slice_orthogonal(x=s3, y=s2, z=s1)
     colormap = set_colormap(args, 'foreground')
     colormap = set_colormap_alpha(args, colormap, cmin, cmax)
-
+    
     p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax])  # scalar_bar_args=sargs,
-
+    
     if args.background is not None:
 
         x = np.flip(backdata, (0, 1, 2)).transpose()
@@ -170,7 +174,7 @@ if args.render == '3d':
         grid.dimensions = np.array(x.shape) + 1
         grid.origin = (0, 0, 0)  # The bottom left corner of the data set
         grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis
-        grid.cell_arrays["values"] = x.flatten(order="F")  # Flatten the array!
+        grid.cell_data["values"] = x.flatten(order="F")  # Flatten the array!
 
         slices = grid.slice_orthogonal(x=s3, y=s2, z=s1)
         colormap = set_colormap(args, 'background')
@@ -181,18 +185,24 @@ if args.render == '3d':
     l1 = (n1end - 1) * d1
     l2 = (n2end - 1) * d2
     l3 = (n3end - 1) * d3
-    lmin = min(l1, l2, l3)
-    smin = min(size1, size2, size3)
+    lmin = min([l1, l2, l3])
+    smin = min([size1, size2, size3])
     r1 = lmin * 1.0 / l1 * size1 / smin
     r2 = lmin * 1.0 / l2 * size2 / smin
     r3 = lmin * 1.0 / l3 * size3 / smin
     p.set_scale(xscale=r3, yscale=r2, zscale=r1)
 
-    lmax = max(l1, l2, l3)
-    p.set_position([1.5 * lmax, 1.5 * lmax, 1.5 * lmax])
+    lmax = max([l1, l2, l3])
+    # p.set_position([1.5 * lmax, 1.5 * lmax, 1.5 * lmax])
     p.set_focus([0.5 * l3, 0.5 * l2, 0.5 * l1])
-    p.reset_camera_clipping_range()
-    p.reset_camera()
+    # p.reset_camera_clipping_range()
+    # p.reset_camera()
+    # p.camera_position = 'xy'
+    c = [float(x) for x in args.camera.split(',')]
+    # print(c)
+    # p.camera_position = [1.5 * lmax, 1.5 * lmax, 1.5 * lmax]
+    p.camera_position = [c[2]*lmax, c[1]*lmax, c[0]*lmax]
+
 
     if args.outfile is None:
         p.show()
@@ -287,6 +297,9 @@ im22.set_extent([0, size2, size1, 0])
 # 3d image at image 12
 if args.topright is not None:
     volslice = plt.imread(args.topright)
+    if len(volslice.shape) == 2:
+        import cv2 
+        volslice = cv2.cvtColor(volslice, cv2.COLOR_GRAY2RGB) 
     ax12 = fig.add_axes([ax22locx, ax11locy, im22width, im11height])
     ax12.imshow(volslice, aspect=1, interpolation='kaiser')
     ax12.set_axis_off()
@@ -679,7 +692,14 @@ if args.title is not None:
     t.set_fontsize(title_font_size)
 
 ## set colorbar
-if args.legend and cmin != cmax:
+if args.legend and not args.backlegend:
+    lim = im11
+if args.backlegend:
+    lim = bim11
+    cmin = backcmin
+    cmax = backcmax
+
+if (args.legend or args.backlegend) and cmin != cmax:
 
     lloc = args.lloc
 
@@ -780,7 +800,7 @@ if args.legend and cmin != cmax:
 
     # add colorbar by add_axes
     cax = fig.add_axes([cbx, cby, lwidth / figwidth, lheight / figheight])
-    cb = plt.colorbar(im11, cax=cax, orientation=lorient)
+    cb = plt.colorbar(lim, cax=cax, orientation=lorient)
 
     # set colorbar label and styles
     if args.unitsize is None:
