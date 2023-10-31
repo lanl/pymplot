@@ -326,7 +326,7 @@ set_annotation(args, font, x1beg, n1end - n1beg, d1, figheight, x2beg, n2end - n
 # cbar.add_lines(cbar)
 
 # set colorbar
-if args.legend:
+if args.legend or args.backlegend:
 
     from module_colorbar import *
 
@@ -340,7 +340,11 @@ if args.legend:
     # if the colorbar corresponds to the overlay image (the data itself
     # in a continous fashion
     if args.overlay and args.background is None:
-        set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
+        set_colorbar(args, im, font, backcmin, backcmax, figheight, figwidth, fig)
+
+    # if for the background image that is not necessarily the foreground image
+    if args.backlegend is not None and args.backlegend:
+        set_colorbar(args, im, font, backcmin, backcmax, figheight, figwidth, fig)
 
     # if the colorbar corresponds to the background image
     # if not args.overlay and args.background is not None:
