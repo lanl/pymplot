@@ -1144,12 +1144,9 @@ if args.projection == 'cartesian':
         label_2_size = float(args.label2size)
 
         # set axis label
-        xlabel = ax.set_xlabel(args.label1, fontsize=label_1_size, labelpad=float(args.label2pad))
-        # ,
-        # fontproperties=font)
-        ylabel = ax.set_ylabel(args.label2, fontsize=label_2_size, labelpad=float(args.label1pad))
-        # ,
-        # fontproperties=font)
+        xlabel = ax.set_xlabel(args.label1, fontsize=label_1_size, labelpad=float(args.label1pad))
+        ylabel = ax.set_ylabel(args.label2, fontsize=label_2_size, labelpad=float(args.label2pad))
+
         l = ax.yaxis.get_label()
         l.set_fontproperties(font)
         l.set_fontsize(label_1_size)
@@ -1604,13 +1601,15 @@ if args.curve is not None:
     curveedgecolor = set_default(args.curveedgecolor, ',', nf, 'none')
     curvesize = set_default(args.curvesize, ',', nf, 1.0, 'float')
     curveorder = set_default(args.curveorder, ',', nf, 9, 'int')
+    curveselect = set_default(args.curveselect, ',', 2, 0, 'int')
 
     for i in range(0, nf):
     
         curve = np.loadtxt(curvefile[i], ndmin=2)  # using ndmin=2 to ensure read as 2d array
         nsp = len(curve)
-        px1 = curve[0:nsp, 0]
-        px2 = curve[0:nsp, 1]
+        s = curveselect
+        px1 = curve[0:nsp, s[0] - 1]
+        px2 = curve[0:nsp, s[1] - 1]
         if args.direction == 'vertical':
             temp = px1
             px1 = px2

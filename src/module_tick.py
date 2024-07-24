@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 # ns : number of points to plot
 # d : interval between two points
 # axislen : apparent axis length
-def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axislen, format, extend=False):
+def define_tick(ticks, tickbeg, tickend, tickd, mtick, xbeg, xend, ns, d, axislen, format, 
+                extend=False):
 
     # regular ticks
     if ticks is None:
@@ -167,18 +168,18 @@ def set_tick(args,
     if args.label2loc is not None:
         ax.xaxis.set_label_position(args.label2loc)
     else:
-    	if args.ticktop:
-    		ax.xaxis.set_label_position('top')
-    	else:
-    		ax.xaxis.set_label_position('bottom')
+        if args.ticktop:
+            ax.xaxis.set_label_position('top')
+        else:
+            ax.xaxis.set_label_position('bottom')
     if args.label1loc is not None:
-    	ax.yaxis.set_label_position(args.label1loc)
+        ax.yaxis.set_label_position(args.label1loc)
     else:
-    	if args.tickleft:
-    		ax.yaxis.set_label_position('left')
-    	else:
-    		ax.yaxis.set_label_position('right')
-    		ylabel.set_rotation(270)
+        if args.tickleft:
+            ax.yaxis.set_label_position('left')
+        else:
+            ax.yaxis.set_label_position('right')
+            ylabel.set_rotation(270)
 
     # ticks on/off
     ax.get_yaxis().set_tick_params(which='both', direction='out')

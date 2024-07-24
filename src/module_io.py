@@ -71,7 +71,7 @@ def read_array(args, which='fore', dim=2):
     dt = set_datatype(args)
     
     # read
-    w = np.fromfile(infile, count=np.product(shape), dtype=dt)
+    w = np.fromfile(infile, count=np.prod(shape), dtype=dt)
     
     # reshape
     if args.transpose:
