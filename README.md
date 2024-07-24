@@ -31,4 +31,4 @@ We welcome feedbacks, bug reports, and improvement ideas on `pymplot`.
 
 If you use this package in your research and find it useful, please cite it as
 
-* Kai Gao, Lianjie Huang, 2021, Pymplot: An open-source, lightweight plotting package based on Python and matplotlib , url: [github.com/lanl/pymplot](github.com/lanl/pymplot)
+* Kai Gao, Lianjie Huang, 2020, Pymplot: An open-source, lightweight plotting package based on Python and matplotlib , url: [github.com/lanl/pymplot](github.com/lanl/pymplot)
