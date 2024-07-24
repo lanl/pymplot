@@ -1,9 +1,10 @@
 ## Description
-**pymplot** is a lightweight Python application package for efficiently generating high-quality plots for multi-dimensional scalar data. See the paper draft in doc for more details. 
+**pymplot** is a lightweight Python application package for efficiently generating high-quality plots for multi-dimensional scalar data.  
 
-LANL C number: C20105
+The work is under LANL open source approval reference C20105.
 
-Author: Kai Gao, <kaigao@lanl.gov>
+# Reference
+Please refer to the [paper draft](doc/paper.pdf) for details. 
 
 ## Installation
 
@@ -18,18 +19,16 @@ You also need to have `numpy`, `scipy`, `matplotlib`, and `pyvista` in your Pyth
 You can type `x_show...` in the commond line to check the meaning of arguments. 
 
 ## Examples
-Please refer to the ruby script (`example/test.rb`) to reproduce some of the examples in the paper draft.
+Please refer to the [test.rb](example/test.rb) to reproduce some of the examples in the paper draft.
 
 ## License
-**pymplot** is distributed under the `BSD license`. See details in LICENSE. 
+`pymplot` is distributed under the `BSD license`. See details in LICENSE. 
 
-## Reporting Bugs or Suggest Improvements
-Report bugs [here](https://github.com/lanl/pymplot/issues). If you are reporting a bug, please include:
+# Author
+Kai Gao, <kaigao@lanl.gov>
 
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+We welcome feedbacks, bug reports, and improvement ideas on `pymplot`. 
 
-The author welcomes functionality improvement/extension suggestions. If you are suggesting an improvement/extension, please include:
+If you use this package in your research and find it useful, please cite it as
 
-* A detailed description of the suggested functionality(ies).
-
+* Kai Gao, Lianjie Huang, 2021, Pymplot: An open-source, lightweight plotting package based on Python and matplotlib , url: [github.com/lanl/pymplot](github.com/lanl/pymplot)
