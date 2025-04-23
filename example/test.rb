@@ -8,7 +8,6 @@ system "x_showvolume -in=./data/testdata_volumerand.bin -n1=12 -n2=20 \
 -mtick3=2 -font=helvetica -label1='Depth (km)' -label3='Axis 3' \
 -label2='Axis 2' -legend=1 -lloc=right -axis2loc=both \
 -axis3loc=both -color=hsv -lmtick=10 -unit='P-wave velocity'"  
-abort
 
 #-------------------------------------------------------------------------------
 # 1D data
