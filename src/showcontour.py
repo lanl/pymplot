@@ -214,9 +214,9 @@ if args.contourfill and not args.overlay and args.background is None:
                       levels[0:size(levels) - 1],
                       cmap=colormap,
                       extend=args.contourextend,
-                      antialiased=True)
-    cf.set_edgecolor('face')
-    cf.set_linewidth(0.025)
+                      antialiased=True,
+                      edgecolor='face',
+                      linewidth=0.025)
 
 # show ordinary contours by default
 cs = plt.contour(xx,
@@ -305,6 +305,10 @@ if not args.overlay and args.background is not None:
 
     # set figure sizes based
     im.set_extent([0, figwidth, figheight, 0])
+    
+else:
+	backcmin = None
+	backcmax = None
 
 # set tick
 set_tick(args, font, x1beg, x1end, n1beg, n1end, d1, figheight, x2beg, x2end, n2beg, n2end, d2, figwidth)
@@ -350,7 +354,7 @@ if args.legend or args.backlegend:
     # set_colorbar(args, im, font, cmin, cmax, figheight, figwidth, fig)
     # custom_colorbar(args, im, font, cmin, cmax, figheight, figwidth, ax)
     # this part does not quite work, sorry
-    if args.contourfill and args.background is None:
+    if args.contourfill and not args.overlay and args.background is None:
     	set_colorbar_contour(args, cs, cf, font, cmin, cmax, figheight, figwidth, fig)
 
 # axis invert

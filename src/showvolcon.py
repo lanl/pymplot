@@ -498,11 +498,10 @@ def project_contour(args, ax, data, px, py, colormap, cmin, cmax, font, mask=[])
                                 levels[0:size(levels) - 1],
                                 cmap=colormap,
                                 antialiased=True,
-                                norm=LogNorm(cmin, cmax))
-        for l in cf.collections:
-            l.set_edgecolor('face')
-            l.set_linewidth(0.025)
-
+                                norm=LogNorm(cmin, cmax),
+                                edgecolor='face',
+                                linewidth=0.025)
+                                
     # show ordinary contours by default
     # triangular mesh mask
     if len(mask) > 0:

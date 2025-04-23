@@ -1611,6 +1611,7 @@ if args.curve is not None:
     curvesize = set_default(args.curvesize, ',', nf, 1.0, 'float')
     curveorder = set_default(args.curveorder, ',', nf, 9, 'int')
     curveselect = set_default(args.curveselect, ',', 2, 0, 'int')
+    curvewidth = set_default(args.curvewidth, ',', nf, 1.0, 'float')
 
     for i in range(0, nf):
     
