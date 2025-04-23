@@ -28,10 +28,12 @@ def add_contour(args, figwidth, figheight, n1beg, n1end, n2beg, n2end, ax, data,
                          levels[0:len(levels) - 1],
                          cmap=colormap,
                          extend='both',
-                         antialiased=True)
-        for l in cf.collections:
-            l.set_edgecolor('face')
-            l.set_linewidth(0.025)
+                         antialiased=True,
+                         edgecolor='face',
+                         linewidth=0.025)
+        # for l in cf.collections:
+        #     l.set_edgecolor('face')
+        #     l.set_linewidth(0.025)
 
     # show ordinary contours by default
     cs = ax.contour(xx,

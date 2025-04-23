@@ -93,6 +93,10 @@ if args.wiggleloc is not None:
 else:
     f1 = float(args.o1)
     f2 = float(args.o2)
+    
+    wloc = np.zeros((2, 1))
+    wloc[0, 0] = f1
+    wloc[1, 0] = f2
 
 ## limit of axis
 from module_range import *

@@ -329,6 +329,7 @@ def getarg(parser, program):
     if program in ['wiggle', 'graph', 'contour', 'matrix']:
         parser.add_argument('-plotlabel', '--plotlabel', type=str, help='labels of different wiggles/graphs', nargs='+', default=None)
         parser.add_argument('-plotlabelloc', '--plotlabelloc', type=str, help='wiggle label location', default='upper_right')
+        parser.add_argument('-plotlabelcol', '--plotlabelcol', type=int, help='number of columns in legend', default=1)
         parser.add_argument('-plotlabelsize', '--plotlabelsize', type=str, help='wiggle label font size', default='14.0')
         parser.add_argument('-fillwrt', '--fillwrt', type=str, help='fill the curve w.r.t. to line, e.g., y=0 or x=0', nargs='+', default=None)
         parser.add_argument('-fillcolor', '--fillcolor', type=str, help='fill (w.r.t line) with color', nargs='+', default=None)

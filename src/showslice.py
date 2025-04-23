@@ -144,7 +144,7 @@ if args.render == '3d':
     cmin, cmax = set_clip(args, xx, 'fore', dmin, dmax)
     del data12, data13, data23, xx
 
-    grid = pyv.UniformGrid()
+    grid = pyv.ImageData()
     grid.dimensions = np.array(x.shape) + 1
     grid.origin = (0, 0, 0)  # The bottom left corner of the data set
     grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis

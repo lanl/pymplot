@@ -22,7 +22,7 @@ def set_gridline(args):
                 color=args.grid1color,
                 linewidth=grid1width,
                 zorder=10)
-
+        
     if args.grid2:
         # grid line width
         if args.grid2width is None:

@@ -796,9 +796,9 @@ for i in range(0, nf):
         # add legend
         if args.plotlabel is not None:
             if args.plotlabelloc in list(locdict.keys()):
-                lg = plt.legend(loc=labelloc)
+                lg = plt.legend(loc=labelloc, ncol=args.plotlabelcol)
             else:
-                lg = plt.legend(bbox_to_anchor=(1.01, 1.0), loc=2, borderaxespad=0)
+                lg = plt.legend(bbox_to_anchor=(1.01, 1.0), loc=2, borderaxespad=0, ncol=args.plotlabelcol)
             lg.set_zorder(10)
             leg = ax.get_legend()
             ltext = leg.get_texts()
@@ -1102,7 +1102,6 @@ def define_tick(ticks,
 
     # return major tick location, major tick label and minor tick location
     return tick, tick_label, minor_tick, scalar
-
 
 if args.projection == 'cartesian':
 
@@ -1496,6 +1495,16 @@ if args.projection == 'polar':
         tick_2_font_size = label_2_size - 2
     else:
         tick_2_font_size = float(args.tick2size)
+        
+    # axis 1
+    tick1, tick1_label, minor_tick1, scalar1 = define_tick(args.ticks1, args.tick1beg, args.tick1end,
+                                                           args.tick1d, args.mtick1, x1beg, x1end, size1,
+                                                           args.norm1, int(args.base1))
+    if scalar1 != []:
+        # add power to last tick if necessary
+        tick1_label[-1] = tick1_label[-1] + r'$\mathregular{\times 10^{%i}}$' % scalar1
+    ax.xaxis.set_ticks(tick1)
+    ax.xaxis.set_ticklabels(tick1_label)
 
     # axis 2
     tick2, tick2_label, minor_tick2, scalar2 = define_tick(args.ticks2, args.tick2beg, args.tick2end,

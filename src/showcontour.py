@@ -215,9 +215,8 @@ if args.contourfill and not args.overlay and args.background is None:
                       cmap=colormap,
                       extend=args.contourextend,
                       antialiased=True)
-    for l in cf.collections:
-        l.set_edgecolor('face')
-        l.set_linewidth(0.025)
+    cf.set_edgecolor('face')
+    cf.set_linewidth(0.025)
 
 # show ordinary contours by default
 cs = plt.contour(xx,
