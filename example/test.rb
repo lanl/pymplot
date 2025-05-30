@@ -73,7 +73,11 @@ system "x_showslicon -in=./data/time_200x200x200.bin -n1=200 -n2=200 \
 -tr=contour3d.png -clabelcolor=w -color=magma -out=test_slice_2.pdf &"
 
 #-------------------------------------------------------------------------------
-# 3D slice plot 
+# Slice plot of a volume rendered as three 2D images
+system "x_showslice -in=./data/time_200x200x200.bin -n1=200 -n2=200 \
+	-out=test_time_slice.pdf &"
+    
+# Slice plot of a volume rendered as three orthogonal slices in 3D  
 system "x_showslice -in=./data/time_200x200x200.bin -n1=200 -n2=200 \
     -render=3d -out=test_time_slice3d.pdf &"
 

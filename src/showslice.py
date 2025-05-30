@@ -154,7 +154,8 @@ if args.render == '3d':
     colormap = set_colormap(args, 'foreground')
     colormap = set_colormap_alpha(args, colormap, cmin, cmax)
     
-    p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax])  # scalar_bar_args=sargs,
+    p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax],
+               ambient=0.5, diffuse=0.5, specular=0.0)
     
     if args.background is not None:
 
@@ -170,7 +171,7 @@ if args.render == '3d':
         cmin, cmax = set_clip(args, xx, 'back', backdmin, backdmax)
         del data12, data13, data23, xx
 
-        grid = pyv.UniformGrid()
+        grid = pyv.ImageData()
         grid.dimensions = np.array(x.shape) + 1
         grid.origin = (0, 0, 0)  # The bottom left corner of the data set
         grid.spacing = (d3, d2, d1)  # These are the cell sizes along each axis
@@ -180,7 +181,8 @@ if args.render == '3d':
         colormap = set_colormap(args, 'background')
         colormap = set_colormap_alpha(args, colormap, cmin, cmax, 'background')
 
-        p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax])
+        p.add_mesh(slices, cmap=colormap, show_scalar_bar=False, clim=[cmin, cmax],
+                   ambient=0.5, diffuse=0.5, specular=0.0)
 
     l1 = (n1end - 1) * d1
     l2 = (n2end - 1) * d2
@@ -193,16 +195,12 @@ if args.render == '3d':
     p.set_scale(xscale=r3, yscale=r2, zscale=r1)
 
     lmax = max([l1, l2, l3])
-    # p.set_position([1.5 * lmax, 1.5 * lmax, 1.5 * lmax])
     p.set_focus([0.5 * l3, 0.5 * l2, 0.5 * l1])
     # p.reset_camera_clipping_range()
     # p.reset_camera()
     # p.camera_position = 'xy'
     c = [float(x) for x in args.camera.split(',')]
-    # print(c)
-    # p.camera_position = [1.5 * lmax, 1.5 * lmax, 1.5 * lmax]
     p.camera_position = [c[2]*lmax, c[1]*lmax, c[0]*lmax]
-
 
     if args.outfile is None:
         p.show()
