@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymplot"
+version = "1.0.0"
+description = "Lightweight plotting package for multi-dimensional scalar data"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Kai Gao", email = "kaigao@lanl.gov" }]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pyvista",
+]
+
+[project.scripts]
+x_showmatrix   = "pymplot._cli:showmatrix"
+x_showcontour  = "pymplot._cli:showcontour"
+x_showwiggle   = "pymplot._cli:showwiggle"
+x_showgraph    = "pymplot._cli:showgraph"
+x_showslice    = "pymplot._cli:showslice"
+x_showslicon   = "pymplot._cli:showslicon"
+x_showvolume   = "pymplot._cli:showvolume"
+x_showvolcon   = "pymplot._cli:showvolcon"
+x_showcolorbar = "pymplot._cli:showcolorbar"
+
+[tool.setuptools]
+package-dir = {"pymplot" = "src"}
+packages = ["pymplot"]
+
+[tool.setuptools.package-data]
+pymplot = ["fonts/*.ttf", "fonts_subset/*.ttf"]
