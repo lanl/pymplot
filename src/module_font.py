@@ -2,11 +2,14 @@
     Module:
         Set font style for a plot.
 '''
+import logging
 import matplotlib.font_manager as fm
 import matplotlib as mplt
 import inspect
 import os
 from matplotlib import rcParams
+
+logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR)
 #from matplotlib import type1font
 
 

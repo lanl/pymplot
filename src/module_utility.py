@@ -5,7 +5,6 @@
 import numpy as np
 import argparse
 
-
 ## round number x to base with specified precision
 def rounddecimalbase(x, base, prec=2):
     return round(base * round(float(x) / float(base)), prec)

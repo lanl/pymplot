@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # tickbeg : regular major ticks begin location
 # tickend : regular major ticks end location
 # tickd : regular major ticks interval
-# mtick : number of minor tick intervals betwen two major ticks
+# mtick : number of minor tick intervals between two major ticks
 # xbeg : axis begin location
 # xend : axis end location
 # ns : number of points to plot
@@ -199,7 +199,7 @@ def set_tick(args,
         labelleft=args.tickleft,  # labels along the left axis
         labelright=args.tickright)  # labels along the right axis
 
-    # if tick font size and family not speciefied, then inherit from axis labels
+    # if tick font size and family not specified, then inherit from axis labels
     if args.tick1size is None:
         tick_1_font_size = label_1_size - 2
     else:
@@ -228,7 +228,7 @@ def set_tick(args,
     if not args.tick2label:
         ax.xaxis.set_ticklabels([])
 
-    # major and minor ticks sytle
+    # major and minor ticks style
     ax.tick_params('both', length=float(args.tickmajorlen), width=float(args.tickmajorwid), which='major')
 
     # minor tick positions
