@@ -44,16 +44,17 @@ system "x_showmatrix #{opts} -color=binary -font=courier -unit='-color=binary -f
 system "x_showmatrix #{opts} -color=viridis -font=plex -unit='-color=viridis -font=plex' -out=test_mar_5.pdf & "
 system "x_showmatrix #{opts} -color=rainbow256 -font=helvetica -unit='-color=rainbow256 -font=helvetica' -out=test_mar_6.pdf & "
 
-
 #-------------------------------------------------------------------------------
+# 2D contour plot with irregular topography
+system "x_showcontour -in=./data/water_time_surface.bin -n1=610 -color=Blues -size1=4 -overlay=y \
+-legend=y -contours=0.1,0.3,0.4,1.0,1.2,1.5,1.7,2.0 -mcontour=4 -mcontourwidth=0.5 -contourwidth=1.5 \
+-unit='First Arrial Traveltime (s)' -mtick1=9 -mtick2=9 -o1=1000 -tick1d=-1000 -tick2d=1000 -lmtick=9 \
+-label1='Elevation (m)' -label2='Horizontal Position (m)' -tick1rot=90 -tick2rot=30 -d1=-8 -d2=8 -clabelcolor=r \
+-color=Blues -out=test_contour_surface.pdf -size1=4 -size2=4 & "
+
+
+# -------------------------------------------------------------------------------
 # 3D volume contours
-system "x_showvolcon -in=./data/gauss_scaled.bin -label1='$\\omega_1$' \
--label3='$\\omega_3$' -label2='$\\omega_2$' \
--n1=100 -n2=200 -contourfill=1 -angle=40,15 -color=Spectral \
--slice1=-70 -slice2=210 -slice3=-400 -mtick1=2 -mtick2=9 -mtick3=9 \
--d1=-1.221 -d2=2.33 -d3=-4.669 -clabelcolor=k \
--clabelsize=16 -contourwidth=2 -mcontourstyle=: -mcontour=2 \
--octant=--+ -out=test_volcon_2.pdf -norm=log &"
 
 system "x_showvolcon -in=./data/gauss.bin \
 -n1=100 -n2=200 -contourfill=1 -angle=20,10 -color=inferno \
@@ -62,6 +63,14 @@ system "x_showvolcon -in=./data/gauss.bin \
 -d1=-1.221 -d2=2.33 -d3=-4.669 -clabelcolor=blue \
 -clabelsize=14 -mcontourstyle=: -mcontour=2 \
 -octant=--+ -out=test_volcon_1.pdf &"
+
+system "x_showvolcon -in=./data/gauss_scaled.bin -label1='$\\omega_1$' \
+-label3='$\\omega_3$' -label2='$\\omega_2$' \
+-n1=100 -n2=200 -contourfill=1 -angle=40,15 -color=Spectral \
+-slice1=-70 -slice2=210 -slice3=-400 -mtick1=2 -mtick2=9 -mtick3=9 \
+-d1=-1.221 -d2=2.33 -d3=-4.669 -clabelcolor=k \
+-clabelsize=16 -contourwidth=2 -mcontourstyle=: -mcontour=2 \
+-octant=--+ -out=test_volcon_2.pdf -norm=log -lmtick=9 -legend=y &"
 
 system "x_showslicon -in=./data/time_200x200x200.bin -n1=200 -n2=200 \
 -slicegap=0.15 -d1=0.02 -d2=0.02 -d3=0.02 -label1='Depth (km)' \
@@ -92,7 +101,7 @@ system "x_showmatrix -in=./data/vp.bin -n1=300 -out=test_flexible_tick.pdf -tick
 system "x_showcontour -in=./data/tt_random.bin -n1=320 -d1=0.01 -d2=0.01 -label1='Axis 1' \
 -label2='Flexible Tick Labels' -ticks2=0:'Start',1:'$\\alpha$',2.7:'$G(\\omega)$' \
 -contourfill=1 -legend=y -color=rainbow -overlay=1 -interp=Gaussian -ncolor=12 -contourbeg=0 -contourend=0.6 \
--tick1d=1 -tick2d=0.5 -mtick1=9 -mtick2=4 -cmax=0.6 -unit='Unit with Super/Subscripts (N$_{\\theta}}$/m$^2)$' \
+-tick1d=1 -tick2d=0.5 -mtick1=9 -mtick2=4 -cmax=0.6 -unit='Unit with Super/Subscripts (N$_{\\theta}$/m$^2$)' \
 -size1=4 -contourlevel=0.1 -contourwidth=2 -mcontour=1 -out=./test_contour_time.pdf & "
 
 
@@ -145,53 +154,6 @@ system "x_showmatrix #{opts} -color=gist_ncar -font=consolas -unit='-color=gist_
 system "x_showmatrix #{opts} -color=bwr -font=times -unit='-color=bwr -font=times' -out=test_mar_3.pdf & "
 system "x_showmatrix #{opts} -color=binary -font=courier -unit='-color=binary -font=courier' -out=test_mar_4.pdf & "
 
-
-#-------------------------------------------------------------------------------
-# The following datasets are too large to attach in the repository. 
-# You can use your own copies of these models -- they are both publicly available. 
-# Or you can use your own favorite models -- remember to adjust n1, n2 and n3. 
-
-abort
-
-# SEG/EAGE 3D overthrust model
-system "x_showslice -in=./data/overthrust_187x801x801.bin -n1=187 -n2=801 \
--slicegap=0.15 -d1=0.02 -d2=0.02 -d3=0.02 -label1='Depth (km)' \
--label2='Crossline Position (km)' -label3='Inline Position (km)' \
--tick1d=1 -mtick1=9 -tick2d=3 -mtick2=5 -tick3d=3 -mtick3=5 \
--legend=y -unit='P-wave Velocity (m/s)' -ctruncbeg=0.05 -ctruncend=0.95 \
--slice1=1 -slice2=9 -slice3=6 -lmtick=9 \
--size1=2 -size2=5 -size3=5 -label1size=18 -label2size=18 -label3size=18 \
--unitsize=18 -out=test_slice_1.pdf -tr=over3d.png &"
-
-# SEG/EAGE 3D salt model
-system "x_showvolume -in=./data/salt_201x676x676.bin -n1=201 -n2=676 \
--d1=0.02 -d2=0.02 -d3=0.02 -label1='Z (km)' \
--label2='Y (km)' -label3='X (km)' -octant=-++ \
--tick1d=1 -mtick1=9 -tick2d=3 -mtick2=5 -tick3d=3 -mtick3=5 \
--legend=y -unit='P-wave Velocity (m/s)' -ctruncbeg=0.05 -ctruncend=0.95 \
--slice1=3 -slice2=3 -slice3=6 -lmtick=9 -label1size=18 -label2size=18 -label3size=18 \
--unitsize=18 -lloc=right -x1beg=0.5 -tick1beg=0 -size1=2.5 -size2=5 -size3=5 \
--angle=20,30 -out=test_vol_2.pdf &"
-
-system "x_showvolume -in=./data/salt_201x676x676.bin -n1=201 -n2=676 \
--d1=0.02 -d2=0.02 -d3=0.02 -label1='Z (km)' \
--label2='Y (km)' -label3='X (km)' \
--tick1d=1 -mtick1=9 -tick2d=3 -mtick2=5 -tick3d=3 -mtick3=5 \
--legend=y -unit='P-wave Velocity (m/s)' -ctruncbeg=0.05 -ctruncend=0.95 \
--slice1=3 -slice2=9 -slice3=6 -lmtick=9 -label1size=18 -label2size=18 -label3size=18 \
--unitsize=18 -lloc=right -size1=2.5 -size2=5 -size3=5 -x1beg=0.5 \
--tick1beg=0 -out=test_vol_1.pdf &"
-
-#-------------------------------------------------------------------------------
-# 2D contour plot with irregular topography
-system "x_showcontour -in=./data/water_time_surface.bin -n1=610 -color=Blues -size1=4 -overlay=y \
--legend=y -contours=0.1,0.3,0.4,1.0,1.2,1.5,1.7,2.0 -mcontour=4 -mcontourwidth=0.5 -contourwidth=1.5 \
--unit='First Arrial Traveltime (s)' -mtick1=9 -mtick2=9 -o1=1000 -tick1d=-1000 -tick2d=1000 -lmtick=9 \
--label1='Elevation (m)' -label2='Horizontal Position (m)' -tick1rot=90 -tick2rot=30 -d1=-8 -d2=8 -clabelcolor=r \
--color=Blues -out=test_contour_surface.pdf -size1=4 -size2=4 & "
-
-
-abort
 
 #-------------------------------------------------------------------------------
 # The following datasets are too large to attach in the repository. 
