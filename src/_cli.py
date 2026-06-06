@@ -22,6 +22,9 @@ def _run(program, module_name):
     print()
     parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser = getarg(parser, program)
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(0)
     args = parser.parse_args()
     mod.run(args)
 
