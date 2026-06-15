@@ -93,7 +93,7 @@ def run(args, ax=None):
         # get first dimension
         if args.n1 is None:
             n = np.array([shape[0]])
-            nps = n
+            nps = n[0]
             nf = 1
         else:
             n = args.n1[0].split(',')
@@ -166,7 +166,7 @@ def run(args, ax=None):
         dt = set_datatype(args)
 
         # read binary file
-        data = fromfile(infile, dtype=dt, count=nps * n2)
+        data = np.fromfile(infile, dtype=dt, count=nps * n2)
         if not args.transpose:
             data = data.reshape((n2, nps))
             data = data.transpose()

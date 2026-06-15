@@ -24,6 +24,46 @@ def clear_injected():
     _data_store.clear()
 
 
+def read_su(infile, endian='little'):
+
+    try:
+        from obspy import read
+    except ImportError:
+        fatal('reading SU files requires ObsPy; install the obspy package')
+
+    byte_order = '<' if endian == 'little' else '>'
+    try:
+        stream = read(infile, format='SU', endian=byte_order)
+    except Exception as exc:
+        fatal(f'failed to read SU file {infile}: {exc}')
+
+    if len(stream) == 0:
+        fatal(f'input SU file is empty: {infile}')
+
+    npts = [trace.stats.npts for trace in stream]
+    d1 = [trace.stats.delta for trace in stream]
+    if len(set(npts)) != 1 or len(set(d1)) != 1:
+        fatal(f'SU file {infile} has variable ns/dt trace headers')
+
+    data = np.column_stack([trace.data for trace in stream])
+
+    return data, npts[0], len(stream), d1[0]
+
+
+def resample_su_data(data, d1, target_n1, target_d1):
+
+    if data.shape[0] == target_n1 and d1 == target_d1:
+        return data
+
+    x = np.arange(0, data.shape[0]) * d1
+    xp = np.arange(0, target_n1) * target_d1
+    resampled = np.empty([target_n1, data.shape[1]])
+    for i in range(0, data.shape[1]):
+        resampled[:, i] = np.interp(xp, x, data[:, i])
+
+    return resampled
+
+
 # read array
 def read_array(args, which='fore', dim=2):
 
@@ -78,57 +118,87 @@ def read_array(args, which='fore', dim=2):
     if not os.path.exists(infile):
         fatal(f'file not found: {infile}')
 
-    # size
-    fsize = os.path.getsize(infile)
-    datatype = args.datatype
-    if datatype == 'double':
-        fsize = fsize / 8
-    if datatype == 'float':
-        fsize = fsize / 4
-    if datatype == 'int':
-        fsize = fsize / 2
+    is_su = os.path.splitext(infile)[1].lower() == '.su'
 
-    if args.n1 is None:
-        fatal('n1 must be specified (number of grid points along axis 1)')
+    if is_su:
+        # SU
 
-    n1 = args.n1
-    if args.n2 is None:
-        n2 = int(fsize * 1.0 / n1)
-    else:
-        n2 = args.n2
+        su_input = read_su(infile, args.endian)
+        su_n1 = su_input[1]
+        su_n2 = su_input[2]
+        su_d1 = su_input[3]
 
-    if dim == 3:
-        if args.n3 is None:
-            n3 = int(fsize * 1.0 / n1 / n2)
+        requested_d1 = float(args.d1)
+        target_d1 = min(su_d1) if requested_d1 == 1.0 else requested_d1
+        max_time = (su_n1 - 1) * su_d1
+        target_n1 = args.n1 if args.n1 is not None else int(np.floor(max_time / target_d1)) + 1
+        if (target_n1 - 1) * target_d1 > max_time:
+            fatal('requested n1/d1 exceeds the shortest SU file time range')
+
+        w, _, _, _ = su_input
+        n1 = target_n1
+        n2 = su_n2
+        n3 = 1
+
+        # dimensions
+        if dim == 2:
+            shape = (n1, n2)
         else:
-            n3 = args.n3
+            shape = (n1, n2, n3)
 
-    # dimensions
-    if dim == 2:
-        shape = (n1, n2)
     else:
-        shape = (n1, n2, n3)
+        # raw binary
+        
+        fsize = os.path.getsize(infile)
+        datatype = args.datatype
+        if datatype == 'double':
+            fsize = fsize / 8
+        if datatype == 'float':
+            fsize = fsize / 4
+        if datatype == 'int':
+            fsize = fsize / 2
 
-    # data type
-    dt = set_datatype(args)
+        if args.n1 is None:
+            fatal('n1 must be specified (number of grid points along axis 1)')
 
-    # read
-    w = np.fromfile(infile, count=np.prod(shape), dtype=dt)
+        n1 = args.n1
+        if args.n2 is None:
+            n2 = int(fsize * 1.0 / n1)
+        else:
+            n2 = args.n2
 
-    # reshape
-    if args.transpose:
-        w = np.reshape(w, shape)
-    else:
-        w = np.reshape(w, shape[::-1])
-        w = np.transpose(w)
+        if dim == 3:
+            if args.n3 is None:
+                n3 = int(fsize * 1.0 / n1 / n2)
+            else:
+                n3 = args.n3
 
-    # flip
-    if args.flip1:
-        w = np.flip(w, axis=0)
-    if args.flip2:
-        w = np.flip(w, axis=1)
-    if dim == 3 and args.flip3:
-        w = np.flip(w, axis=2)
+        # dimensions
+        if dim == 2:
+            shape = (n1, n2)
+        else:
+            shape = (n1, n2, n3)
+
+        # data type
+        dt = set_datatype(args)
+
+        # read
+        w = np.fromfile(infile, count=np.prod(shape), dtype=dt)
+
+        # reshape
+        if args.transpose:
+            w = np.reshape(w, shape)
+        else:
+            w = np.reshape(w, shape[::-1])
+            w = np.transpose(w)
+
+        # flip
+        if args.flip1:
+            w = np.flip(w, axis=0)
+        if args.flip2:
+            w = np.flip(w, axis=1)
+        if dim == 3 and args.flip3:
+            w = np.flip(w, axis=2)
 
     # data min and max values
     if np.isnan(np.sum(w)):
@@ -146,7 +216,7 @@ def read_array(args, which='fore', dim=2):
 
     # nan mask
     if which == 'mask':
-        w[w == 0] = np.NaN
+        w[w == 0] = np.nan
 
     # constant scaling
     if which == 'fore' and args.colorscale is not None:

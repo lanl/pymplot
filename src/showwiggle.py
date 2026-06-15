@@ -27,22 +27,50 @@ def run(args, ax=None):
         if not os.path.exists(infile[i]):
             fatal(f'file not found: {infile[i]}')
 
-    fsize = os.path.getsize(infile[0])
-    datatype = args.datatype
-    if datatype == 'double':
-        fsize = fsize / 8
-    if datatype == 'float':
-        fsize = fsize / 4
-    if datatype == 'int':
-        fsize = fsize / 2
+    is_su = [os.path.splitext(i)[1].lower() == '.su' for i in infile]
+    if any(is_su) and not all(is_su):
+        fatal('cannot mix SU and raw binary input files')
 
-    n1 = args.n1
-    if args.n2 is None:
-        n2 = int(fsize * 1.0 / n1)
+    su_data = None
+    if all(is_su):
+        su_input = [read_su(i, args.endian) for i in infile]
+        su_n1 = [i[1] for i in su_input]
+        su_n2 = [i[2] for i in su_input]
+        su_d1 = [i[3] for i in su_input]
+        if len(set(su_n2)) != 1:
+            fatal('multiple SU files must have the same number of traces')
+
+        requested_d1 = float(args.d1)
+        target_d1 = min(su_d1) if requested_d1 == 1.0 else requested_d1
+        max_time = min([(su_n1[i] - 1) * su_d1[i] for i in range(0, nf)])
+        target_n1 = args.n1 if args.n1 is not None else int(np.floor(max_time / target_d1)) + 1
+        if (target_n1 - 1) * target_d1 > max_time:
+            fatal('requested n1/d1 exceeds the shortest SU file time range')
+
+        su_data = []
+        for data, _, _, d1 in su_input:
+            su_data.append(resample_su_data(data, d1, target_n1, target_d1))
+
+        n1 = target_n1
+        n2 = su_n2[0]
+        d1 = target_d1
     else:
-        n2 = args.n2
+        fsize = os.path.getsize(infile[0])
+        datatype = args.datatype
+        if datatype == 'double':
+            fsize = fsize / 8
+        if datatype == 'float':
+            fsize = fsize / 4
+        if datatype == 'int':
+            fsize = fsize / 2
 
-    d1 = float(args.d1)
+        n1 = args.n1
+        if args.n2 is None:
+            n2 = int(fsize * 1.0 / n1)
+        else:
+            n2 = args.n2
+
+        d1 = float(args.d1)
     d2 = float(args.d2)
 
     # if wiggle locations are read from a file
@@ -93,16 +121,40 @@ def run(args, ax=None):
     from module_datatype import set_datatype
     dt = set_datatype(args)
 
+    if args.scaling is None:
+        scaling = [1.0 for i in range(0, nf)]
+    else:
+        scaling = args.scaling
+        if isinstance(scaling, (list, tuple, np.ndarray)):
+            scaling = ','.join([str(i) for i in scaling])
+        try:
+            scaling = [float(i) for i in scaling.split(',')]
+        except ValueError:
+            fatal('scaling must be a comma-separated list of numbers')
+        if len(scaling) == 1 and nf > 1:
+            scaling = [scaling[0] for i in range(0, nf)]
+        if len(scaling) > nf:
+            fatal(f'scaling has {len(scaling)} values but only {nf} input file(s)')
+        if len(scaling) < nf:
+            scaling.extend([1.0 for i in range(len(scaling), nf)])
+
     adata = np.empty([nf, n1end - n1beg, n2end - n2beg])
+    dmins = []
+    dmaxs = []
     for i in range(0, nf):
 
-        # read binary data
-        data = fromfile(infile[i], dtype=dt, count=n1 * n2)
-        if not args.transpose:
-            data = data.reshape((n2, n1))
-            data = data.transpose()
+        if su_data is not None:
+            data = su_data[i]
         else:
-            data = data.reshape(n1, n2)
+            # read binary data
+            data = fromfile(infile[i], dtype=dt, count=n1 * n2)
+            if not args.transpose:
+                data = data.reshape((n2, n1))
+                data = data.transpose()
+            else:
+                data = data.reshape(n1, n2)
+
+        data = data * scaling[i]
 
         # print value range of input files
         if isnan(sum(data)) == True:
@@ -116,12 +168,17 @@ def run(args, ax=None):
             dmin = data.min()
             dmax = data.max()
         msg_input(infile[i], data.shape, dmin, dmax)
+        dmins.append(dmin)
+        dmaxs.append(dmax)
 
         # crop data
         data = data[n1beg:n1end, n2beg:n2end]
 
         # assign to whole data
         adata[i, :, :] = data
+
+    dmin = min(dmins)
+    dmax = max(dmaxs)
 
     # read background data
     if args.background is not None:

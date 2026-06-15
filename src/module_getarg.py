@@ -311,6 +311,7 @@ def getarg(parser, program):
         parser.add_argument('-wigglecolor', '--wigglecolor', type=str, help='fill colors for positive/negative wiggles, comma-separated per polarity (default: k,b,r,g,y,p,c)', nargs='+', default='k,b,r,g,y,p,c')
         parser.add_argument('-wigglewidth', '--wigglewidth', type=str, help='wiggle line width in points', nargs='+', default=None)
         parser.add_argument('-wigglestyle', '--wigglestyle', type=str, help='wiggle line style: - -- : -.', nargs='+', default=None)
+        parser.add_argument('-scaling', '--scaling', type=str, help='multiply each input wiggle dataset by comma-separated factors, e.g. 1,0.5,2', default=None)
         parser.add_argument('-axispad', '--axispad', type=str, help='fractional padding added to the axis range on each side (default: 0.1)', default='0.1')
         parser.add_argument('-interp1', '--interp1', type=str, help='upsample the data by this integer factor along axis 1 before plotting', default=None)
         parser.add_argument('-interp2', '--interp2', type=str, help='upsample the data by this integer factor along axis 2 before plotting', default=None)
