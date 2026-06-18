@@ -2,7 +2,7 @@
 
 **pymplot** is a lightweight Python plotting package for generating high-quality figures from multi-dimensional scalar data. It provides a command-line interface (CLI) for rapid visualization without writing custom plot scripts, while supporting fine-grained control over every visual element.
 
-The work is under LANL open source approval reference C20105.
+This work is under LANL open-source approval reference C20105.
 
 ## Reference
 
@@ -16,7 +16,7 @@ Install from the repo root:
 pip install -e .
 ```
 
-This installs the `pymplot` Python package and registers all CLI tools (`x_showmatrix`, `x_showcontour`, etc.) as system commands. Dependencies (`numpy`, `scipy`, `matplotlib`, `pyvista`) are installed automatically.
+This installs the `pymplot` Python package and registers all CLI tools (`x_showmatrix`, `x_showcontour`, etc.) as system commands. The dependencies (`numpy`, `scipy`, `matplotlib`, `pyvista`) are installed automatically.
 
 ## Documentation
 
@@ -44,7 +44,7 @@ showcontour(data2d, overlay=True, outfile='contour.pdf')
 showslice(data3d, slice1=20, slice2=25, slice3=15, outfile='slices.pdf')
 ```
 
-Functions also accept an `ax=` argument for embedding into an existing matplotlib figure — enabling multi-panel layouts without any temporary files:
+Functions also accept an `ax=` argument for embedding plots into an existing matplotlib figure — enabling multi-panel layouts without temporary files:
 
 ```python
 import matplotlib.pyplot as plt
@@ -75,7 +75,7 @@ Displays a 2D array as a color image.
 
 ### 2D Contour Plot — `x_showcontour`
 Overlays contour lines (and optionally filled contours) on a scalar field.
-- Auto or manually specified contour levels; log-scale contours
+- Automatic or manually specified contour levels; log-scale contours
 - Optional background image overlay
 - Contour label placement with font and color control
 - Irregular domain support via axis origin/spacing options
@@ -87,14 +87,14 @@ Seismic-style wiggle traces with optional filled amplitude shading.
 - Gaussian-interpolated background image option
 
 ### 1D Graph / Scatter Plot — `x_showgraph`
-Line, scatter, and bubble plots for 1D or tabular data.
-- Multiple datasets on one figure; selectable columns
+Creates line, scatter, and bubble plots for 1D or tabular data.
+- Multiple datasets in one figure; selectable columns
 - Log axis, axis closure, marker styles
 - Arrows, text annotations, polygons
 - Bubble size scaling by a third variable
 
 ### 3D Cavalier Projection — `x_showvolume`
-Renders a 3D volume as a cavalier (oblique parallel) projection.
+Renders a 3D volume as a cavalier projection (an oblique parallel projection).
 - Four octant orientations (`--+`, `---`, `-+-`, `-++`)
 - Interior slice planes exposed by cutting a corner out of the volume
 - Configurable view angles, colormap, colorbar, all axis tick/label options
@@ -197,7 +197,7 @@ All examples can be reproduced with [example/test.rb](example/test.rb).
 
 ## License
 
-`pymplot` is distributed under the BSD license. See [LICENSE](LICENSE) for details.
+`pymplot` is distributed under the BSD License. See [LICENSE](LICENSE) for details.
 
 ## Author
 
@@ -205,6 +205,5 @@ Kai Gao, <kaigao@lanl.gov>
 
 Feedback, bug reports, and improvement ideas are welcome.
 
-If you use this package in your research, please cite:
-
-> Kai Gao, Lianjie Huang, 2020, Pymplot: An open-source, lightweight plotting package based on Python and matplotlib, url: [github.com/lanl/pymplot](https://github.com/lanl/pymplot)
+If you use this package in your research, please cite it as:
+> Kai Gao, Lianjie Huang, 2020, Pymplot: An open-source, lightweight plotting package based on Python and matplotlib, URL: [github.com/lanl/pymplot](https://github.com/lanl/pymplot)
